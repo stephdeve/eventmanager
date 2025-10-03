@@ -1,0 +1,82 @@
+<?php
+
+namespace App\Policies;
+
+use App\Models\Event;
+use App\Models\User;
+use Illuminate\Auth\Access\Response;
+
+class EventPolicy
+{
+    /**
+     * Determine whether the user can view any models.
+     */
+    public function viewAny(?User $user): bool
+    {
+        // Tous les utilisateurs peuvent voir la liste des événements
+        return true;
+    }
+
+    /**
+     * Determine whether the user can view the model.
+     */
+    public function view(?User $user, Event $event): bool
+    {
+        // Tous les utilisateurs peuvent voir un événement
+        return true;
+    }
+
+    /**
+     * Determine whether the user can create models.
+     */
+    public function create(User $user): bool
+    {
+        // Seuls les organisateurs peuvent créer des événements
+        return $user->isOrganizer();
+    }
+
+    /**
+     * Determine whether the user can update the model.
+     */
+    public function update(User $user, Event $event): bool
+    {
+        // Seul l'organisateur de l'événement peut le mettre à jour
+        return $user->is($event->organizer);
+    }
+
+    /**
+     * Determine whether the user can delete the model.
+     */
+    public function delete(User $user, Event $event): bool
+    {
+        // Seul l'organisateur de l'événement peut le supprimer
+        return $user->is($event->organizer);
+    }
+
+    /**
+     * Determine whether the user can register for the event.
+     */
+    public function register(User $user, Event $event): bool
+    {
+        // Un utilisateur ne peut s'inscrire que s'il est étudiant
+        // et qu'il n'est pas déjà inscrit
+        // et qu'il reste des places disponibles
+        // et que la date de l'événement est dans le futur
+        $eventDate = $event->start_date ?? $event->event_date;
+
+        return $user->isStudent()
+            && !$event->attendees->contains($user->id)
+            && $event->hasAvailableSeats()
+            && $eventDate instanceof \Carbon\Carbon
+            && $eventDate->isFuture();
+    }
+
+    /**
+     * Determine whether the user can view the event's attendees.
+     */
+    public function viewAttendees(User $user, Event $event): bool
+    {
+        // Seul l'organisateur peut voir la liste des inscrits
+        return $user->is($event->organizer);
+    }
+}
