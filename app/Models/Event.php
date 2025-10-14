@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
+use App\Support\Currency;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
 
 class Event extends Model
 {
@@ -24,8 +25,10 @@ class Event extends Model
         'capacity',
         'available_seats',
         'price',
+        'currency',
         'cover_image',
         'organizer_id',
+        'is_restricted_18',
     ];
 
     /**
@@ -38,7 +41,9 @@ class Event extends Model
         'end_date' => 'datetime',
         'capacity' => 'integer',
         'available_seats' => 'integer',
-        'price' => 'integer', // Stocké en centimes
+        'price' => 'integer', // Stocké en plus petite unité
+        'currency' => 'string',
+        'is_restricted_18' => 'boolean',
     ];
     
     /**
@@ -60,9 +65,9 @@ class Event extends Model
      *
      * @return float
      */
-    public function getPriceInEurosAttribute()
+    public function getPriceForDisplayAttribute(): string
     {
-        return $this->price / 100;
+        return Currency::format($this->price, $this->currency ?? 'EUR');
     }
     
     /**

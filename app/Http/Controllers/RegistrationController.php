@@ -46,17 +46,28 @@ class RegistrationController extends Controller
     public function show($code)
     {
         $registration = Registration::where('qr_code_data', $code)->firstOrFail();
-        
+
         $this->authorize('view', $registration);
 
         // Charger les relations nécessaires
         $registration->load(['event', 'user']);
 
+        $isOwner = auth()->check() && auth()->id() === $registration->user_id;
+
+        if ($isOwner && $registration->payment_status === 'pending') {
+            return redirect()
+                ->route('payments.pending', $registration)
+                ->with('warning', 'Le paiement de ce billet est requis avant d\'y accéder.');
+        }
+
         // Générer l'URL du QR code si elle n'existe pas
         if (!$registration->qr_code_path) {
             $qrCodeData = route('registrations.show', $registration->qr_code_data);
-            $qrCodePath = $this->qrCodeService->generate($qrCodeData);
-            $registration->update(['qr_code_path' => $qrCodePath]);
+            $qrCodePaths = $this->qrCodeService->generate($qrCodeData);
+            $registration->update([
+                'qr_code_path' => $qrCodePaths['svg'],
+                'qr_code_png_path' => $qrCodePaths['png'],
+            ]);
             $registration->refresh();
         }
 
@@ -136,10 +147,18 @@ class RegistrationController extends Controller
     public function download($code)
     {
         $registration = Registration::where('qr_code_data', $code)->firstOrFail();
-        
+
         $this->authorize('viewQrCode', $registration);
 
         $registration->load(['event', 'user']);
+
+        $isOwner = auth()->check() && auth()->id() === $registration->user_id;
+
+        if ($isOwner && $registration->payment_status === 'pending') {
+            return redirect()
+                ->route('payments.pending', $registration)
+                ->with('warning', 'Le paiement doit être finalisé avant de télécharger le billet.');
+        }
 
         // Générer les QR codes s'ils n'existent pas
         if (!$registration->qr_code_path || !$registration->qr_code_png_path) {

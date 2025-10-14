@@ -129,8 +129,38 @@
                                     </button>
                                 </form>
                             @elseif($event->available_seats > 0 && optional($event->event_date)->isFuture())
-                                <form action="{{ route('events.register', $event) }}" method="POST" class="inline-block">
+                                <form action="{{ route('events.register', $event) }}" method="POST" class="inline-block space-y-3">
                                     @csrf
+
+                                    @if($event->is_restricted_18)
+                                        <div class="flex items-start gap-2">
+                                            <input type="checkbox" id="confirm_age" name="confirm_age" value="1" class="mt-1 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" required>
+                                            <label for="confirm_age" class="text-sm text-gray-700">Je confirme avoir au moins 18 ans.</label>
+                                        </div>
+                                        @error('confirm_age')
+                                            <p class="text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    @endif
+
+                                    @if(($event->price ?? 0) > 0)
+                                        <fieldset class="border border-gray-200 rounded-lg p-3">
+                                            <legend class="text-sm font-medium text-gray-700">Mode de paiement</legend>
+                                            <div class="mt-2 space-y-2">
+                                                <label class="flex items-center gap-2 text-sm text-gray-700">
+                                                    <input type="radio" name="payment_method" value="kkiapay" class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" checked required>
+                                                    Payer maintenant (Kkiapay)
+                                                </label>
+                                                <label class="flex items-center gap-2 text-sm text-gray-700">
+                                                    <input type="radio" name="payment_method" value="physical" class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" required>
+                                                    Payer sur place le jour de l'événement
+                                                </label>
+                                            </div>
+                                            @error('payment_method')
+                                                <p class="text-sm text-red-600">{{ $message }}</p>
+                                            @enderror
+                                        </fieldset>
+                                    @endif
+
                                     <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                         <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>

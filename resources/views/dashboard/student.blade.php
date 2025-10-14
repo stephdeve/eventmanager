@@ -232,8 +232,32 @@
                         </a>
 
                         @if(auth()->check() && auth()->user()->isStudent())
-                            <form action="{{ route('events.register', $event) }}" method="POST" class="w-full">
+                            <form action="{{ route('events.register', $event) }}" method="POST" class="w-full space-y-3">
                                 @csrf
+
+                                @if($event->is_restricted_18)
+                                    <div class="flex items-start gap-2">
+                                        <input type="checkbox" id="confirm_age_{{ $event->id }}" name="confirm_age" value="1" class="mt-1 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" required>
+                                        <label for="confirm_age_{{ $event->id }}" class="text-sm text-gray-700">Je confirme avoir au moins 18 ans.</label>
+                                    </div>
+                                @endif
+
+                                @if(($event->price ?? 0) > 0)
+                                    <fieldset class="border border-gray-200 rounded-lg p-3">
+                                        <legend class="text-sm font-medium text-gray-700">Mode de paiement</legend>
+                                        <div class="mt-2 space-y-2">
+                                            <label class="flex items-center gap-2 text-sm text-gray-700">
+                                                <input type="radio" name="payment_method" value="kkiapay" class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" checked required>
+                                                Payer maintenant (Kkiapay)
+                                            </label>
+                                            <label class="flex items-center gap-2 text-sm text-gray-700">
+                                                <input type="radio" name="payment_method" value="physical" class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" required>
+                                                Payer sur place le jour de l'événement
+                                            </label>
+                                        </div>
+                                    </fieldset>
+                                @endif
+
                                 <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-200">
                                     S'inscrire à cet événement
                                     <svg class="ml-2 -mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

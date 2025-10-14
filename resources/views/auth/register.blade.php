@@ -199,6 +199,23 @@
             </div>
             
             <div class="form-group">
+                <label>Type de compte *</label>
+                <div class="input-wrapper" style="padding-left:0">
+                    <label style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;font-size:.875rem;color:#374151">
+                        <input type="radio" name="account_type" value="user" {{ old('account_type','user') === 'user' ? 'checked' : '' }}> Utilisateur
+                    </label>
+                    <label style="display:flex;align-items:center;gap:.5rem;font-size:.875rem;color:#374151">
+                        <input type="radio" name="account_type" value="organizer" {{ old('account_type') === 'organizer' ? 'checked' : '' }}> Organisateur
+                    </label>
+                </div>
+                @error('account_type')
+                    <span class="error-message">{{ $message }}</span>
+                @enderror
+            </div>
+
+            
+
+            <div class="form-group">
                 <label for="name">Nom complet *</label>
                 <div class="input-wrapper">
                     <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -286,6 +303,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            
             document.querySelectorAll('.toggle-visibility').forEach((button) => {
                 const targetId = button.getAttribute('data-target');
                 const input = document.getElementById(targetId);

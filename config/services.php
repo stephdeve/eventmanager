@@ -35,4 +35,22 @@ return [
         ],
     ],
 
+    'fedapay' => [
+        'public_key' => env('FEDAPAY_PUBLIC_KEY'),
+        'secret_key' => env('FEDAPAY_SECRET_KEY'),
+        'api_url' => env('FEDAPAY_API_URL', 'https://api-sandbox.fedapay.com'),
+        'callback_url' => env('FEDAPAY_CALLBACK_URL'),
+        'webhook_secret' => env('FEDAPAY_WEBHOOK_SECRET'),
+        'environment' => env('FEDAPAY_ENVIRONMENT', 'sandbox'),
+    ],
+
+    'kkiapay' => [
+        'public_key' => env('KKIAPAY_PUBLIC_KEY'),
+        'private_key' => env('KKIAPAY_PRIVATE_KEY'),
+        'secret' => env('KKIAPAY_SECRET'),
+        'sandbox' => env('KKIAPAY_SANDBOX', true),
+        'api_url' => env('KKIAPAY_API_URL', 'https://api.kkiapay.me'),
+        'callback_url' => env('KKIAPAY_CALLBACK_URL'),
+    ],
+
 ];

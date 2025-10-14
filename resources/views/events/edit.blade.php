@@ -114,15 +114,40 @@
                                 @enderror
                             </div>
 
-                            <!-- Prix -->
-                            <div>
-                                <label for="price" class="block text-sm font-medium text-gray-700">Prix (€) *</label>
-                                <input type="number" name="price" id="price" min="0" step="0.01" value="{{ old('price', $event->price / 100) }}"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" 
-                                    required>
-                                @error('price')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
+                            <!-- Prix et devise -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="price" class="block text-sm font-medium text-gray-700">Prix *</label>
+                                    <input type="number" name="price" id="price" min="0" step="0.01" value="{{ old('price', App\Support\Currency::toMajorUnits($event->price, $event->currency)) }}"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" 
+                                        required>
+                                    @error('price')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <label for="currency" class="block text-sm font-medium text-gray-700">Devise *</label>
+                                    <select name="currency" id="currency" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                                        @foreach($currencies as $code => $data)
+                                            <option value="{{ $code }}" @selected(old('currency', $event->currency) === $code)>
+                                                {{ $code }} — {{ $data['name'] ?? $code }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('currency')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <!-- Restriction d'âge -->
+                            <div class="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
+                                <input id="is_restricted_18" name="is_restricted_18" type="checkbox" value="1" class="mt-1 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" {{ old('is_restricted_18', $event->is_restricted_18) ? 'checked' : '' }}>
+                                <div>
+                                    <label for="is_restricted_18" class="text-sm font-medium text-amber-900">Événement réservé aux majeurs</label>
+                                    <p class="mt-1 text-xs text-amber-700">Si cette case est cochée, les participants devront simplement confirmer avoir au moins 18 ans lors de l'inscription.</p>
+                                </div>
                             </div>
                         </div>
                     </div>

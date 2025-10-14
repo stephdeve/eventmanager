@@ -22,12 +22,20 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'subscription_plan',
+        'must_verify_identity',
+        'is_identity_verified',
+        'date_of_birth_verified',
     ];
     
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'role' => 'string',
+        'subscription_plan' => 'string',
+        'must_verify_identity' => 'boolean',
+        'is_identity_verified' => 'boolean',
+        'date_of_birth_verified' => 'date',
     ];
     
     /**
@@ -69,7 +77,7 @@ class User extends Authenticatable
      */
     public function isStudent(): bool
     {
-        return $this->role === 'student';
+        return in_array($this->role, ['student', 'user'], true);
     }
     
     /**
@@ -78,6 +86,11 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    public function identityVerification()
+    {
+        return $this->hasOne(IdentityVerification::class)->latestOfMany();
     }
 
     /**

@@ -22,6 +22,13 @@ class Registration extends Model
         'qr_code_path',
         'qr_code_png_path',
         'is_validated',
+        'payment_status',
+        'payment_reference',
+        'payment_session_url',
+        'payment_metadata',
+        'paid_at',
+        'identity_verification_id',
+        'age_restriction_passed',
     ];
 
     /**
@@ -34,6 +41,9 @@ class Registration extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'validated_at' => 'datetime',
+        'paid_at' => 'datetime',
+        'payment_metadata' => 'array',
+        'age_restriction_passed' => 'boolean',
     ];
 
     /**
