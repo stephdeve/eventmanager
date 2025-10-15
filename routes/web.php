@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\BillingController;
 use App\Http\Middleware\EnsureActiveSubscription;
+use App\Http\Controllers\ReportsController;
 use App\Models\Event;
 use Illuminate\Support\Facades\Route;
 
@@ -93,15 +94,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/billing/history', [BillingController::class, 'history'])
         ->name('billing.history');
 
+    // Exports
+    Route::get('/reports/sales.csv', [ReportsController::class, 'exportSalesCsv'])
+        ->name('reports.sales.csv');
+    Route::get('/reports/sales.pdf', [ReportsController::class, 'exportSalesPdf'])
+        ->name('reports.sales.pdf');
+
     // Gestion des inscriptions (organisateur)
     Route::get('/events/{event}/attendees', [RegistrationController::class, 'attendees'])
         ->name('events.attendees')
         ->middleware(EnsureActiveSubscription::class);
 
-    // Validation manuelle d'une inscription
-    Route::post('/registrations/{registration}/validate', [RegistrationController::class, 'validateRegistration'])
-        ->name('registrations.validate')
-        ->middleware('can:validate,registration');
+    // (supprimé) Ancienne route validateRegistration obsolète
 
     // Gestion des billets
     Route::prefix('tickets')->group(function () {
@@ -123,6 +127,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Validation d'un billet via son code QR
         Route::post('/tickets/{code}/validate', [RegistrationController::class, 'validateTicketByCode'])
             ->name('registrations.validate_by_code');
+
+        // Marquer un billet comme payé (paiement physique encaissé)
+        Route::post('/registrations/{registration}/mark-paid', [RegistrationController::class, 'markPaid'])
+            ->name('registrations.mark_paid');
     });
 });
 

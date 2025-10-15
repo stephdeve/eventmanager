@@ -58,6 +58,38 @@
         </div>
     </div>
 
+    <!-- Synthèse ventes (toujours visible) -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        @php
+            $totalRevenueMinor = (int) data_get($financeTotals ?? [], 'total_revenue_minor', 0);
+            $totalTicketsSold = (int) data_get($financeTotals ?? [], 'total_tickets_sold', 0);
+            $currencyCode = 'XOF';
+            $totalRevenueFormatted = \App\Support\Currency::format($totalRevenueMinor, $currencyCode);
+        @endphp
+        <div class="p-5 bg-white rounded-lg shadow dashboard-card">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full text-emerald-600 bg-emerald-100">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 1.119-3 2.5S10.343 13 12 13s3 1.119 3 2.5S13.657 18 12 18m0-10V6m0 12v-2m8-4a8 8 0 11-16 0 8 8 0 0116 0z"/></svg>
+                </div>
+                <div class="ml-5">
+                    <p class="text-sm font-medium text-gray-500 truncate">Revenus totaux</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ $totalRevenueFormatted }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="p-5 bg-white rounded-lg shadow dashboard-card">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full text-fuchsia-600 bg-fuchsia-100">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h10M5 20h14M9 5h6"/></svg>
+                </div>
+                <div class="ml-5">
+                    <p class="text-sm font-medium text-gray-500 truncate">Tickets vendus</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ number_format($totalTicketsSold) }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Cartes synthétiques principales -->
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <!-- Carte statistique : total des événements -->
@@ -151,6 +183,19 @@
                 </div>
             </div>
 
+            <!-- Graphique linéaire : ventes quotidiennes (14 jours) -->
+            <div class="bg-white shadow rounded-lg p-6 dashboard-card">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-lg font-medium text-gray-900">Ventes quotidiennes</h2>
+                        <p class="text-sm text-gray-500">Montants journaliers sur 14 jours</p>
+                    </div>
+                </div>
+                <div class="relative h-64">
+                    <canvas id="daily-sales-chart" class="!h-full"></canvas>
+                </div>
+            </div>
+
             <!-- Liste des dernières inscriptions -->
             <div class="bg-white shadow rounded-lg dashboard-card">
                 <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
@@ -185,6 +230,36 @@
                         </li>
                     @empty
                         <li class="px-6 py-8 text-center text-sm text-gray-500">Aucune inscription récente.</li>
+                    @endforelse
+                </ul>
+            </div>
+
+            <!-- Dernières transactions -->
+            <div class="bg-white shadow rounded-lg dashboard-card">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                    <h2 class="text-lg font-medium text-gray-900">Dernières transactions</h2>
+                    <div class="flex items-center gap-2">
+                        <a href="{{ route('reports.sales.csv') }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">Exporter CSV</a>
+                        <span class="text-gray-300">|</span>
+                        <a href="{{ route('reports.sales.pdf') }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">Exporter PDF</a>
+                    </div>
+                </div>
+                <ul class="divide-y divide-gray-200">
+                    @forelse(($recentPayments ?? []) as $p)
+                        <li class="px-6 py-4">
+                            <div class="flex items-center justify-between">
+                                <div class="min-w-0">
+                                    <p class="text-sm font-medium text-indigo-600 truncate">{{ optional($p->event)->title }}</p>
+                                    <p class="mt-1 text-xs text-gray-500">{{ strtoupper($p->status) }} • {{ $p->method ?? '—' }} • Ref {{ $p->provider_reference }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-semibold text-gray-900">{{ \App\Support\Currency::format((int) $p->amount_minor, $p->currency ?? 'XOF') }}</p>
+                                    <p class="text-xs text-gray-500">{{ optional($p->paid_at ?? $p->created_at)->isoFormat('D MMM YYYY HH:mm') }}</p>
+                                </div>
+                            </div>
+                        </li>
+                    @empty
+                        <li class="px-6 py-8 text-center text-sm text-gray-500">Aucune transaction récente.</li>
                     @endforelse
                 </ul>
             </div>
@@ -420,6 +495,50 @@
 
                 const apexChart = new ApexCharts(occupancyContainer, apexOptions);
                 apexChart.render();
+            }
+
+            /* Graphique des ventes quotidiennes (Chart.js) */
+            const salesCanvas = document.getElementById('daily-sales-chart');
+            if (salesCanvas) {
+                const salesLabels = @json(data_get($salesChart ?? [], 'labels', []));
+                const salesSeriesMinor = @json(data_get($salesChart ?? [], 'series_minor', []));
+                const salesSeriesMajor = salesSeriesMinor.map(v => (v || 0) / 100);
+                const currencyFormatter = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF', maximumFractionDigits: 0 });
+
+                new Chart(salesCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: salesLabels,
+                        datasets: [{
+                            label: 'Ventes (par jour)',
+                            data: salesSeriesMajor,
+                            backgroundColor: 'rgba(16, 185, 129, 0.3)',
+                            borderColor: '#10b981',
+                            borderWidth: 1.5,
+                            borderRadius: 4,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: (value) => currencyFormatter.format(value),
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => currencyFormatter.format(ctx.parsed.y)
+                                }
+                            }
+                        }
+                    }
+                });
             }
         });
     </script>

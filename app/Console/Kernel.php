@@ -14,6 +14,8 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         \App\Console\Commands\ExpireSubscriptions::class,
+        \App\Console\Commands\SendEventReminders::class,
+        \App\Console\Commands\SendSubscriptionReminders::class,
     ];
 
     /**
@@ -23,6 +25,12 @@ class Kernel extends ConsoleKernel
     {
         // Expire subscriptions hourly (safe and idempotent)
         $schedule->command('subscriptions:expire')->hourly();
+
+        // Send participant reminders (J-7/J-1/H-3)
+        $schedule->command('events:send-reminders')->hourly();
+
+        // Send organizer subscription renewal reminders (J-7/J-3/J-1)
+        $schedule->command('subscriptions:send-reminders')->dailyAt('09:00');
     }
 
     /**

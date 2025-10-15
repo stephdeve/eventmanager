@@ -33,6 +33,11 @@ class Event extends Model
         'shareable_link',
         'promo_clicks',
         'promo_registrations',
+        // Finance
+        'total_revenue_minor',
+        'total_tickets_sold',
+        'revenue_threshold_minor',
+        'revenue_threshold_notified_at',
     ];
 
     /**
@@ -50,6 +55,10 @@ class Event extends Model
         'is_restricted_18' => 'boolean',
         'promo_clicks' => 'integer',
         'promo_registrations' => 'integer',
+        'total_revenue_minor' => 'integer',
+        'total_tickets_sold' => 'integer',
+        'revenue_threshold_minor' => 'integer',
+        'revenue_threshold_notified_at' => 'datetime',
     ];
     
     /**
@@ -111,6 +120,11 @@ class Event extends Model
     public function registrations()
     {
         return $this->hasMany(Registration::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(EventPayment::class);
     }
 
     /**

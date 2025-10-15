@@ -291,21 +291,29 @@
                     throw new Error(data?.message || 'Une erreur est survenue lors de la validation');
                 }
 
+                const notice = data?.registration?.notice;
+                const paymentStatus = (data?.registration?.payment_status || '').toUpperCase();
+
                 resultContent.innerHTML = `
                     <div class="rounded-md bg-green-50 p-4">
                         <div class="flex">
                             <div class="flex-shrink-0">
                                 <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                    <path fill-rule=\"evenodd\" d=\"M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z\" clip-rule=\"evenodd\" />
                                 </svg>
                             </div>
                             <div class="ml-3">
                                 <h3 class="text-sm font-medium text-green-800">Billet validé avec succès !</h3>
-                                <div class="mt-2 text-sm text-green-700">
+                                <div class="mt-2 text-sm text-green-700 space-y-1">
                                     <p>Événement: <span class="font-medium">${data.registration?.event?.title || 'Non spécifié'}</span></p>
                                     <p>Participant: <span class="font-medium">${data.registration?.user?.name || 'Non spécifié'}</span></p>
+                                    ${paymentStatus ? `<p class="text-xs text-gray-700">Statut paiement: <span class="font-semibold">${paymentStatus}</span></p>` : ''}
                                     <p class="mt-2 text-xs text-green-600">Validé le ${new Date().toLocaleDateString()} à ${new Date().toLocaleTimeString()}</p>
                                 </div>
+                                ${notice ? `
+                                <div class="mt-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-amber-900 text-xs">
+                                    ${notice}
+                                </div>` : ''}
                                 <div class="mt-4">
                                     <button type="button" onclick="window.location.reload()" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                                         <svg class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>

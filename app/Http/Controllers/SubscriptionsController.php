@@ -89,6 +89,13 @@ class SubscriptionsController extends Controller
                 'subscription_expires_at' => $newExpiry,
             ])->save();
 
+            // Notification de confirmation d'abonnement
+            try {
+                $user->notify(new \App\Notifications\OrganizerSubscriptionConfirmed($plan, $newExpiry));
+            } catch (\Throwable $e) {
+                report($e);
+            }
+
             return redirect()->route('dashboard')->with('success', 'Abonnement activé. Bienvenue en tant qu’organisateur !');
         } catch (\Throwable $e) {
             report($e);

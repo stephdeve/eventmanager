@@ -74,6 +74,19 @@ class DashboardController extends Controller
             'recent_registrations' => $recentRegistrations,
         ];
 
+        // Finance: revenus et ventes
+        $financeTotals = [
+            'total_revenue_minor' => (int) \App\Models\Event::whereIn('id', $organizedEventIds)->sum('total_revenue_minor'),
+            'total_tickets_sold' => (int) \App\Models\Event::whereIn('id', $organizedEventIds)->sum('total_tickets_sold'),
+        ];
+
+        $recentPayments = \App\Models\EventPayment::whereIn('event_id', $organizedEventIds)
+            ->where('status', 'success')
+            ->with(['event', 'user'])
+            ->orderByDesc(\DB::raw('COALESCE(paid_at, created_at)'))
+            ->take(10)
+            ->get();
+
         // Préparation du graphique « inscriptions sur 7 jours »
         $startOfPeriod = Carbon::now()->subDays(6)->startOfDay();
         $rawWeeklyRegistrations = Registration::select(DB::raw('DATE(created_at) as registration_day'), DB::raw('COUNT(*) as total'))
@@ -101,6 +114,27 @@ class DashboardController extends Controller
             $weeklyGrowth = (int) round((($weeklyToday - $weeklyPrevious) / $weeklyPrevious) * 100);
         } elseif ($weeklyToday > 0) {
             $weeklyGrowth = 100;
+        }
+
+        // Graphique ventes (14 jours)
+        $salesStart = Carbon::now()->subDays(13)->startOfDay();
+        $rawDailySales = \App\Models\EventPayment::select(\DB::raw('DATE(COALESCE(paid_at, created_at)) as pay_day'), \DB::raw('SUM(amount_minor) as total_minor'))
+            ->whereIn('event_id', $organizedEventIds)
+            ->where('status', 'success')
+            ->where(\DB::raw('COALESCE(paid_at, created_at)'), '>=', $salesStart)
+            ->groupBy('pay_day')
+            ->orderBy('pay_day')
+            ->get()
+            ->keyBy('pay_day');
+
+        $salesLabels = [];
+        $salesSeries = [];
+        for ($offset = 0; $offset < 14; $offset++) {
+            $currentDay = $salesStart->copy()->addDays($offset);
+            $dateKey = $currentDay->toDateString();
+            $salesLabels[] = $currentDay->translatedFormat('d M');
+            $minor = (int) ($rawDailySales[$dateKey]->total_minor ?? 0);
+            $salesSeries[] = $minor; // will format on client
         }
 
         // Calcul des taux d'occupation (événements les plus remplis)
@@ -189,6 +223,12 @@ class DashboardController extends Controller
             'stats' => $stats,
             'charts' => $charts,
             'widgets' => $widgets,
+            'financeTotals' => $financeTotals,
+            'recentPayments' => $recentPayments,
+            'salesChart' => [
+                'labels' => $salesLabels,
+                'series_minor' => $salesSeries,
+            ],
         ]);
     }
     

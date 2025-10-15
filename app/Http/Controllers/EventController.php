@@ -258,11 +258,13 @@ class EventController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'start_date' => 'required|date|after:now',
+            // Autoriser l'édition d'événements passés: pas de contrainte after:now ici
+            'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
             'location' => 'required|string|max:255',
             'capacity' => 'required|integer|min:1',
-            'available_seats' => ['required', 'integer', 'min:' . $registrationsCount, 'lte:capacity'],
+            // Rendre facultatif; s'il n'est pas transmis, conserver la valeur actuelle
+            'available_seats' => ['nullable', 'integer', 'min:' . $registrationsCount, 'lte:capacity'],
             'price' => 'required|numeric|min:0',
             'currency' => ['required', 'string', 'size:3', Rule::in(array_keys(Currency::all()))],
             'is_restricted_18' => 'nullable|boolean',
@@ -292,7 +294,7 @@ class EventController extends Controller
             'end_date' => $validated['end_date'],
             'location' => $validated['location'],
             'capacity' => $validated['capacity'],
-            'available_seats' => $validated['available_seats'],
+            'available_seats' => $validated['available_seats'] ?? $event->available_seats,
             'price' => Currency::toMinorUnits($validated['price'], $validated['currency']),
             'currency' => strtoupper($validated['currency']),
             'is_restricted_18' => $request->boolean('is_restricted_18'),
@@ -399,11 +401,30 @@ class EventController extends Controller
                     ]);
                 }
 
+                // Compter les billets gratuits comme "vendus" immédiatement
+                if ($isFreeEvent) {
+                    $event->increment('total_tickets_sold');
+                }
+
                 return $registration;
             });
         } catch (\Throwable $exception) {
             report($exception);
             return back()->with('error', 'Une erreur s\'est produite lors de votre inscription. Veuillez réessayer.');
+        }
+
+        // Notifications: participant + organisateur
+        try {
+            $event->loadMissing('organizer');
+            $registration->loadMissing(['event', 'user']);
+            // Participant: confirmation/paiement à finaliser
+            $registration->user->notify(new \App\Notifications\ParticipantRegistrationCreated($registration));
+            // Organisateur: nouvelle inscription
+            if ($event->organizer) {
+                $event->organizer->notify(new \App\Notifications\OrganizerNewRegistration($registration));
+            }
+        } catch (\Throwable $e) {
+            report($e);
         }
 
         if ($isFreeEvent || ($paymentMethod === 'physical')) {

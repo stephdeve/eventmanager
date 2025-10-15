@@ -63,7 +63,7 @@
                                                     &middot; {{ $registration->user->email }}
                                                 </p>
                                             </div>
-                                            <div class="mt-2 flex">
+                                            <div class="mt-2 flex flex-wrap gap-2">
                                                 <div class="flex items-center text-sm text-gray-500">
                                                     <p>
                                                         Inscrit le 
@@ -71,6 +71,18 @@
                                                             {{ $registration->created_at->isoFormat('D MMMM YYYY à HH:mm') }}
                                                         </time>
                                                     </p>
+                                                </div>
+                                                <div class="flex items-center text-xs">
+                                                    @php $ps = $registration->payment_status; @endphp
+                                                    @if($ps === 'paid')
+                                                        <span class="ml-3 inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-green-800 font-medium">Payé</span>
+                                                    @elseif($ps === 'unpaid')
+                                                        <span class="ml-3 inline-flex items-center px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 font-medium">Non payé (sur place)</span>
+                                                    @elseif($ps === 'pending')
+                                                        <span class="ml-3 inline-flex items-center px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 font-medium">En attente (en ligne)</span>
+                                                    @elseif($ps === 'failed')
+                                                        <span class="ml-3 inline-flex items-center px-2 py-0.5 rounded-full bg-red-100 text-red-800 font-medium">Échec paiement</span>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
@@ -95,6 +107,16 @@
                                                         </button>
                                                     </form>
                                                 @endif
+                                                @can('validate', $registration)
+                                                    @if($registration->payment_status === 'unpaid')
+                                                        <form action="{{ route('registrations.mark_paid', $registration) }}" method="POST" class="inline">
+                                                            @csrf
+                                                            <button type="submit" class="px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">
+                                                                Marquer payé
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                @endcan
                                             </div>
                                         </div>
                                     </div>
