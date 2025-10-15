@@ -4,8 +4,7 @@ namespace App\Events;
 
 use App\Models\Registration;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\ShouldBroadcastNow;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 

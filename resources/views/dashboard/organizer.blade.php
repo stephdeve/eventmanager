@@ -405,11 +405,35 @@
 @endsection
 
 @push('scripts')
-    <!-- Bibliothèques de visualisation (Chart.js + ApexCharts) -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <!-- Bibliothèques de visualisation (Chart.js + ApexCharts) avec repli local hors-ligne -->
+    <script>
+        (function () {
+            function load(src, testFn, fallbackSrc) {
+                return new Promise(function (resolve) {
+                    if (testFn()) return resolve();
+                    var s = document.createElement('script');
+                    s.src = src;
+                    s.onload = resolve;
+                    s.onerror = function () {
+                        var lf = document.createElement('script');
+                        lf.src = fallbackSrc;
+                        lf.onload = resolve;
+                        document.head.appendChild(lf);
+                    };
+                    document.head.appendChild(s);
+                });
+            }
+            window.loadDashboardLibs = function () {
+                return Promise.all([
+                    load('https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js', function(){ return !!window.Chart; }, '{{ asset('vendor/chart.js/chart.umd.min.js') }}'),
+                    load('https://cdn.jsdelivr.net/npm/apexcharts', function(){ return !!window.ApexCharts; }, '{{ asset('vendor/apexcharts/apexcharts.min.js') }}'),
+                ]);
+            };
+        })();
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            window.loadDashboardLibs().then(function () {
             /* Graphique linéaire des inscriptions (Chart.js) */
             const weeklyCanvas = document.getElementById('weekly-registrations-chart');
             if (weeklyCanvas) {
@@ -540,6 +564,7 @@
                     }
                 });
             }
+            });
         });
     </script>
 @endpush
