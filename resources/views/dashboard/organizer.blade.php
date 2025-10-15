@@ -18,6 +18,33 @@
 
 @section('content')
 <div class="space-y-8">
+    @php
+        $user = auth()->user();
+        $active = method_exists($user, 'hasActiveSubscription') ? $user->hasActiveSubscription() : false;
+        $expiresAt = $user->subscription_expires_at; // Carbon|null via casts
+        $expired = $expiresAt ? $expiresAt->isPast() : false;
+    @endphp
+    @if(!$active)
+        <div class="rounded-xl border border-amber-200 bg-amber-50 p-4">
+            <div class="flex items-start justify-between gap-3">
+                <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-amber-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v3m0 4h.01M10.29 3.86l-7.4 12.84A1.5 1.5 0 004.2 19.5h15.6a1.5 1.5 0 001.3-2.3L13.7 3.86a1.5 1.5 0 00-2.6 0z"/></svg>
+                    <div>
+                        <p class="text-sm font-semibold text-amber-900">Abonnement expiré ou inactif — renouvelez pour continuer</p>
+                        <p class="mt-1 text-xs text-amber-800">
+                            @if($expired)
+                                Expiré le {{ $expiresAt->translatedFormat('d M Y à H\\hi') }}.
+                            @endif
+                            Offre actuelle: {{ ucfirst($user->subscription_plan ?? '—') }}. Le renouvellement réactivera la création d'événements, le scanner et le lien promo.
+                        </p>
+                    </div>
+                </div>
+                <a href="{{ route('subscriptions.plans') }}" class="inline-flex items-center rounded-lg bg-amber-600 px-3 py-2 text-xs font-semibold text-white hover:bg-amber-500">
+                    Renouveler maintenant
+                </a>
+            </div>
+        </div>
+    @endif
     <!-- En-tête du tableau de bord -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between">
         <h1 class="text-2xl font-bold text-gray-900">Tableau de bord - Organisateur</h1>

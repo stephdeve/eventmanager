@@ -29,6 +29,10 @@ class Event extends Model
         'cover_image',
         'organizer_id',
         'is_restricted_18',
+        'slug',
+        'shareable_link',
+        'promo_clicks',
+        'promo_registrations',
     ];
 
     /**
@@ -44,6 +48,8 @@ class Event extends Model
         'price' => 'integer', // Stocké en plus petite unité
         'currency' => 'string',
         'is_restricted_18' => 'boolean',
+        'promo_clicks' => 'integer',
+        'promo_registrations' => 'integer',
     ];
     
     /**

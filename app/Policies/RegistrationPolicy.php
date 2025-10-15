@@ -85,7 +85,7 @@ class RegistrationPolicy
      */
     public function scan(User $user): bool
     {
-        // Seuls les organisateurs et les administrateurs peuvent scanner des QR codes
-        return $user->isOrganizer() || $user->isAdmin();
+        // Seuls les organisateurs avec abonnement actif et les administrateurs peuvent scanner des QR codes
+        return $user->isAdmin() || ($user->isOrganizer() && $user->hasActiveSubscription());
     }
 }

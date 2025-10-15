@@ -24,6 +24,89 @@ class RegistrationController extends Controller
     }
 
     /**
+     * Validate a ticket using its QR code data (code string).
+     */
+    public function validateTicketByCode(string $code)
+    {
+        $registration = Registration::where('qr_code_data', $code)->first();
+
+        if (!$registration) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Billet introuvable.',
+            ], 404);
+        }
+
+        $this->authorize('validate', $registration);
+
+        if ($registration->is_validated) {
+            $registration->load(['event', 'user']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Ce billet a déjà été validé.',
+                'registration' => [
+                    'event' => [
+                        'title' => $registration->event->title,
+                    ],
+                    'user' => [
+                        'name' => $registration->user->name,
+                    ],
+                    'is_validated' => true,
+                    'validated_at' => optional($registration->validated_at)->format('d/m/Y H:i'),
+                ]
+            ], 409);
+        }
+
+        // Mise à jour atomique pour éviter les doubles validations concurrentes
+        $updated = DB::transaction(function () use ($registration) {
+            return Registration::whereKey($registration->id)
+                ->where('is_validated', false)
+                ->update([
+                    'is_validated' => true,
+                    'validated_at' => now(),
+                    'validated_by' => auth()->id(),
+                ]);
+        });
+
+        if ($updated !== 1) {
+            $registration->refresh()->load(['event', 'user']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Ce billet a déjà été validé.',
+                'registration' => [
+                    'event' => [
+                        'title' => $registration->event->title,
+                    ],
+                    'user' => [
+                        'name' => $registration->user->name,
+                    ],
+                    'is_validated' => true,
+                    'validated_at' => optional($registration->validated_at)->format('d/m/Y H:i'),
+                ]
+            ], 409);
+        }
+
+        $registration->refresh()->load(['event', 'user']);
+
+        event(new TicketValidated($registration));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Billet validé avec succès!',
+            'registration' => [
+                'event' => [
+                    'title' => $registration->event->title,
+                ],
+                'user' => [
+                    'name' => $registration->user->name,
+                ],
+                'is_validated' => true,
+                'validated_at' => optional($registration->validated_at)->format('d/m/Y H:i'),
+            ]
+        ]);
+    }
+
+    /**
      * Display a listing of the user's registrations.
      */
     public function index()
@@ -109,18 +192,42 @@ class RegistrationController extends Controller
                     'is_validated' => true,
                     'validated_at' => optional($registration->validated_at)->format('d/m/Y H:i'),
                 ]
-            ], 200);
+            ], 409);
         }
 
-        // Marquer le billet comme validé
-        $registration->update([
-            'is_validated' => true,
-            'validated_at' => now(),
-            'validated_by' => auth()->id()
-        ]);
+        // Marquer le billet comme validé (atomiquement)
+        $updated = DB::transaction(function () use ($registration) {
+            return Registration::whereKey($registration->id)
+                ->where('is_validated', false)
+                ->update([
+                    'is_validated' => true,
+                    'validated_at' => now(),
+                    'validated_by' => auth()->id(),
+                ]);
+        });
+
+        if ($updated !== 1) {
+            // Conflit concurrent: déjà validé entre-temps
+            $registration->refresh();
+            $registration->load(['event', 'user']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Ce billet a déjà été validé.',
+                'registration' => [
+                    'event' => [
+                        'title' => $registration->event->title,
+                    ],
+                    'user' => [
+                        'name' => $registration->user->name,
+                    ],
+                    'is_validated' => true,
+                    'validated_at' => optional($registration->validated_at)->format('d/m/Y H:i'),
+                ]
+            ], 409);
+        }
 
         // Recharger les relations
-        $registration->load(['event', 'user']);
+        $registration->refresh()->load(['event', 'user']);
 
         // Diffuser la validation en temps réel
         event(new TicketValidated($registration));

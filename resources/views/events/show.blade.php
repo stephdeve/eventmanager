@@ -2,6 +2,28 @@
 
 @section('title', $event->title)
 
+@push('meta')
+    @php
+        $ogTitle = $event->title;
+        $ogDescription = \Illuminate\Support\Str::limit(strip_tags($event->description ?? ''), 180);
+        $ogImage = $event->cover_image_url;
+        $ogUrl = route('events.show', $event);
+    @endphp
+    <link rel="canonical" href="{{ $ogUrl }}">
+    <meta name="description" content="{{ $ogDescription }}">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ $ogTitle }}">
+    <meta property="og:description" content="{{ $ogDescription }}">
+    <meta property="og:image" content="{{ $ogImage }}">
+    <meta property="og:url" content="{{ $ogUrl }}">
+    <meta property="og:site_name" content="{{ config('app.name', 'EventManager') }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $ogTitle }}">
+    <meta name="twitter:description" content="{{ $ogDescription }}">
+    <meta name="twitter:image" content="{{ $ogImage }}">
+@endpush
+
 @section('content')
 <div class="py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -14,19 +36,36 @@
                 Retour aux événements
             </a>
         </div>
+        <div class="relative mb-6">
+            <div class="h-56 md:h-80 w-full overflow-hidden rounded-2xl relative">
+                <img src="{{ $event->cover_image_url }}" alt="{{ $event->title }}" class="absolute inset-0 w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+                <div class="absolute bottom-0 left-0 right-0 p-6">
+                    <h1 class="text-3xl md:text-4xl font-bold text-white">{{ $event->title }}</h1>
+                    <div class="mt-3 flex flex-wrap items-center gap-4 text-white/90 text-sm">
+                        <span class="inline-flex items-center gap-1">
+                            <svg class="h-5 w-5 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            @if($event->start_date) {{ $event->start_date->translatedFormat('d M Y, H\\hi') }} @endif
+                        </span>
+                        <span class="inline-flex items-center gap-1">
+                            <svg class="h-5 w-5 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            {{ $event->location }}
+                        </span>
+                        <span class="inline-flex items-center gap-1 font-semibold">
+                            {{ \App\Support\Currency::format($event->price, $event->currency ?? 'XOF') }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <!-- Image de couverture -->
-            @if($event->cover_image)
-                <div class="h-64 w-full overflow-hidden">
-                    <img src="{{ asset('storage/' . $event->cover_image) }}" alt="{{ $event->title }}" class="w-full h-full object-cover">
-                </div>
-            @endif
+            
 
             <div class="p-6">
                 <div class="flex flex-col md:flex-row md:items-start md:justify-between">
                     <div class="flex-1">
-                        <h1 class="text-3xl font-bold text-gray-900">{{ $event->title }}</h1>
+                        <h1 class="sr-only">{{ $event->title }}</h1>
                         
                         <div class="mt-4 flex items-center text-sm text-gray-500">
                             <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -40,8 +79,8 @@
                             <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                             </svg>
-                            @if($event->event_date)
-                                {{ $event->event_date->format('l d F Y \à H\hi') }}
+                            @if($event->start_date)
+                                {{ $event->start_date->translatedFormat('l d F Y \\à H\\hi') }}
                             @else
                                 Date non définie
                             @endif
@@ -114,6 +153,33 @@
                                     </div>
                                 @endcan
                             </div>
+                            @can('update', $event)
+                                <div class="mt-4 rounded-lg border border-gray-200 p-4 bg-gray-50">
+                                    <h3 class="text-sm font-semibold text-gray-800 mb-2">Lien de promotion</h3>
+                                    @php $plan = optional(auth()->user())->subscription_plan; $eligible = in_array($plan, ['premium','pro'], true); @endphp
+                                    @if($eligible)
+                                        @if($event->shareable_link)
+                                            <div class="flex items-center gap-2">
+                                                <input type="text" readonly class="w-full border-gray-300 rounded-md text-sm" value="{{ $event->shareable_link }}">
+                                                <button type="button" class="px-3 py-2 text-sm rounded-md bg-indigo-600 text-white" onclick="navigator.clipboard.writeText('{{ $event->shareable_link }}')">Copier</button>
+                                            </div>
+                                            <p class="mt-2 text-xs text-gray-600">Clics: <strong>{{ (int) $event->promo_clicks }}</strong> · Inscriptions: <strong>{{ (int) $event->promo_registrations }}</strong></p>
+                                        @else
+                                            <form method="POST" action="{{ route('events.generate-share', $event) }}">
+                                                @csrf
+                                                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">
+                                                    Générer le lien de promotion
+                                                </button>
+                                            </form>
+                                        @endif
+                                    @else
+                                        <div class="flex items-start justify-between gap-2">
+                                            <p class="text-sm text-gray-600">Fonctionnalité réservée aux abonnements Premium et Pro.</p>
+                                            <a href="{{ route('subscriptions.plans') }}" class="inline-flex items-center px-3 py-2 rounded-md bg-indigo-600 text-white text-sm hover:bg-indigo-500">Voir les offres</a>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endcan
                         @endif
 
                         @if(auth()->check() && auth()->user()->isStudent())
@@ -128,9 +194,12 @@
                                         Annuler l'inscription
                                     </button>
                                 </form>
-                            @elseif($event->available_seats > 0 && optional($event->event_date)->isFuture())
+                            @elseif($event->available_seats > 0 && optional($event->start_date)->isFuture())
                                 <form action="{{ route('events.register', $event) }}" method="POST" class="inline-block space-y-3">
                                     @csrf
+                                    @if(request()->filled('ref'))
+                                        <input type="hidden" name="ref" value="{{ request('ref') }}">
+                                    @endif
 
                                     @if($event->is_restricted_18)
                                         <div class="flex items-start gap-2">

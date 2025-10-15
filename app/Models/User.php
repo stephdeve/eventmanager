@@ -33,6 +33,9 @@ class User extends Authenticatable
         'password' => 'hashed',
         'role' => 'string',
         'subscription_plan' => 'string',
+        'subscription_status' => 'string',
+        'subscription_started_at' => 'datetime',
+        'subscription_expires_at' => 'datetime',
         'must_verify_identity' => 'boolean',
         'is_identity_verified' => 'boolean',
         'date_of_birth_verified' => 'date',
@@ -86,6 +89,37 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    /**
+     * Check if the user currently has an active organizer subscription.
+     */
+    public function hasActiveSubscription(): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+        if (!$this->isOrganizer()) {
+            return false;
+        }
+        if (!in_array($this->subscription_plan, ['basic', 'premium', 'pro'], true)) {
+            return false;
+        }
+        if (($this->subscription_status ?? 'inactive') !== 'active') {
+            return false;
+        }
+        if (!$this->subscription_expires_at) {
+            return false;
+        }
+        return now()->lt($this->subscription_expires_at);
+    }
+
+    /**
+     * Whether the subscription has expired.
+     */
+    public function isSubscriptionExpired(): bool
+    {
+        return (bool) ($this->subscription_expires_at && now()->gte($this->subscription_expires_at));
     }
 
     public function identityVerification()

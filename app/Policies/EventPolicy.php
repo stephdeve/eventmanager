@@ -31,8 +31,8 @@ class EventPolicy
      */
     public function create(User $user): bool
     {
-        // Seuls les organisateurs peuvent créer des événements
-        return $user->isOrganizer();
+        // Seuls les organisateurs avec abonnement actif (ou admins) peuvent créer des événements
+        return $user->isAdmin() || ($user->isOrganizer() && $user->hasActiveSubscription());
     }
 
     /**
@@ -40,8 +40,11 @@ class EventPolicy
      */
     public function update(User $user, Event $event): bool
     {
-        // Seul l'organisateur de l'événement peut le mettre à jour
-        return $user->is($event->organizer);
+        // Organisateur avec abonnement actif, ou admin
+        if ($user->isAdmin()) {
+            return true;
+        }
+        return $user->is($event->organizer) && $user->hasActiveSubscription();
     }
 
     /**
@@ -49,8 +52,11 @@ class EventPolicy
      */
     public function delete(User $user, Event $event): bool
     {
-        // Seul l'organisateur de l'événement peut le supprimer
-        return $user->is($event->organizer);
+        // Organisateur avec abonnement actif, ou admin
+        if ($user->isAdmin()) {
+            return true;
+        }
+        return $user->is($event->organizer) && $user->hasActiveSubscription();
     }
 
     /**
@@ -76,7 +82,10 @@ class EventPolicy
      */
     public function viewAttendees(User $user, Event $event): bool
     {
-        // Seul l'organisateur peut voir la liste des inscrits
-        return $user->is($event->organizer);
+        // Seul l'organisateur avec abonnement actif, ou admin
+        if ($user->isAdmin()) {
+            return true;
+        }
+        return $user->is($event->organizer) && $user->hasActiveSubscription();
     }
 }
