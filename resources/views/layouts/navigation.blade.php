@@ -98,7 +98,7 @@
                                 @elseif(auth()->user()->isOrganizer())
                                     Organisateur
                                 @else
-                                    Étudiant
+                                    Participant
                                 @endif
                             </div>
                         </div>
