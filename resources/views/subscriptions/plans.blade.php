@@ -19,6 +19,7 @@
                 <ul class="mt-6 space-y-2 text-sm text-gray-600">
                     <li>• 50 places max par événement</li>
                     <li>• 10 événements par mois</li>
+                    <li>• Pas de lien de promotion</li>
                 </ul>
                 <div class="mt-auto pt-6">
                     <button type="button"
@@ -37,6 +38,7 @@
                 <ul class="mt-6 space-y-2 text-sm text-indigo-800">
                     <li>• 150 places max par événement</li>
                     <li>• 30 événements par mois</li>
+                    <li>• Lien de promotion + suivi clics/inscriptions</li>
                 </ul>
                 <div class="mt-auto pt-6">
                     <button type="button"
@@ -55,6 +57,7 @@
                 <ul class="mt-6 space-y-2 text-sm text-gray-600">
                     <li>• Places illimitées par événement</li>
                     <li>• 100 événements par mois</li>
+                    <li>• Lien de promotion + suivi clics/inscriptions</li>
                 </ul>
                 <div class="mt-auto pt-6">
                     <button type="button"

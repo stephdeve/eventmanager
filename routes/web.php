@@ -5,6 +5,9 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\BillingController;
+use App\Http\Middleware\EnsureActiveSubscription;
+use App\Http\Controllers\ReportsController;
 use App\Models\Event;
 use Illuminate\Support\Facades\Route;
 
@@ -44,8 +47,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
-    // Routes pour les événements
-    Route::resource('events', EventController::class)->except(['index', 'show']);
+    // Routes pour les événements (organisateur)
+    Route::resource('events', EventController::class)
+        ->except(['index', 'show'])
+        ->middleware(EnsureActiveSubscription::class);
+    Route::post('/events/{event}/generate-share', [EventController::class, 'generateShareLink'])
+        ->middleware(EnsureActiveSubscription::class)
+        ->name('events.generate-share');
     Route::get('/events', [EventController::class, 'index'])->name('events.index');
     Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
 
@@ -82,14 +90,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::match(['GET','POST'], '/subscriptions/confirm', [\App\Http\Controllers\SubscriptionsController::class, 'confirm'])
         ->name('subscriptions.confirm');
 
+    // Facturation / Historique paiements
+    Route::get('/billing/history', [BillingController::class, 'history'])
+        ->name('billing.history');
+
+    // Exports
+    Route::get('/reports/sales.csv', [ReportsController::class, 'exportSalesCsv'])
+        ->name('reports.sales.csv');
+    Route::get('/reports/sales.pdf', [ReportsController::class, 'exportSalesPdf'])
+        ->name('reports.sales.pdf');
+
     // Gestion des inscriptions (organisateur)
     Route::get('/events/{event}/attendees', [RegistrationController::class, 'attendees'])
-        ->name('events.attendees');
+        ->name('events.attendees')
+        ->middleware(EnsureActiveSubscription::class);
 
-    // Validation manuelle d'une inscription
-    Route::post('/registrations/{registration}/validate', [RegistrationController::class, 'validateRegistration'])
-        ->name('registrations.validate')
-        ->middleware('can:validate,registration');
+    // (supprimé) Ancienne route validateRegistration obsolète
 
     // Gestion des billets
     Route::prefix('tickets')->group(function () {
@@ -100,19 +116,31 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Scanner de QR codes (organisateur)
-    Route::middleware('can:scan,App\Models\Registration')->group(function () {
+    Route::middleware(['can:scan,App\Models\Registration', EnsureActiveSubscription::class])->group(function () {
         Route::get('/scanner', [RegistrationController::class, 'scanner'])
             ->name('scanner');
 
         // Validation d'un billet via son ID
         Route::post('/registrations/{registration}/validate', [RegistrationController::class, 'validateTicket'])
             ->name('registrations.validate');
+
+        // Validation d'un billet via son code QR
+        Route::post('/tickets/{code}/validate', [RegistrationController::class, 'validateTicketByCode'])
+            ->name('registrations.validate_by_code');
+
+        // Marquer un billet comme payé (paiement physique encaissé)
+        Route::post('/registrations/{registration}/mark-paid', [RegistrationController::class, 'markPaid'])
+            ->name('registrations.mark_paid');
     });
 });
 
 // Webhook paiement (public)
 Route::post('payment/callback', [PaymentController::class, 'callback'])
     ->name('payments.callback');
+
+// Page promo publique d'un événement (aperçu marketing)
+Route::get('/promo/{slug}', [\App\Http\Controllers\PromoController::class, 'show'])
+    ->name('promo.show');
 
 // Routes publiques pour les événements
 Route::get('/events', [EventController::class, 'index'])->name('events.index');

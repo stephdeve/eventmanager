@@ -24,6 +24,112 @@ class RegistrationController extends Controller
     }
 
     /**
+     * Validate a ticket using its QR code data (code string).
+     */
+    public function validateTicketByCode(string $code)
+    {
+        $registration = Registration::where('qr_code_data', $code)->first();
+
+        if (!$registration) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Billet introuvable.',
+            ], 404);
+        }
+
+        $this->authorize('validate', $registration);
+
+        if ($registration->is_validated) {
+            $registration->load(['event', 'user']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Ce billet a déjà été validé.',
+                'registration' => [
+                    'event' => [
+                        'title' => $registration->event->title,
+                    ],
+                    'user' => [
+                        'name' => $registration->user->name,
+                    ],
+                    'is_validated' => true,
+                    'validated_at' => optional($registration->validated_at)->format('d/m/Y H:i'),
+                ]
+            ], 409);
+        }
+
+        // Règles de paiement: refuser si paiement en attente (numérique), autoriser si unpaid (physique)
+        if (in_array($registration->payment_status, ['pending', 'failed'], true)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ticket invalide ou paiement en attente. Finalisez le paiement en ligne.',
+            ], 422);
+        }
+
+        // Mise à jour atomique pour éviter les doubles validations concurrentes
+        $updated = DB::transaction(function () use ($registration) {
+            return Registration::whereKey($registration->id)
+                ->where('is_validated', false)
+                ->update([
+                    'is_validated' => true,
+                    'validated_at' => now(),
+                    'validated_by' => auth()->id(),
+                ]);
+        });
+
+        if ($updated !== 1) {
+            $registration->refresh()->load(['event', 'user']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Ce billet a déjà été validé.',
+                'registration' => [
+                    'event' => [
+                        'title' => $registration->event->title,
+                    ],
+                    'user' => [
+                        'name' => $registration->user->name,
+                    ],
+                    'is_validated' => true,
+                    'validated_at' => optional($registration->validated_at)->format('d/m/Y H:i'),
+                ]
+            ], 409);
+        }
+
+        $registration->refresh()->load(['event', 'user']);
+
+        event(new TicketValidated($registration));
+
+        // Notifier le participant (check-in confirmé)
+        try {
+            $registration->user->notify(new \App\Notifications\ParticipantCheckInConfirmed($registration));
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        $notice = null;
+        if ($registration->payment_status === 'unpaid') {
+            $notice = 'Accès autorisé — Paiement à effectuer sur place.';
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Billet validé avec succès!',
+            'registration' => [
+                'id' => $registration->id,
+                'event' => [
+                    'title' => $registration->event->title,
+                ],
+                'user' => [
+                    'name' => $registration->user->name,
+                ],
+                'is_validated' => true,
+                'validated_at' => optional($registration->validated_at)->format('d/m/Y H:i'),
+                'payment_status' => $registration->payment_status,
+                'notice' => $notice,
+            ]
+        ]);
+    }
+
+    /**
      * Display a listing of the user's registrations.
      */
     public function index()
@@ -109,26 +215,71 @@ class RegistrationController extends Controller
                     'is_validated' => true,
                     'validated_at' => optional($registration->validated_at)->format('d/m/Y H:i'),
                 ]
-            ], 200);
+            ], 409);
         }
 
-        // Marquer le billet comme validé
-        $registration->update([
-            'is_validated' => true,
-            'validated_at' => now(),
-            'validated_by' => auth()->id()
-        ]);
+        // Règles de paiement: refuser si paiement en attente (numérique), autoriser si unpaid (physique)
+        if (in_array($registration->payment_status, ['pending', 'failed'], true)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ticket invalide ou paiement en attente. Finalisez le paiement en ligne.',
+            ], 422);
+        }
+
+        // Marquer le billet comme validé (atomiquement)
+        $updated = DB::transaction(function () use ($registration) {
+            return Registration::whereKey($registration->id)
+                ->where('is_validated', false)
+                ->update([
+                    'is_validated' => true,
+                    'validated_at' => now(),
+                    'validated_by' => auth()->id(),
+                ]);
+        });
+
+        if ($updated !== 1) {
+            // Conflit concurrent: déjà validé entre-temps
+            $registration->refresh();
+            $registration->load(['event', 'user']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Ce billet a déjà été validé.',
+                'registration' => [
+                    'event' => [
+                        'title' => $registration->event->title,
+                    ],
+                    'user' => [
+                        'name' => $registration->user->name,
+                    ],
+                    'is_validated' => true,
+                    'validated_at' => optional($registration->validated_at)->format('d/m/Y H:i'),
+                ]
+            ], 409);
+        }
 
         // Recharger les relations
-        $registration->load(['event', 'user']);
+        $registration->refresh()->load(['event', 'user']);
 
         // Diffuser la validation en temps réel
         event(new TicketValidated($registration));
+
+        // Notifier le participant (check-in confirmé)
+        try {
+            $registration->user->notify(new \App\Notifications\ParticipantCheckInConfirmed($registration));
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        $notice = null;
+        if ($registration->payment_status === 'unpaid') {
+            $notice = 'Accès autorisé — Paiement à effectuer sur place.';
+        }
 
         return response()->json([
             'success' => true,
             'message' => 'Billet validé avec succès!',
             'registration' => [
+                'id' => $registration->id,
                 'event' => [
                     'title' => $registration->event->title,
                 ],
@@ -137,8 +288,62 @@ class RegistrationController extends Controller
                 ],
                 'is_validated' => true,
                 'validated_at' => optional($registration->validated_at)->format('d/m/Y H:i'),
+                'payment_status' => $registration->payment_status,
+                'notice' => $notice,
             ]
         ]);
+    }
+
+    /**
+     * Marquer un billet comme payé (paiement physique encaissé).
+     */
+    public function markPaid(Request $request, Registration $registration)
+    {
+        $this->authorize('validate', $registration); // organiser ou admin
+
+        if ($registration->payment_status === 'paid') {
+            return back()->with('info', 'Ce billet est déjà marqué comme payé.');
+        }
+
+        DB::transaction(function () use ($registration) {
+            $event = $registration->event()->lockForUpdate()->first();
+
+            $registration->forceFill([
+                'payment_status' => 'paid',
+                'paid_at' => now(),
+                'payment_metadata' => array_merge((array) $registration->payment_metadata, [
+                    'mode' => 'physical',
+                    'manual_paid_by' => auth()->id(),
+                ]),
+            ])->save();
+
+            // Enregistrer un paiement "cash" pour la traçabilité + totaux
+            $ref = 'CASH-REG-' . $registration->id;
+            $existing = \App\Models\EventPayment::where('provider', 'cash')
+                ->where('provider_reference', $ref)
+                ->first();
+            if (!$existing) {
+                \App\Models\EventPayment::create([
+                    'user_id' => $registration->user_id,
+                    'event_id' => $event->id,
+                    'registration_id' => $registration->id,
+                    'provider' => 'cash',
+                    'provider_reference' => $ref,
+                    'method' => 'cash',
+                    'status' => 'success',
+                    'amount_minor' => (int) $event->price,
+                    'currency' => $event->currency ?? 'XOF',
+                    'paid_at' => now(),
+                    'metadata' => ['mode' => 'physical', 'recorded_by' => auth()->id()],
+                ]);
+
+                // Mettre à jour les totaux (revenus + tickets vendus)
+                $event->increment('total_revenue_minor', (int) $event->price);
+                $event->increment('total_tickets_sold', 1);
+            }
+        });
+
+        return back()->with('success', 'Billet marqué comme payé.');
     }
 
     /**

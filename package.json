@@ -22,6 +22,6 @@
     },
     "dependencies": {
         "apexcharts": "^5.3.5",
-        "chart.js": "^4.5.0"
+        "chart.js": "^4.5.1"
     }
 }

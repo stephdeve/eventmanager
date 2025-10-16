@@ -7,6 +7,8 @@
 
         <title>@yield('title', config('app.name', 'EventManager'))</title>
 
+        @stack('meta')
+
         <!-- Favicon -->
         <link rel="icon" href="{{ asset('favicon.ico') }}">
 

@@ -209,20 +209,88 @@
 @endpush
 
 @section('content')
-<div class="min-h-screen dashboard-gradient">
-    <!-- Header Navigation -->
-    <div class="glass-card border-b">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col sm:flex-row justify-between items-center py-4 space-y-4 sm:space-y-0">
-                <!-- Logo et Titre -->
-                <div class="flex items-center space-x-4">
-                    <div class="w-10 h-10 bg-gradient-to-br from-[#4F46E5] to-[#6366F1] rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
-                        EM
-                    </div>
+<div class="space-y-8">
+    @php
+        $user = auth()->user();
+        $active = method_exists($user, 'hasActiveSubscription') ? $user->hasActiveSubscription() : false;
+        $expiresAt = $user->subscription_expires_at; // Carbon|null via casts
+        $expired = $expiresAt ? $expiresAt->isPast() : false;
+    @endphp
+    @if(!$active)
+        <div class="rounded-xl border border-amber-200 bg-amber-50 p-4">
+            <div class="flex items-start justify-between gap-3">
+                <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-amber-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v3m0 4h.01M10.29 3.86l-7.4 12.84A1.5 1.5 0 004.2 19.5h15.6a1.5 1.5 0 001.3-2.3L13.7 3.86a1.5 1.5 0 00-2.6 0z"/></svg>
                     <div>
-                        <h1 class="text-2xl font-bold gradient-text">Tableau de bord</h1>
-                        <p class="text-sm text-[#6B7280] hidden sm:block">Organisateur • {{ auth()->user()->name }}</p>
+                        <p class="text-sm font-semibold text-amber-900">Abonnement expiré ou inactif — renouvelez pour continuer</p>
+                        <p class="mt-1 text-xs text-amber-800">
+                            @if($expired)
+                                Expiré le {{ $expiresAt->translatedFormat('d M Y à H\\hi') }}.
+                            @endif
+                            Offre actuelle: {{ ucfirst($user->subscription_plan ?? '—') }}. Le renouvellement réactivera la création d'événements, le scanner et le lien promo.
+                        </p>
                     </div>
+                </div>
+                <a href="{{ route('subscriptions.plans') }}" class="inline-flex items-center rounded-lg bg-amber-600 px-3 py-2 text-xs font-semibold text-white hover:bg-amber-500">
+                    Renouveler maintenant
+                </a>
+            </div>
+        </div>
+    @endif
+    <!-- En-tête du tableau de bord -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+        <h1 class="text-2xl font-bold text-gray-900">Tableau de bord - Organisateur</h1>
+        <div class="mt-4 md:mt-0">
+            <a href="{{ route('events.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Nouvel événement
+            </a>
+        </div>
+    </div>
+
+    <!-- Synthèse ventes (toujours visible) -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        @php
+            $totalRevenueMinor = (int) data_get($financeTotals ?? [], 'total_revenue_minor', 0);
+            $totalTicketsSold = (int) data_get($financeTotals ?? [], 'total_tickets_sold', 0);
+            $currencyCode = 'XOF';
+            $totalRevenueFormatted = \App\Support\Currency::format($totalRevenueMinor, $currencyCode);
+        @endphp
+        <div class="p-5 bg-white rounded-lg shadow dashboard-card">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full text-emerald-600 bg-emerald-100">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 1.119-3 2.5S10.343 13 12 13s3 1.119 3 2.5S13.657 18 12 18m0-10V6m0 12v-2m8-4a8 8 0 11-16 0 8 8 0 0116 0z"/></svg>
+                </div>
+                <div class="ml-5">
+                    <p class="text-sm font-medium text-gray-500 truncate">Revenus totaux</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ $totalRevenueFormatted }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="p-5 bg-white rounded-lg shadow dashboard-card">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full text-fuchsia-600 bg-fuchsia-100">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h10M5 20h14M9 5h6"/></svg>
+                </div>
+                <div class="ml-5">
+                    <p class="text-sm font-medium text-gray-500 truncate">Tickets vendus</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ number_format($totalTicketsSold) }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cartes synthétiques principales -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+        <!-- Carte statistique : total des événements -->
+        <div class="p-5 bg-white rounded-lg shadow dashboard-card">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full text-indigo-500 bg-indigo-100">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
                 </div>
 
                 <!-- Actions -->
@@ -333,31 +401,48 @@
                 </a>
             </div>
 
-            <!-- Grille Principale -->
-            <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                <!-- Colonne Principale -->
-                <div class="xl:col-span-2 space-y-8">
-                    <!-- Graphique des inscriptions -->
-                    <div class="glass-card rounded-2xl p-6">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 space-y-4 sm:space-y-0">
-                            <div>
-                                <h2 class="text-xl font-semibold text-[#1E3A8A]">Évolution des inscriptions</h2>
-                                <p class="text-sm text-[#6B7280]">Performance sur les 7 derniers jours</p>
-                            </div>
-                            @php
-                                $growth = data_get($charts, 'weekly_registrations.growth_percentage', 0);
-                            @endphp
-                            <div class="flex items-center space-x-2">
-                                <span class="text-sm text-[#6B7280]">Tendance:</span>
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold {{ $growth >= 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700' }}">
-                                    {{ $growth >= 0 ? '+' : '' }}{{ $growth }}%
-                                </span>
-                            </div>
-                        </div>
-                        <div class="h-80">
-                            <canvas id="weekly-registrations-chart"></canvas>
-                        </div>
+    <!-- Zone principale : graphiques et widgets contextuels -->
+    <div class="grid gap-6 lg:grid-cols-3">
+        <div class="space-y-6 lg:col-span-2">
+            <!-- Graphique linéaire : évolution des inscriptions -->
+            <div class="bg-white shadow rounded-lg p-6 dashboard-card">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-lg font-medium text-gray-900">Évolution des inscriptions</h2>
+                        <p class="text-sm text-gray-500">Tendance sur les 7 derniers jours</p>
                     </div>
+                    @php
+                        $growth = data_get($charts, 'weekly_registrations.growth_percentage', 0);
+                    @endphp
+                    <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold {{ $growth >= 0 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600' }}">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            @if($growth >= 0)
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15M19.5 4.5H8.25M19.5 4.5V15.75" />
+                            @else
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 4.5l-15 15M4.5 19.5H15.75M4.5 19.5V8.25" />
+                            @endif
+                        </svg>
+                        {{ $growth >= 0 ? '+' : '' }}{{ $growth }}%
+                    </div>
+                </div>
+                <div class="relative h-64">
+                    <canvas id="weekly-registrations-chart" class="!h-full"></canvas>
+
+                </div>
+            </div>
+
+            <!-- Graphique linéaire : ventes quotidiennes (14 jours) -->
+            <div class="bg-white shadow rounded-lg p-6 dashboard-card">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-lg font-medium text-gray-900">Ventes quotidiennes</h2>
+                        <p class="text-sm text-gray-500">Montants journaliers sur 14 jours</p>
+                    </div>
+                </div>
+                <div class="relative h-64">
+                    <canvas id="daily-sales-chart" class="!h-full"></canvas>
+                </div>
+            </div>
 
                     <!-- Dernières inscriptions -->
                     <div class="glass-card rounded-2xl overflow-hidden">
@@ -398,10 +483,44 @@
                                     </svg>
                                     <p class="mt-4 text-lg font-medium">Aucune inscription récente</p>
                                 </div>
-                            @endforelse
-                        </div>
+                            </a>
+                        </li>
+                    @empty
+                        <li class="px-6 py-8 text-center text-sm text-gray-500">Aucune inscription récente.</li>
+                    @endforelse
+                </ul>
+            </div>
+
+            <!-- Dernières transactions -->
+            <div class="bg-white shadow rounded-lg dashboard-card">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                    <h2 class="text-lg font-medium text-gray-900">Dernières transactions</h2>
+                    <div class="flex items-center gap-2">
+                        <a href="{{ route('reports.sales.csv') }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">Exporter CSV</a>
+                        <span class="text-gray-300">|</span>
+                        <a href="{{ route('reports.sales.pdf') }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">Exporter PDF</a>
                     </div>
                 </div>
+                <ul class="divide-y divide-gray-200">
+                    @forelse(($recentPayments ?? []) as $p)
+                        <li class="px-6 py-4">
+                            <div class="flex items-center justify-between">
+                                <div class="min-w-0">
+                                    <p class="text-sm font-medium text-indigo-600 truncate">{{ optional($p->event)->title }}</p>
+                                    <p class="mt-1 text-xs text-gray-500">{{ strtoupper($p->status) }} • {{ $p->method ?? '—' }} • Ref {{ $p->provider_reference }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-semibold text-gray-900">{{ \App\Support\Currency::format((int) $p->amount_minor, $p->currency ?? 'XOF') }}</p>
+                                    <p class="text-xs text-gray-500">{{ optional($p->paid_at ?? $p->created_at)->isoFormat('D MMM YYYY HH:mm') }}</p>
+                                </div>
+                            </div>
+                        </li>
+                    @empty
+                        <li class="px-6 py-8 text-center text-sm text-gray-500">Aucune transaction récente.</li>
+                    @endforelse
+                </ul>
+            </div>
+        </div>
 
                 <!-- Sidebar Widgets -->
                 <div class="space-y-8">
@@ -559,15 +678,40 @@
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Graphique des inscriptions
-        const weeklyCanvas = document.getElementById('weekly-registrations-chart');
-        if (weeklyCanvas) {
-            const weeklyLabels = @json(data_get($charts, 'weekly_registrations.labels', []));
-            const weeklySeries = @json(data_get($charts, 'weekly_registrations.series', []));
+    <!-- Bibliothèques de visualisation (Chart.js + ApexCharts) avec repli local hors-ligne -->
+    <script>
+        (function () {
+            function load(src, testFn, fallbackSrc) {
+                return new Promise(function (resolve) {
+                    if (testFn()) return resolve();
+                    var s = document.createElement('script');
+                    s.src = src;
+                    s.onload = resolve;
+                    s.onerror = function () {
+                        var lf = document.createElement('script');
+                        lf.src = fallbackSrc;
+                        lf.onload = resolve;
+                        document.head.appendChild(lf);
+                    };
+                    document.head.appendChild(s);
+                });
+            }
+            window.loadDashboardLibs = function () {
+                return Promise.all([
+                    load('https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js', function(){ return !!window.Chart; }, '{{ asset('vendor/chart.js/chart.umd.min.js') }}'),
+                    load('https://cdn.jsdelivr.net/npm/apexcharts', function(){ return !!window.ApexCharts; }, '{{ asset('vendor/apexcharts/apexcharts.min.js') }}'),
+                ]);
+            };
+        })();
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            window.loadDashboardLibs().then(function () {
+            /* Graphique linéaire des inscriptions (Chart.js) */
+            const weeklyCanvas = document.getElementById('weekly-registrations-chart');
+            if (weeklyCanvas) {
+                const weeklyLabels = @json(data_get($charts, 'weekly_registrations.labels', []));
+                const weeklySeries = @json(data_get($charts, 'weekly_registrations.series', []));
 
             new Chart(weeklyCanvas, {
                 type: 'line',
@@ -651,9 +795,54 @@
                 colors: ['#4F46E5', '#6366F1', '#818CF8', '#A5B4FC'],
             };
 
-            const apexChart = new ApexCharts(occupancyContainer, apexOptions);
-            apexChart.render();
-        }
-    });
-</script>
+                const apexChart = new ApexCharts(occupancyContainer, apexOptions);
+                apexChart.render();
+            }
+
+            /* Graphique des ventes quotidiennes (Chart.js) */
+            const salesCanvas = document.getElementById('daily-sales-chart');
+            if (salesCanvas) {
+                const salesLabels = @json(data_get($salesChart ?? [], 'labels', []));
+                const salesSeriesMinor = @json(data_get($salesChart ?? [], 'series_minor', []));
+                const salesSeriesMajor = salesSeriesMinor.map(v => (v || 0) / 100);
+                const currencyFormatter = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF', maximumFractionDigits: 0 });
+
+                new Chart(salesCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: salesLabels,
+                        datasets: [{
+                            label: 'Ventes (par jour)',
+                            data: salesSeriesMajor,
+                            backgroundColor: 'rgba(16, 185, 129, 0.3)',
+                            borderColor: '#10b981',
+                            borderWidth: 1.5,
+                            borderRadius: 4,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: (value) => currencyFormatter.format(value),
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => currencyFormatter.format(ctx.parsed.y)
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            });
+        });
+    </script>
 @endpush

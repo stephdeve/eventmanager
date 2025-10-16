@@ -2,214 +2,26 @@
 
 @section('title', $event->title)
 
-@push('styles')
-<style>
-    .page-gradient {
-        background: linear-gradient(135deg, #F9FAFB 0%, #FFFFFF 50%, #E0E7FF 100%);
-        min-height: 100vh;
-    }
-
-    .event-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow:
-            0 20px 40px rgba(79, 70, 229, 0.08),
-            inset 0 1px 0 rgba(255, 255, 255, 0.6);
-    }
-
-    .cover-image {
-        height: 400px;
-        width: 100%;
-        object-fit: cover;
-        border-radius: 20px 20px 0 0;
-    }
-
-    .info-card {
-        background: white;
-        border: 2px solid #E0E7FF;
-        border-radius: 12px;
-        padding: 1.5rem;
-        transition: all 0.3s ease;
-    }
-
-    .info-card:hover {
-        border-color: #4F46E5;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(79, 70, 229, 0.1);
-    }
-
-    .action-btn {
-        background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%);
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border: none;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 0.95rem;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .action-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 25px rgba(79, 70, 229, 0.3);
-    }
-
-    .cancel-btn {
-        background: white;
-        color: #6B7280;
-        border: 2px solid #E5E7EB;
-        padding: 0.75rem 1.5rem;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 0.95rem;
-        transition: all 0.3s ease;
-    }
-
-    .cancel-btn:hover {
-        border-color: #EF4444;
-        color: #EF4444;
-        transform: translateY(-1px);
-    }
-
-    .secondary-btn {
-        background: white;
-        color: #6B7280;
-        border: 2px solid #E5E7EB;
-        padding: 0.75rem 1.5rem;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 0.95rem;
-        transition: all 0.3s ease;
-    }
-
-    .secondary-btn:hover {
-        border-color: #4F46E5;
-        color: #4F46E5;
-        transform: translateY(-1px);
-    }
-
-    .badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.875rem;
-        font-weight: 600;
-    }
-
-    .badge-available {
-        background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
-        color: white;
-    }
-
-    .badge-full {
-        background: linear-gradient(135deg, #EF4444 0%, #F87171 100%);
-        color: white;
-    }
-
-    .badge-price {
-        background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
-        color: white;
-    }
-
-    .badge-free {
-        background: linear-gradient(135deg, #6B7280 0%, #9CA3AF 100%);
-        color: white;
-    }
-
-    .attendee-card {
-        background: white;
-        border: 2px solid #F3F4F6;
-        border-radius: 12px;
-        padding: 1.25rem;
-        transition: all 0.3s ease;
-    }
-
-    .attendee-card:hover {
-        border-color: #4F46E5;
-        transform: translateY(-2px);
-    }
-
-    .age-checkbox {
-        border: 2px solid #E0E7FF;
-        border-radius: 12px;
-        background: #F8FAFC;
-        padding: 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .age-checkbox:has(input:checked) {
-        border-color: #4F46E5;
-        background: #E0E7FF;
-    }
-
-    .payment-fieldset {
-        border: 2px solid #E0E7FF;
-        border-radius: 12px;
-        background: #F8FAFC;
-        padding: 1.25rem;
-        transition: all 0.3s ease;
-    }
-
-    .payment-fieldset:hover {
-        border-color: #4F46E5;
-    }
-
-    .back-link {
-        display: inline-flex;
-        align-items: center;
-        color: #4F46E5;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        background: white;
-        border: 2px solid #E0E7FF;
-    }
-
-    .back-link:hover {
-        color: white;
-        background: #4F46E5;
-        transform: translateX(-4px);
-    }
-
-    .description-content {
-        line-height: 1.7;
-        color: #4B5563;
-    }
-
-    .description-content p {
-        margin-bottom: 1rem;
-    }
-
-    .organizer-card {
-        background: linear-gradient(135deg, #F8FAFC 0%, #FFFFFF 100%);
-        border: 2px solid #E0E7FF;
-        border-radius: 16px;
-        padding: 1.5rem;
-        transition: all 0.3s ease;
-    }
-
-    .organizer-card:hover {
-        border-color: #4F46E5;
-        transform: translateY(-2px);
-    }
-
-    .modal-overlay {
-        background: rgba(15, 23, 42, 0.6);
-        backdrop-filter: blur(8px);
-    }
-
-    .modal-content {
-        background: white;
-        border-radius: 20px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    }
-</style>
+@push('meta')
+    @php
+        $ogTitle = $event->title;
+        $ogDescription = \Illuminate\Support\Str::limit(strip_tags($event->description ?? ''), 180);
+        $ogImage = $event->cover_image_url;
+        $ogUrl = route('events.show', $event);
+    @endphp
+    <link rel="canonical" href="{{ $ogUrl }}">
+    <meta name="description" content="{{ $ogDescription }}">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ $ogTitle }}">
+    <meta property="og:description" content="{{ $ogDescription }}">
+    <meta property="og:image" content="{{ $ogImage }}">
+    <meta property="og:url" content="{{ $ogUrl }}">
+    <meta property="og:site_name" content="{{ config('app.name', 'EventManager') }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $ogTitle }}">
+    <meta name="twitter:description" content="{{ $ogDescription }}">
+    <meta name="twitter:image" content="{{ $ogImage }}">
 @endpush
 
 @section('content')
@@ -224,47 +36,56 @@
                 Retour aux événements
             </a>
         </div>
-
-        <!-- Carte principale de l'événement -->
-        <div class="event-card rounded-2xl overflow-hidden">
-            <!-- Image de couverture -->
-            @if($event->cover_image)
-                <div class="relative">
-                    <img src="{{ asset('storage/' . $event->cover_image) }}" alt="{{ $event->title }}" class="cover-image">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+        <div class="relative mb-6">
+            <div class="h-56 md:h-80 w-full overflow-hidden rounded-2xl relative">
+                <img src="{{ $event->cover_image_url }}" alt="{{ $event->title }}" class="absolute inset-0 w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+                <div class="absolute bottom-0 left-0 right-0 p-6">
+                    <h1 class="text-3xl md:text-4xl font-bold text-white">{{ $event->title }}</h1>
+                    <div class="mt-3 flex flex-wrap items-center gap-4 text-white/90 text-sm">
+                        <span class="inline-flex items-center gap-1">
+                            <svg class="h-5 w-5 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            @if($event->start_date) {{ $event->start_date->translatedFormat('d M Y, H\\hi') }} @endif
+                        </span>
+                        <span class="inline-flex items-center gap-1">
+                            <svg class="h-5 w-5 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            {{ $event->location }}
+                        </span>
+                        <span class="inline-flex items-center gap-1 font-semibold">
+                            {{ \App\Support\Currency::format($event->price, $event->currency ?? 'XOF') }}
+                        </span>
+                    </div>
                 </div>
-            @endif
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+
 
             <div class="p-8">
                 <!-- En-tête avec titre et actions -->
                 <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
                     <div class="flex-1">
-                        <h1 class="text-4xl font-bold bg-gradient-to-r from-[#1E3A8A] to-[#4F46E5] bg-clip-text text-transparent mb-4">
-                            {{ $event->title }}
-                        </h1>
+                        <h1 class="sr-only">{{ $event->title }}</h1>
 
-                        <!-- Informations principales -->
-                        <div class="space-y-3">
-                            <div class="flex items-center text-[#6B7280]">
-                                <svg class="flex-shrink-0 mr-3 h-5 w-5 text-[#4F46E5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                </svg>
-                                <span class="text-lg">{{ $event->location }}</span>
-                            </div>
+                        <div class="mt-4 flex items-center text-sm text-gray-500">
+                            <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            {{ $event->location }}
+                        </div>
 
-                            <div class="flex items-center text-[#6B7280]">
-                                <svg class="flex-shrink-0 mr-3 h-5 w-5 text-[#4F46E5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
-                                <span class="text-lg">
-                                    @if($event->start_date)
-                                        {{ $event->start_date->translatedFormat('l d F Y \à H\hi') }}
-                                    @else
-                                        Date non définie
-                                    @endif
-                                </span>
-                            </div>
+                        <div class="mt-2 flex items-center text-sm text-gray-500">
+                            <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            @if($event->start_date)
+                                {{ $event->start_date->translatedFormat('l d F Y \\à H\\hi') }}
+                            @else
+                                Date non définie
+                            @endif
+                        </div>
 
                             @if($event->end_date)
                             <div class="flex items-center text-[#6B7280]">
@@ -350,6 +171,33 @@
                                     </div>
                                 @endcan
                             </div>
+                            @can('update', $event)
+                                <div class="mt-4 rounded-lg border border-gray-200 p-4 bg-gray-50">
+                                    <h3 class="text-sm font-semibold text-gray-800 mb-2">Lien de promotion</h3>
+                                    @php $plan = optional(auth()->user())->subscription_plan; $eligible = in_array($plan, ['premium','pro'], true); @endphp
+                                    @if($eligible)
+                                        @if($event->shareable_link)
+                                            <div class="flex items-center gap-2">
+                                                <input type="text" readonly class="w-full border-gray-300 rounded-md text-sm" value="{{ $event->shareable_link }}">
+                                                <button type="button" class="px-3 py-2 text-sm rounded-md bg-indigo-600 text-white" onclick="navigator.clipboard.writeText('{{ $event->shareable_link }}')">Copier</button>
+                                            </div>
+                                            <p class="mt-2 text-xs text-gray-600">Clics: <strong>{{ (int) $event->promo_clicks }}</strong> · Inscriptions: <strong>{{ (int) $event->promo_registrations }}</strong></p>
+                                        @else
+                                            <form method="POST" action="{{ route('events.generate-share', $event) }}">
+                                                @csrf
+                                                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">
+                                                    Générer le lien de promotion
+                                                </button>
+                                            </form>
+                                        @endif
+                                    @else
+                                        <div class="flex items-start justify-between gap-2">
+                                            <p class="text-sm text-gray-600">Fonctionnalité réservée aux abonnements Premium et Pro.</p>
+                                            <a href="{{ route('subscriptions.plans') }}" class="inline-flex items-center px-3 py-2 rounded-md bg-indigo-600 text-white text-sm hover:bg-indigo-500">Voir les offres</a>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endcan
                         @endif
 
                         @if(auth()->check() && auth()->user()->isStudent())
@@ -365,8 +213,11 @@
                                     </button>
                                 </form>
                             @elseif($event->available_seats > 0 && optional($event->start_date)->isFuture())
-                                <form action="{{ route('events.register', $event) }}" method="POST" class="space-y-4">
+                                <form action="{{ route('events.register', $event) }}" method="POST" class="inline-block space-y-3">
                                     @csrf
+                                    @if(request()->filled('ref'))
+                                        <input type="hidden" name="ref" value="{{ request('ref') }}">
+                                    @endif
 
                                     @if($event->is_restricted_18)
                                         <div class="age-checkbox">

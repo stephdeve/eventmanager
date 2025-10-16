@@ -29,6 +29,15 @@ class Event extends Model
         'cover_image',
         'organizer_id',
         'is_restricted_18',
+        'slug',
+        'shareable_link',
+        'promo_clicks',
+        'promo_registrations',
+        // Finance
+        'total_revenue_minor',
+        'total_tickets_sold',
+        'revenue_threshold_minor',
+        'revenue_threshold_notified_at',
     ];
 
     /**
@@ -44,6 +53,12 @@ class Event extends Model
         'price' => 'integer', // Stocké en plus petite unité
         'currency' => 'string',
         'is_restricted_18' => 'boolean',
+        'promo_clicks' => 'integer',
+        'promo_registrations' => 'integer',
+        'total_revenue_minor' => 'integer',
+        'total_tickets_sold' => 'integer',
+        'revenue_threshold_minor' => 'integer',
+        'revenue_threshold_notified_at' => 'datetime',
     ];
     
     /**
@@ -105,6 +120,11 @@ class Event extends Model
     public function registrations()
     {
         return $this->hasMany(Registration::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(EventPayment::class);
     }
 
     /**

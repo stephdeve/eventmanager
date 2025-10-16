@@ -23,6 +23,45 @@ class EventController extends Controller
     }
 
     /**
+     * Generate a shareable link (and slug) for an event if missing, for organizers.
+     */
+    public function generateShareLink(Event $event)
+    {
+        $this->authorize('update', $event);
+        $currentUser = Auth::user();
+        $devBypass = app()->environment(['local','development']);
+        $bypassUsers = collect(explode(',', (string) env('PROMO_BYPASS_USER_IDS', '')))
+            ->filter(fn($v) => $v !== '')
+            ->map(fn($v) => (int) trim((string) $v))
+            ->all();
+        $hasBypass = $currentUser && in_array((int) $currentUser->id, $bypassUsers, true);
+        if (!$currentUser || (!($currentUser->isAdmin() || in_array(($currentUser->subscription_plan ?? 'basic'), ['premium','pro'], true) || $devBypass || $hasBypass))) {
+            return back()->with('error', 'Fonctionnalité réservée aux abonnements Premium et Pro.');
+        }
+
+        if (!$event->slug) {
+            $base = Str::slug($event->title);
+            $slug = $base;
+            $i = 2;
+            while (Event::where('slug', $slug)->where('id', '!=', $event->id)->exists()) {
+                $slug = $base . '-' . $i++;
+            }
+            $event->slug = $slug;
+        }
+
+        $link = route('promo.show', ['slug' => $event->slug]);
+        $orgId = $event->organizer_id ?: (auth()->check() ? auth()->id() : null);
+        if ($orgId) {
+            $link .= (str_contains($link, '?') ? '&' : '?') . 'ref=' . urlencode('org-' . $orgId);
+        }
+
+        $event->shareable_link = $link;
+        $event->save();
+
+        return back()->with('success', 'Lien de promotion généré.');
+    }
+
+    /**
      * Display a listing of the events.
      */
     public function index()
@@ -91,6 +130,11 @@ class EventController extends Controller
 
         // Limites selon l'abonnement de l'organisateur
         $currentUser = Auth::user();
+        $bypassUsers = collect(explode(',', (string) env('PROMO_BYPASS_USER_IDS', '')))
+            ->filter(fn($v) => $v !== '')
+            ->map(fn($v) => (int) trim((string) $v))
+            ->all();
+        $hasBypass = $currentUser && in_array((int) $currentUser->id, $bypassUsers, true);
         if ($currentUser && $currentUser->isOrganizer()) {
             $plan = $currentUser->subscription_plan ?: 'basic';
             $planCaps = [
@@ -123,6 +167,18 @@ class EventController extends Controller
             $path = $request->file('cover_image')->store('events/cover_images', 'public');
             $validated['cover_image'] = $path;
         }
+        
+        // Génération du slug unique et du lien partageable
+        $slugBase = Str::slug($validated['title']);
+        $slug = $slugBase;
+        $i = 2;
+        while (Event::where('slug', $slug)->exists()) {
+            $slug = $slugBase . '-' . $i++;
+        }
+        $shareLink = route('promo.show', ['slug' => $slug]);
+        if (Auth::check()) {
+            $shareLink .= (str_contains($shareLink, '?') ? '&' : '?') . 'ref=' . urlencode('org-' . Auth::id());
+        }
 
         // Création de l'événement
         $event = new Event([
@@ -138,6 +194,13 @@ class EventController extends Controller
             'cover_image' => $validated['cover_image'] ?? null,
             'organizer_id' => Auth::id(),
             'is_restricted_18' => $request->boolean('is_restricted_18'),
+            'slug' => $slug,
+            // Lien promo: Premium/Pro OU Admin OU environnement local/development OU bypass par ID
+            'shareable_link' => (
+                ($currentUser && ($currentUser->isAdmin() || in_array(($currentUser->subscription_plan ?? 'basic'), ['premium','pro'], true)))
+                || app()->environment(['local','development'])
+                || $hasBypass
+            ) ? $shareLink : null,
         ]);
 
         $event->save();
@@ -195,11 +258,13 @@ class EventController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'start_date' => 'required|date|after:now',
+            // Autoriser l'édition d'événements passés: pas de contrainte after:now ici
+            'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
             'location' => 'required|string|max:255',
             'capacity' => 'required|integer|min:1',
-            'available_seats' => ['required', 'integer', 'min:' . $registrationsCount, 'lte:capacity'],
+            // Rendre facultatif; s'il n'est pas transmis, conserver la valeur actuelle
+            'available_seats' => ['nullable', 'integer', 'min:' . $registrationsCount, 'lte:capacity'],
             'price' => 'required|numeric|min:0',
             'currency' => ['required', 'string', 'size:3', Rule::in(array_keys(Currency::all()))],
             'is_restricted_18' => 'nullable|boolean',
@@ -229,7 +294,7 @@ class EventController extends Controller
             'end_date' => $validated['end_date'],
             'location' => $validated['location'],
             'capacity' => $validated['capacity'],
-            'available_seats' => $validated['available_seats'],
+            'available_seats' => $validated['available_seats'] ?? $event->available_seats,
             'price' => Currency::toMinorUnits($validated['price'], $validated['currency']),
             'currency' => strtoupper($validated['currency']),
             'is_restricted_18' => $request->boolean('is_restricted_18'),
@@ -305,8 +370,10 @@ class EventController extends Controller
             $paymentMethod = $validatedPayment['payment_method'];
         }
 
+        $sourceRef = $request->filled('ref') ? (string) $request->input('ref') : null;
+
         try {
-            $registration = DB::transaction(function () use ($event, $userId, $isFreeEvent, $ageConfirmed, $paymentMethod) {
+            $registration = DB::transaction(function () use ($event, $userId, $isFreeEvent, $ageConfirmed, $paymentMethod, $sourceRef) {
                 $registration = new Registration([
                     'user_id' => $userId,
                     'qr_code_data' => (string) Str::uuid(),
@@ -320,6 +387,10 @@ class EventController extends Controller
                 $event->registrations()->save($registration);
                 $event->decrement('available_seats');
 
+                if ($sourceRef) {
+                    $event->increment('promo_registrations');
+                }
+
                 if ($isFreeEvent || ($paymentMethod === 'physical')) {
                     $qrCodeData = route('registrations.show', $registration->qr_code_data);
                     $qrCodePaths = $this->qrCodeService->generate($qrCodeData);
@@ -330,11 +401,30 @@ class EventController extends Controller
                     ]);
                 }
 
+                // Compter les billets gratuits comme "vendus" immédiatement
+                if ($isFreeEvent) {
+                    $event->increment('total_tickets_sold');
+                }
+
                 return $registration;
             });
         } catch (\Throwable $exception) {
             report($exception);
             return back()->with('error', 'Une erreur s\'est produite lors de votre inscription. Veuillez réessayer.');
+        }
+
+        // Notifications: participant + organisateur
+        try {
+            $event->loadMissing('organizer');
+            $registration->loadMissing(['event', 'user']);
+            // Participant: confirmation/paiement à finaliser
+            $registration->user->notify(new \App\Notifications\ParticipantRegistrationCreated($registration));
+            // Organisateur: nouvelle inscription
+            if ($event->organizer) {
+                $event->organizer->notify(new \App\Notifications\OrganizerNewRegistration($registration));
+            }
+        } catch (\Throwable $e) {
+            report($e);
         }
 
         if ($isFreeEvent || ($paymentMethod === 'physical')) {

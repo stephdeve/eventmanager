@@ -19,7 +19,8 @@ class SubscriptionsController extends Controller
     public function plans()
     {
         $user = Auth::user();
-        if ($user->isOrganizer()) {
+        // Laisser accéder à la page des offres si l'abonnement est inexistant/expiré
+        if ($user->isOrganizer() && method_exists($user, 'hasActiveSubscription') && $user->hasActiveSubscription()) {
             return redirect()->route('dashboard');
         }
 
@@ -75,10 +76,25 @@ class SubscriptionsController extends Controller
                 return redirect()->route('subscriptions.plans')->with('error', 'Paiement non confirmé.');
             }
 
+            $now = now();
+            $newExpiry = ($user->subscription_status === 'active' && $user->subscription_expires_at && $user->subscription_expires_at->isFuture())
+                ? $user->subscription_expires_at->clone()->addMonth()
+                : $now->clone()->addMonth();
+
             $user->forceFill([
                 'role' => 'organizer',
                 'subscription_plan' => $plan,
+                'subscription_status' => 'active',
+                'subscription_started_at' => $user->subscription_started_at ?: $now,
+                'subscription_expires_at' => $newExpiry,
             ])->save();
+
+            // Notification de confirmation d'abonnement
+            try {
+                $user->notify(new \App\Notifications\OrganizerSubscriptionConfirmed($plan, $newExpiry));
+            } catch (\Throwable $e) {
+                report($e);
+            }
 
             return redirect()->route('dashboard')->with('success', 'Abonnement activé. Bienvenue en tant qu’organisateur !');
         } catch (\Throwable $e) {

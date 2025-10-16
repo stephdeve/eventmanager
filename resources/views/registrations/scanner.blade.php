@@ -96,6 +96,7 @@
         const scannerResult = document.getElementById('scanner-result');
         const resultContent = document.getElementById('result-content');
         let html5QrCode;
+        let isScanning = false;
 
         startButton.addEventListener('click', function() {
             // Initialiser le scanner avec une zone de scan carrée
@@ -113,7 +114,9 @@
                 (qrCodeMessage) => {
                     // Succès du scan
                     html5QrCode.stop();
+                    isScanning = false;
                     scannerResult.classList.remove('hidden');
+                    const code = extractCode(qrCodeMessage);
                     
                     // Afficher les informations du scan
                     resultContent.innerHTML = `
@@ -127,13 +130,13 @@
                                 <div class="ml-3">
                                     <p class="text-sm font-medium text-green-800">Billet scanné avec succès !</p>
                                     <div class="mt-2 text-sm text-green-700">
-                                        <p>ID du billet: <span class="font-mono">${qrCodeMessage}</span></p>
+                                        <p>Code du billet: <span class="font-mono">${code}</span></p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="mt-4 flex justify-end">
-                            <button onclick="validateTicket('${qrCodeMessage}')" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition">
+                            <button onclick="validateTicket('${code}')" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition">
                                 Valider l'entrée
                             </button>
                         </div>
@@ -162,12 +165,14 @@
                 Arrêter le scan
             `;
             stopBtn.onclick = stopScanner;
+            isScanning = true;
         });
 
         async function stopScanner() {
             if (html5QrCode && html5QrCode.isScanning) {
                 try {
                     await html5QrCode.stop();
+                    isScanning = false;
                     console.log("Scanner arrêté avec succès");
                     
                     // Vider la vidéo
@@ -221,7 +226,20 @@
         /**
          * Valider un ticket via son code QR
          */
-        window.validateTicket = function(qrCodeData) {
+        function extractCode(input) {
+            try {
+                const u = new URL(input);
+                const m = u.pathname.match(/\/tickets\/([^\/]+)/i);
+                if (m && m[1]) return m[1];
+            } catch (e) {
+                // not a full URL, try to match a relative path
+                const m2 = String(input).match(/\/tickets\/([^\/]+)/i);
+                if (m2 && m2[1]) return m2[1];
+            }
+            return String(input);
+        }
+
+        window.validateTicket = async function(code) {
             // Afficher un indicateur de chargement
             const validateButton = resultContent.querySelector('button[onclick^="validateTicket"]');
             if (validateButton) {
@@ -238,99 +256,95 @@
                 // Désactiver temporairement le bouton
                 validateButton.onclick = null;
             }
+            const url = `/tickets/${encodeURIComponent(code)}/validate`;
+            const controller = new AbortController();
+            const csrfEl = document.querySelector('meta[name="csrf-token"]');
+            const csrf = csrfEl ? csrfEl.getAttribute('content') : '';
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-            // Envoyer la requête de validation
-            fetch(`/registrations/${qrCodeData}/validate`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({
-                    _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    _method: 'POST'
-                })
-            })
-            .then(async response => {
-                const data = await response.json();
-                if (!response.ok) {
-                    throw new Error(data.message || 'Une erreur est survenue lors de la validation');
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrf,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ _token: csrf, _method: 'POST' }),
+                    signal: controller.signal,
+                });
+
+                let data;
+                const ct = response.headers.get('content-type') || '';
+                if (ct.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    const text = await response.text();
+                    if (!response.ok) {
+                        throw new Error('Erreur serveur: ' + response.status);
+                    }
+                    data = {};
                 }
-                return data;
-            })
-            .then(data => {
-                // Afficher le message de succès
+
+                if (!response.ok) {
+                    throw new Error(data?.message || 'Une erreur est survenue lors de la validation');
+                }
+
+                const notice = data?.registration?.notice;
+                const paymentStatus = (data?.registration?.payment_status || '').toUpperCase();
+
                 resultContent.innerHTML = `
                     <div class="rounded-md bg-green-50 p-4">
                         <div class="flex">
                             <div class="flex-shrink-0">
                                 <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                    <path fill-rule=\"evenodd\" d=\"M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z\" clip-rule=\"evenodd\" />
                                 </svg>
                             </div>
                             <div class="ml-3">
-                                <h3 class="text-sm font-medium text-green-800">
-                                    Billet validé avec succès !
-                                </h3>
-                                <div class="mt-2 text-sm text-green-700">
+                                <h3 class="text-sm font-medium text-green-800">Billet validé avec succès !</h3>
+                                <div class="mt-2 text-sm text-green-700 space-y-1">
                                     <p>Événement: <span class="font-medium">${data.registration?.event?.title || 'Non spécifié'}</span></p>
                                     <p>Participant: <span class="font-medium">${data.registration?.user?.name || 'Non spécifié'}</span></p>
-                                    <p class="mt-2 text-xs text-green-600">
-                                        Validé le ${new Date().toLocaleDateString()} à ${new Date().toLocaleTimeString()}
-                                    </p>
+                                    ${paymentStatus ? `<p class="text-xs text-gray-700">Statut paiement: <span class="font-semibold">${paymentStatus}</span></p>` : ''}
+                                    <p class="mt-2 text-xs text-green-600">Validé le ${new Date().toLocaleDateString()} à ${new Date().toLocaleTimeString()}</p>
                                 </div>
+                                ${notice ? `
+                                <div class="mt-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-amber-900 text-xs">
+                                    ${notice}
+                                </div>` : ''}
                                 <div class="mt-4">
                                     <button type="button" onclick="window.location.reload()" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                                        <svg class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                        </svg>
+                                        <svg class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                                         Scanner un autre billet
                                     </button>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                `;
-            })
-            .catch(error => {
+                    </div>`;
+            } catch (error) {
                 console.error('Erreur lors de la validation:', error);
-                
-                // Afficher le message d'erreur
-                const errorMessage = error.message || 'Une erreur est survenue lors de la validation du billet';
-                
+                const errorMessage = (error.name === 'AbortError') ? 'Délai dépassé. Vérifiez votre connexion.' : (error.message || 'Une erreur est survenue lors de la validation du billet');
                 resultContent.innerHTML = `
                     <div class="rounded-md bg-red-50 p-4">
                         <div class="flex">
                             <div class="flex-shrink-0">
-                                <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                                </svg>
+                                <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>
                             </div>
                             <div class="ml-3">
-                                <h3 class="text-sm font-medium text-red-800">
-                                    Erreur lors de la validation
-                                </h3>
-                                <div class="mt-2 text-sm text-red-700">
-                                    <p>${errorMessage}</p>
-                                </div>
+                                <h3 class="text-sm font-medium text-red-800">Erreur lors de la validation</h3>
+                                <div class="mt-2 text-sm text-red-700"><p>${errorMessage}</p></div>
                                 <div class="mt-4 flex space-x-3">
-                                    <button type="button" onclick="window.location.reload()" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                        Annuler
-                                    </button>
-                                    <button type="button" onclick="validateTicket('${qrCodeData}')" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                        <svg class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                        </svg>
-                                        Réessayer
-                                    </button>
+                                    <button type="button" onclick="window.location.reload()" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Annuler</button>
+                                    <button type="button" onclick="validateTicket('${code}')" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Réessayer</button>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                `;
-            });
+                    </div>`;
+            } finally {
+                clearTimeout(timeoutId);
+            }
         };
 
         // Gérer la visibilité de l'onglet
