@@ -485,8 +485,6 @@
                                 </div>
                             </a>
                         </li>
-                    @empty
-                        <li class="px-6 py-8 text-center text-sm text-gray-500">Aucune inscription récente.</li>
                     @endforelse
                 </ul>
             </div>
