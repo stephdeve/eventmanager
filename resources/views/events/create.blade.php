@@ -11,7 +11,6 @@
     .form-card {
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
         box-shadow:
             0 20px 40px rgba(79, 70, 229, 0.08),
             inset 0 1px 0 rgba(255, 255, 255, 0.6);
@@ -157,10 +156,10 @@
 @endpush
 
 @section('content')
-<div class="min-h-screen form-gradient py-8">
+<div class="min-h-screen py-8">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- En-tête -->
-        <div class="text-center mb-8">
+        <div class="text-start mb-8">
             <h1 class="text-3xl font-bold bg-gradient-to-r from-[#1E3A8A] to-[#4F46E5] bg-clip-text text-transparent mb-3">
                 Créer un nouvel événement
             </h1>
@@ -168,7 +167,7 @@
         </div>
 
         <!-- Carte du formulaire -->
-        <div class="form-card rounded-2xl p-8">
+        <div class="form-card rounded-2xl border  p-8">
             <form action="{{ route('events.store') }}" method="POST" enctype="multipart/form-data" id="eventForm">
                 @csrf
 
@@ -176,7 +175,7 @@
                     <!-- Colonne de gauche -->
                     <div class="space-y-6">
                         <!-- Titre -->
-                        <div class="form-group">
+                        <div class="form-group ">
                             <label for="title" class="form-label">
                                 Titre de l'événement *
                                 <span class="text-[#6B7280] text-sm font-normal">(Soyez créatif !)</span>
@@ -195,7 +194,7 @@
                         </div>
 
                         <!-- Description -->
-                        <div class="form-group">
+                        <div class="form-group ">
                             <label for="description" class="form-label">
                                 Description *
                                 <span class="text-[#6B7280] text-sm font-normal">(Décrivez votre événement)</span>
