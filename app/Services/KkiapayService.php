@@ -22,23 +22,58 @@ class KkiapayService
 
     public function verify(string $transactionId): array
     {
-        $apiUrl = rtrim(config('services.kkiapay.api_url', 'https://api.kkiapay.me'), '/');
-        $url = $apiUrl . '/api/v1/transactions/verify';
+        $sandbox = (bool) config('services.kkiapay.sandbox', true);
+        $configured = trim((string) config('services.kkiapay.api_url', ''));
+        // Choisir la bonne base selon l'environnement si non explicitement configuré
+        if ($configured !== '') {
+            $apiUrl = rtrim($configured, '/');
+        } else {
+            $apiUrl = $sandbox ? 'https://api-sandbox.kkiapay.me' : 'https://api.kkiapay.me';
+        }
+        // Sécurité: si sandbox=true mais un host prod est configuré, forcer sandbox
+        if ($sandbox && str_contains($apiUrl, 'api.kkiapay.me')) {
+            $apiUrl = 'https://api-sandbox.kkiapay.me';
+        }
+        // Endpoint conforme au SDK PHP officiel (avec repli automatique si 404)
+        $primaryUrl = $apiUrl . '/api/v1/transactions/status';
+        $fallbackUrl = $apiUrl . '/api/v1/transactions/verify';
 
-        $response = Http::withHeaders([
-            'X-Api-Key' => config('services.kkiapay.public_key'),
-            'X-Private-Key' => config('services.kkiapay.private_key'),
-            'X-Secret-Key' => config('services.kkiapay.secret'),
+        $request = Http::withHeaders([
+            // Aligner les noms d'en-têtes sur le SDK (insensibles à la casse, mais on garde la convention)
+            'X-API-KEY' => config('services.kkiapay.public_key'),
+            'X-PRIVATE-KEY' => config('services.kkiapay.private_key'),
+            'X-SECRET-KEY' => config('services.kkiapay.secret'),
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
-        ])->post($url, [
-            'transactionId' => $transactionId,
-        ]);
+        ])->asJson();
+
+        // Environnement de développement: désactiver la vérification SSL pour contourner cURL error 60
+        if (app()->isLocal() || config('app.debug')) {
+            $request = $request->withoutVerifying();
+        }
+
+        $payload = ['transactionId' => $transactionId];
+
+        $response = $request->post($primaryUrl, $payload);
+
+        // Repli si l'endpoint principal n'existe pas / n'est pas supporté
+        if (in_array($response->status(), [404, 405], true)) {
+            Log::info('Kkiapay verify: primary endpoint failed, trying fallback', [
+                'status' => $response->status(),
+                'primary' => $primaryUrl,
+                'fallback' => $fallbackUrl,
+            ]);
+            $response = $request->post($fallbackUrl, $payload);
+        }
 
         if (!$response->successful()) {
             Log::warning('Kkiapay verify failed', [
+                'sandbox' => $sandbox,
+                'api_url' => $apiUrl,
+                'attempted' => [$primaryUrl, $fallbackUrl],
                 'status' => $response->status(),
                 'body' => $response->body(),
+                'headers' => $response->headers(),
             ]);
             $response->throw();
         }

@@ -6,6 +6,8 @@ use App\Models\Registration;
 use App\Services\KkiapayService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Client\RequestException;
 
 class PaymentController extends Controller
 {
@@ -67,11 +69,27 @@ class PaymentController extends Controller
                 ->route('payments.pending', $registration)
                 ->with('error', 'Paiement non confirmé. Veuillez réessayer.');
         } catch (\Throwable $e) {
+            // Journaliser des détails utiles côté serveur
+            if ($e instanceof RequestException) {
+                Log::warning('Kkiapay confirm exception', [
+                    'status' => optional($e->response)->status(),
+                    'body' => optional($e->response)->body(),
+                    'transaction_id' => $transactionId,
+                ]);
+            }
             report($e);
+
+            $message = 'Une erreur est survenue lors de la confirmation du paiement.';
+            if (app()->isLocal() || config('app.debug')) {
+                $message .= ' ' . $e->getMessage();
+                if ($e instanceof RequestException && $e->response) {
+                    $message .= ' [HTTP ' . $e->response->status() . ']';
+                }
+            }
 
             return redirect()
                 ->route('payments.pending', $registration)
-                ->with('error', 'Une erreur est survenue lors de la confirmation du paiement.');
+                ->with('error', $message);
         }
     }
 }
