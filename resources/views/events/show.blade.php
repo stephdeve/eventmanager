@@ -67,7 +67,12 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                             </svg>
-                            <span class="font-medium">{{ $event->location }}</span>
+                            <span class="font-medium">
+                                {{ $event->location }}
+                                @if($event->google_maps_url)
+                                    <a href="{{ $event->google_maps_url }}" target="_blank" rel="noopener" class="ml-3 underline decoration-white/40 hover:decoration-white">Voir sur Google Maps</a>
+                                @endif
+                            </span>
                         </div>
 
                         <div class="flex items-center gap-2 font-semibold">
@@ -84,8 +89,10 @@
                     <div class="lg:col-span-2 space-y-8">
                         <!-- Badges -->
                         <div class="flex flex-wrap gap-3">
-                            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold {{ $event->available_seats > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                @if($event->available_seats > 0)
+                            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold {{ ($event->is_capacity_unlimited || $event->available_seats > 0) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                @if($event->is_capacity_unlimited)
+                                    Places illimitées
+                                @elseif($event->available_seats > 0)
                                     {{ $event->available_seats }} place{{ $event->available_seats > 1 ? 's' : '' }} disponible{{ $event->available_seats > 1 ? 's' : '' }}
                                 @else
                                     Complet
@@ -95,6 +102,25 @@
                             <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold {{ $event->price > 0 ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' }}">
                                 {{ $event->price > 0 ? \App\Support\Currency::format($event->price, $event->currency) : 'Gratuit' }}
                             </span>
+
+                            @php
+                                $now = now();
+                                $isFull = (!$event->is_capacity_unlimited && (int) $event->available_seats <= 0);
+                                if ($event->end_date && $now->gt($event->end_date)) {
+                                    $state = 'Terminé';
+                                    $stateClass = 'bg-gray-100 text-gray-800';
+                                } elseif ($isFull) {
+                                    $state = 'Complet';
+                                    $stateClass = 'bg-red-100 text-red-800';
+                                } elseif ($event->start_date && $now->lt($event->start_date)) {
+                                    $state = 'À venir';
+                                    $stateClass = 'bg-blue-100 text-blue-800';
+                                } else {
+                                    $state = 'En cours';
+                                    $stateClass = 'bg-green-100 text-green-800';
+                                }
+                            @endphp
+                            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold {{ $stateClass }}">{{ $state }}</span>
 
                             @if($event->is_restricted_18)
                                 <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-amber-100 text-amber-800">
@@ -287,8 +313,10 @@
                                             Annuler l'inscription
                                         </button>
                                     </form>
-                                @elseif($event->available_seats > 0 && optional($event->start_date)->isFuture())
-                                    <form action="{{ route('events.register', $event) }}" method="POST" class="space-y-4">
+                                @endif
+
+                                @if(($event->is_capacity_unlimited || $event->available_seats > 0) && (!$event->end_date || now()->lt($event->end_date)))
+                                    <form action="{{ route('events.register', $event) }}" method="POST" class="space-y-4 mt-4">
                                         @csrf
                                         @if(request()->filled('ref'))
                                             <input type="hidden" name="ref" value="{{ request('ref') }}">
@@ -314,22 +342,35 @@
                                             @enderror
                                         @endif
 
+                                        <div>
+                                            <label for="quantity" class="block text-sm font-medium text-gray-900">Quantité</label>
+                                            <input type="number"
+                                                   id="quantity"
+                                                   name="quantity"
+                                                   value="1"
+                                                   min="1"
+                                                   @if(!$event->is_capacity_unlimited) max="{{ (int) $event->available_seats }}" @endif
+                                                   class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        </div>
+
                                         @if(($event->price ?? 0) > 0)
                                             <fieldset class="border border-gray-200 rounded-lg p-4">
                                                 <legend class="text-sm font-semibold text-gray-900 px-2">Mode de paiement</legend>
                                                 <div class="mt-3 space-y-3">
+                                                    @if($event->allow_payment_numeric)
                                                     <label class="flex items-center gap-3 p-3 rounded-lg border-2 border-transparent hover:border-blue-200 cursor-pointer transition-colors duration-200">
                                                         <input type="radio"
                                                                name="payment_method"
                                                                value="kkiapay"
                                                                class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                                                               checked
                                                                required>
                                                         <div>
                                                             <span class="block text-sm font-medium text-gray-900">Payer maintenant</span>
                                                             <span class="block text-xs text-gray-600">Paiement sécurisé via Kkiapay</span>
                                                         </div>
                                                     </label>
+                                                    @endif
+                                                    @if($event->allow_payment_physical)
                                                     <label class="flex items-center gap-3 p-3 rounded-lg border-2 border-transparent hover:border-blue-200 cursor-pointer transition-colors duration-200">
                                                         <input type="radio"
                                                                name="payment_method"
@@ -341,6 +382,7 @@
                                                             <span class="block text-xs text-gray-600">Le jour de l'événement</span>
                                                         </div>
                                                     </label>
+                                                    @endif
                                                 </div>
                                                 @error('payment_method')
                                                     <p class="text-sm text-red-600 mt-2">{{ $message }}</p>
@@ -353,12 +395,12 @@
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
                                             </svg>
-                                            S'inscrire maintenant
+                                            Acheter des billets
                                         </button>
                                     </form>
                                 @else
                                     <button disabled
-                                            class="w-full px-4 py-3 bg-gray-300 text-gray-500 font-semibold rounded-lg cursor-not-allowed">
+                                            class="w-full px-4 py-3 bg-gray-300 text-gray-500 font-semibold rounded-lg cursor-not-allowed mt-4">
                                         Inscription non disponible
                                     </button>
                                 @endif

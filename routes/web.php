@@ -5,6 +5,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\TicketController;
 use App\Http\Controllers\BillingController;
 use App\Http\Middleware\EnsureActiveSubscription;
 use App\Http\Controllers\ReportsController;
@@ -114,6 +115,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{code}/download', [RegistrationController::class, 'download'])
             ->name('registrations.download');
     });
+
+    // Nouveau: affichage d'un ticket individuel (tickets table)
+    Route::get('/ticket/{code}', [TicketController::class, 'show'])
+        ->name('tickets.show');
+
+    // Transfert de ticket (propriétaire uniquement)
+    Route::post('/ticket/{code}/transfer', [TicketController::class, 'transfer'])
+        ->name('tickets.transfer');
 
     // Scanner de QR codes (organisateur)
     Route::middleware(['can:scan,App\Models\Registration', EnsureActiveSubscription::class])->group(function () {

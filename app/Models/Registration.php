@@ -18,6 +18,7 @@ class Registration extends Model
     protected $fillable = [
         'user_id',
         'event_id',
+        'quantity',
         'qr_code_data',
         'qr_code_path',
         'qr_code_png_path',
@@ -37,6 +38,7 @@ class Registration extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'quantity' => 'integer',
         'is_validated' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -60,6 +62,14 @@ class Registration extends Model
     public function event(): BelongsTo
     {
         return $this->belongsTo(Event::class);
+    }
+
+    /**
+     * Tickets generated for this registration (one per seat).
+     */
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
     }
 
     /**

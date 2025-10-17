@@ -4,7 +4,9 @@ namespace App\Services;
 
 use App\Models\Event;
 use App\Models\EventPayment;
+use App\Models\Ticket;
 use App\Models\Registration;
+use App\Services\QrCodeService;
 use App\Support\Currency as AppCurrency;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -107,6 +109,20 @@ class KkiapayService
                 'payment_metadata' => $data,
             ])->save();
 
+            // Mark related tickets as paid (online numeric payment)
+            try {
+                Ticket::where('registration_id', $registration->id)
+                    ->update([
+                        'paid' => true,
+                        'payment_method' => 'numeric',
+                    ]);
+            } catch (\Throwable $e) {
+                Log::warning('Failed to mark tickets as paid after Kkiapay confirmation', [
+                    'registration_id' => $registration->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
             // Generate QR code if missing
             if (!$registration->qr_code_path) {
                 $qrCodeData = route('registrations.show', $registration->qr_code_data);
@@ -153,7 +169,9 @@ class KkiapayService
             if (!$wasAlreadySuccess) {
                 $prevRevenue = (int) ($event->total_revenue_minor ?? 0);
                 $event->increment('total_revenue_minor', $amountMinor);
-                $event->increment('total_tickets_sold', 1);
+                $ticketsCount = (int) ($registration->quantity ?? 1);
+                if ($ticketsCount < 1) { $ticketsCount = 1; }
+                $event->increment('total_tickets_sold', $ticketsCount);
 
                 // Threshold notification
                 $threshold = (int) ($event->revenue_threshold_minor ?? 0);

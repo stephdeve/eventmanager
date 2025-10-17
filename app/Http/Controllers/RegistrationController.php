@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\TicketValidated;
 use App\Models\Event;
 use App\Models\Registration;
+use App\Models\Ticket;
 use App\Services\QrCodeService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -28,6 +29,78 @@ class RegistrationController extends Controller
      */
     public function validateTicketByCode(string $code)
     {
+        // 1) Try to validate a Ticket code first (new ticket-level QR)
+        $ticket = Ticket::where('qr_code_data', $code)->first();
+        if ($ticket) {
+            // Permission: organizer/admin can scan; owner cannot validate
+            $this->authorize('scan', Registration::class);
+
+            // Load relations
+            $ticket->load(['event', 'owner']);
+
+            // Reject if already used
+            if ($ticket->status === 'used') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ce billet a déjà été utilisé.',
+                ], 409);
+            }
+
+            // Payment rules: if numeric and not paid, reject; if physical unpaid, allow with notice
+            if (($ticket->payment_method === 'numeric' || $ticket->payment_method === null) && !$ticket->paid) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ticket invalide ou paiement en attente. Finalisez le paiement en ligne.',
+                ], 422);
+            }
+
+            // Atomic update to mark used
+            $updated = DB::transaction(function () use ($ticket) {
+                return Ticket::whereKey($ticket->id)
+                    ->where('status', '!=', 'used')
+                    ->update([
+                        'status' => 'used',
+                        'validated_at' => now(),
+                        'validated_by' => auth()->id(),
+                        'scanned_at' => now(),
+                    ]);
+            });
+
+            if ($updated !== 1) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ce billet a déjà été utilisé.',
+                ], 409);
+            }
+
+            $ticket->refresh()->load(['event', 'owner']);
+
+            $notice = null;
+            if (!$ticket->paid && $ticket->payment_method === 'physical') {
+                $notice = 'Accès autorisé — Paiement à effectuer sur place.';
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Billet validé avec succès!',
+                'ticket' => [
+                    'id' => $ticket->id,
+                    'event' => [
+                        'title' => $ticket->event->title,
+                    ],
+                    'owner' => [
+                        'name' => optional($ticket->owner)->name,
+                    ],
+                    'status' => $ticket->status,
+                    'validated_at' => optional($ticket->validated_at)->format('d/m/Y H:i'),
+                    'paid' => (bool) $ticket->paid,
+                    'payment_method' => $ticket->payment_method,
+                    'notice' => $notice,
+                ]
+            ]);
+        }
+
+        // 2) Backward compatibility: registration-level QR
         $registration = Registration::where('qr_code_data', $code)->first();
 
         if (!$registration) {
@@ -57,7 +130,6 @@ class RegistrationController extends Controller
             ], 409);
         }
 
-        // Règles de paiement: refuser si paiement en attente (numérique), autoriser si unpaid (physique)
         if (in_array($registration->payment_status, ['pending', 'failed'], true)) {
             return response()->json([
                 'success' => false,
@@ -65,7 +137,6 @@ class RegistrationController extends Controller
             ], 422);
         }
 
-        // Mise à jour atomique pour éviter les doubles validations concurrentes
         $updated = DB::transaction(function () use ($registration) {
             return Registration::whereKey($registration->id)
                 ->where('is_validated', false)
@@ -98,7 +169,6 @@ class RegistrationController extends Controller
 
         event(new TicketValidated($registration));
 
-        // Notifier le participant (check-in confirmé)
         try {
             $registration->user->notify(new \App\Notifications\ParticipantCheckInConfirmed($registration));
         } catch (\Throwable $e) {
@@ -156,7 +226,7 @@ class RegistrationController extends Controller
         $this->authorize('view', $registration);
 
         // Charger les relations nécessaires
-        $registration->load(['event', 'user']);
+        $registration->load(['event', 'user', 'tickets']);
 
         $isOwner = auth()->check() && auth()->id() === $registration->user_id;
 
@@ -166,15 +236,16 @@ class RegistrationController extends Controller
                 ->with('warning', 'Le paiement de ce billet est requis avant d\'y accéder.');
         }
 
-        // Générer l'URL du QR code si elle n'existe pas
-        if (!$registration->qr_code_path) {
-            $qrCodeData = route('registrations.show', $registration->qr_code_data);
-            $qrCodePaths = $this->qrCodeService->generate($qrCodeData);
-            $registration->update([
-                'qr_code_path' => $qrCodePaths['svg'],
-                'qr_code_png_path' => $qrCodePaths['png'],
-            ]);
-            $registration->refresh();
+        // Assurer les QR codes par ticket si disponibles
+        foreach ($registration->tickets as $ticket) {
+            if (!$ticket->qr_code_path) {
+                $qrCodeData = route('tickets.show', $ticket->qr_code_data);
+                $paths = $this->qrCodeService->generate($qrCodeData);
+                $ticket->forceFill([
+                    'qr_code_path' => $paths['svg'] ?? null,
+                    'qr_code_png_path' => $paths['png'] ?? null,
+                ])->save();
+            }
         }
 
         return view('registrations.show', compact('registration'));
@@ -316,6 +387,13 @@ class RegistrationController extends Controller
                     'manual_paid_by' => auth()->id(),
                 ]),
             ])->save();
+
+            // Marquer tous les tickets liés comme payés (paiement sur place)
+            Ticket::where('registration_id', $registration->id)
+                ->update([
+                    'paid' => true,
+                    'payment_method' => 'physical',
+                ]);
 
             // Enregistrer un paiement "cash" pour la traçabilité + totaux
             $ref = 'CASH-REG-' . $registration->id;

@@ -19,13 +19,21 @@ class Event extends Model
     protected $fillable = [
         'title',
         'description',
+        'category',
         'start_date',
         'end_date',
         'location',
+        'google_maps_url',
         'capacity',
         'available_seats',
+        'is_capacity_unlimited',
         'price',
         'currency',
+        'allow_payment_numeric',
+        'allow_payment_physical',
+        'allow_ticket_transfer',
+        'daily_start_time',
+        'daily_end_time',
         'cover_image',
         'organizer_id',
         'is_restricted_18',
@@ -50,8 +58,14 @@ class Event extends Model
         'end_date' => 'datetime',
         'capacity' => 'integer',
         'available_seats' => 'integer',
+        'is_capacity_unlimited' => 'boolean',
         'price' => 'integer', // Stocké en plus petite unité
         'currency' => 'string',
+        'category' => 'string',
+        'google_maps_url' => 'string',
+        'allow_payment_numeric' => 'boolean',
+        'allow_payment_physical' => 'boolean',
+        'allow_ticket_transfer' => 'boolean',
         'is_restricted_18' => 'boolean',
         'promo_clicks' => 'integer',
         'promo_registrations' => 'integer',
@@ -92,6 +106,9 @@ class Event extends Model
      */
     public function isFull()
     {
+        if ($this->is_capacity_unlimited) {
+            return false;
+        }
         return $this->available_seats <= 0;
     }
     
@@ -128,6 +145,14 @@ class Event extends Model
     }
 
     /**
+     * Get all tickets for the event.
+     */
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
+    /**
      * Get all users registered for the event.
      */
     public function attendees()
@@ -142,6 +167,9 @@ class Event extends Model
      */
     public function hasAvailableSeats(): bool
     {
+        if ($this->is_capacity_unlimited) {
+            return true;
+        }
         return $this->available_seats > 0;
     }
 

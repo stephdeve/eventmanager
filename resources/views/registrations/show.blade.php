@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@php use Illuminate\Support\Str; @endphp
 
 @section('title', 'Votre billet')
 
@@ -72,6 +73,43 @@
                                 <li>Arrivez 15 minutes avant le début pour faciliter l'enregistrement.</li>
                             </ul>
                         </div>
+
+                        @if($registration->tickets->count() > 0)
+                        <div class="border border-gray-200 rounded-xl p-6">
+                            <h2 class="text-lg font-semibold text-gray-900">Vos billets ({{ $registration->tickets->count() }})</h2>
+                            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                @foreach($registration->tickets as $ticket)
+                                    <div class="border rounded-lg p-4 flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm text-gray-900 font-semibold">Billet #{{ $ticket->id }}</p>
+                                            <p class="text-xs text-gray-600">QR: {{ Str::limit($ticket->qr_code_data, 10) }}</p>
+                                            <div class="mt-1 text-xs">
+                                                @if($ticket->status === 'used')
+                                                    <span class="inline-flex px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">Utilisé</span>
+                                                @elseif($ticket->status === 'invalid')
+                                                    <span class="inline-flex px-2 py-1 rounded-full bg-red-100 text-red-800">Invalide</span>
+                                                @else
+                                                    <span class="inline-flex px-2 py-1 rounded-full bg-green-100 text-green-800">Valide</span>
+                                                @endif
+                                                @if($ticket->paid)
+                                                    <span class="inline-flex ml-2 px-2 py-1 rounded-full bg-green-100 text-green-800">Payé</span>
+                                                @elseif($ticket->payment_method === 'physical')
+                                                    <span class="inline-flex ml-2 px-2 py-1 rounded-full bg-gray-100 text-gray-800">Paiement sur place</span>
+                                                @else
+                                                    <span class="inline-flex ml-2 px-2 py-1 rounded-full bg-orange-100 text-orange-800">Paiement en attente</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <a href="{{ route('tickets.show', $ticket->qr_code_data) }}" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md border border-indigo-600 text-indigo-600 hover:bg-indigo-50">
+                                                Ouvrir
+                                            </a>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
                     </div>
 
                     <div class="lg:col-span-1">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\Registration;
+use App\Models\Ticket;
 use App\Services\QrCodeService;
 use App\Support\Currency;
 use Illuminate\Http\Request;
@@ -83,6 +84,17 @@ class EventController extends Controller
         return view('events.create', [
             'currencies' => Currency::all(),
             'defaultCurrency' => config('currency.default', 'EUR'),
+            'categories' => [
+                'concert' => 'Concert',
+                'conference' => 'Conférence',
+                'formation' => 'Formation',
+                'atelier' => 'Atelier',
+                'sport' => 'Sport',
+                'festival' => 'Festival',
+                'meetup' => 'Meetup',
+                'webinar' => 'Webinar',
+                'autre' => 'Autre',
+            ],
         ]);
     }
 
@@ -93,10 +105,13 @@ class EventController extends Controller
     {
         $this->authorize('create', Event::class);
 
-        // Validation des données du formulaire
+        // Validation des données du formulaire (avec nouveaux champs)
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
+            'category' => 'nullable|string|max:100',
+            'location' => 'required|string|max:255',
+            'google_maps_url' => 'nullable|url|max:255',
             'start_date' => [
                 'required',
                 'date',
@@ -117,16 +132,28 @@ class EventController extends Controller
                     }
                 },
             ],
-            'location' => 'required|string|max:255',
+            'daily_start_time' => 'nullable|date_format:H:i',
+            'daily_end_time' => 'nullable|date_format:H:i',
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'capacity' => 'required|integer|min:1',
-            'price' => 'required|numeric|min:0',
+            'is_capacity_unlimited' => 'nullable|boolean',
+            'capacity' => ['nullable','integer','min:1','required_unless:is_capacity_unlimited,1'],
+            'payment_type' => ['required', Rule::in(['free','paid'])],
+            'price' => 'nullable|numeric|min:0',
             'currency' => ['required', 'string', 'size:3', Rule::in(array_keys(Currency::all()))],
+            'allow_payment_numeric' => 'nullable|boolean',
+            'allow_payment_physical' => 'nullable|boolean',
+            'allow_ticket_transfer' => 'nullable|boolean',
             'is_restricted_18' => 'nullable|boolean',
         ], [
             'start_date.after' => 'La date de début doit être une date future.',
             'end_date.after' => 'La date de fin doit être postérieure à la date de début.',
+            'capacity.required_unless' => 'Indiquez la capacité quand l\'option illimitée n\'est pas cochée.',
         ]);
+
+        // Pour les événements payants, exiger au moins une méthode de paiement
+        if ($validated['payment_type'] === 'paid' && !$request->boolean('allow_payment_numeric') && !$request->boolean('allow_payment_physical')) {
+            return back()->withErrors(['allow_payment_numeric' => 'Au moins une méthode de paiement doit être activée pour un événement payant.'])->withInput();
+        }
 
         // Limites selon l'abonnement de l'organisateur
         $currentUser = Auth::user();
@@ -180,17 +207,33 @@ class EventController extends Controller
             $shareLink .= (str_contains($shareLink, '?') ? '&' : '?') . 'ref=' . urlencode('org-' . Auth::id());
         }
 
+        // Déterminer prix et capacité selon les choix
+        $isUnlimited = $request->boolean('is_capacity_unlimited');
+        $capacity = $isUnlimited ? (int) ($validated['capacity'] ?? 0) : (int) $validated['capacity'];
+        $available = $isUnlimited ? 0 : $capacity;
+        $priceMinor = $validated['payment_type'] === 'free'
+            ? 0
+            : Currency::toMinorUnits((float) ($validated['price'] ?? 0), $validated['currency']);
+
         // Création de l'événement
         $event = new Event([
             'title' => $validated['title'],
             'description' => $validated['description'],
+            'category' => $validated['category'] ?? null,
             'start_date' => $validated['start_date'],
             'end_date' => $validated['end_date'],
+            'daily_start_time' => $validated['daily_start_time'] ?? null,
+            'daily_end_time' => $validated['daily_end_time'] ?? null,
             'location' => $validated['location'],
-            'capacity' => $validated['capacity'],
-            'available_seats' => $validated['capacity'], // Au départ, tous les sièges sont disponibles
-            'price' => Currency::toMinorUnits($validated['price'], $validated['currency']),
+            'google_maps_url' => $validated['google_maps_url'] ?? null,
+            'is_capacity_unlimited' => $isUnlimited,
+            'capacity' => $capacity,
+            'available_seats' => $available,
+            'price' => $priceMinor,
             'currency' => strtoupper($validated['currency']),
+            'allow_payment_numeric' => $request->boolean('allow_payment_numeric'),
+            'allow_payment_physical' => $request->boolean('allow_payment_physical'),
+            'allow_ticket_transfer' => $request->boolean('allow_ticket_transfer'),
             'cover_image' => $validated['cover_image'] ?? null,
             'organizer_id' => Auth::id(),
             'is_restricted_18' => $request->boolean('is_restricted_18'),
@@ -243,6 +286,17 @@ class EventController extends Controller
         return view('events.edit', [
             'event' => $event,
             'currencies' => Currency::all(),
+            'categories' => [
+                'concert' => 'Concert',
+                'conference' => 'Conférence',
+                'formation' => 'Formation',
+                'atelier' => 'Atelier',
+                'sport' => 'Sport',
+                'festival' => 'Festival',
+                'meetup' => 'Meetup',
+                'webinar' => 'Webinar',
+                'autre' => 'Autre',
+            ],
         ]);
     }
 
@@ -258,15 +312,24 @@ class EventController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'category' => 'nullable|string|max:100',
             // Autoriser l'édition d'événements passés: pas de contrainte after:now ici
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
             'location' => 'required|string|max:255',
-            'capacity' => 'required|integer|min:1',
+            'google_maps_url' => 'nullable|url|max:255',
+            'daily_start_time' => 'nullable|date_format:H:i',
+            'daily_end_time' => 'nullable|date_format:H:i',
+            'is_capacity_unlimited' => 'nullable|boolean',
+            'capacity' => ['nullable','integer','min:1','required_unless:is_capacity_unlimited,1'],
             // Rendre facultatif; s'il n'est pas transmis, conserver la valeur actuelle
             'available_seats' => ['nullable', 'integer', 'min:' . $registrationsCount, 'lte:capacity'],
-            'price' => 'required|numeric|min:0',
+            'payment_type' => ['required', Rule::in(['free','paid'])],
+            'price' => 'nullable|numeric|min:0',
             'currency' => ['required', 'string', 'size:3', Rule::in(array_keys(Currency::all()))],
+            'allow_payment_numeric' => 'nullable|boolean',
+            'allow_payment_physical' => 'nullable|boolean',
+            'allow_ticket_transfer' => 'nullable|boolean',
             'is_restricted_18' => 'nullable|boolean',
         ]);
 
@@ -287,16 +350,31 @@ class EventController extends Controller
             }
         }
 
+        $isUnlimited = $request->boolean('is_capacity_unlimited');
+        $capacity = $isUnlimited ? (int) ($validated['capacity'] ?? 0) : (int) $validated['capacity'];
+        $available = $validated['available_seats'] ?? ($isUnlimited ? 0 : ($event->available_seats));
+        $priceMinor = $validated['payment_type'] === 'free'
+            ? 0
+            : Currency::toMinorUnits((float) ($validated['price'] ?? 0), $validated['currency']);
+
         $event->update([
             'title' => $validated['title'],
             'description' => $validated['description'],
+            'category' => $validated['category'] ?? $event->category,
             'start_date' => $validated['start_date'],
             'end_date' => $validated['end_date'],
+            'daily_start_time' => $validated['daily_start_time'] ?? $event->daily_start_time,
+            'daily_end_time' => $validated['daily_end_time'] ?? $event->daily_end_time,
             'location' => $validated['location'],
-            'capacity' => $validated['capacity'],
-            'available_seats' => $validated['available_seats'] ?? $event->available_seats,
-            'price' => Currency::toMinorUnits($validated['price'], $validated['currency']),
+            'google_maps_url' => $validated['google_maps_url'] ?? $event->google_maps_url,
+            'is_capacity_unlimited' => $isUnlimited,
+            'capacity' => $capacity,
+            'available_seats' => $available,
+            'price' => $priceMinor,
             'currency' => strtoupper($validated['currency']),
+            'allow_payment_numeric' => $request->boolean('allow_payment_numeric'),
+            'allow_payment_physical' => $request->boolean('allow_payment_physical'),
+            'allow_ticket_transfer' => $request->boolean('allow_ticket_transfer'),
             'is_restricted_18' => $request->boolean('is_restricted_18'),
         ]);
 
@@ -333,6 +411,11 @@ class EventController extends Controller
     {
         $this->authorize('register', $event);
 
+        // Bloquer les inscriptions si l'événement est terminé
+        if ($event->end_date && now()->gte($event->end_date)) {
+            return back()->with('error', "L'événement est terminé. Les inscriptions ne sont plus possibles.");
+        }
+
         $userId = auth()->id();
         $user = auth()->user();
 
@@ -347,22 +430,35 @@ class EventController extends Controller
             $ageConfirmed = (bool) $request->boolean('confirm_age');
         }
 
-        if (!$event->hasAvailableSeats()) {
-            return back()->with('error', 'Désolé, il n\'y a plus de places disponibles pour cet événement.');
+        // Quantité demandée
+        $quantity = (int) $request->input('quantity', 1);
+        if ($quantity < 1) { $quantity = 1; }
+
+        if (!$event->is_capacity_unlimited) {
+            if ((int) $event->available_seats <= 0) {
+                return back()->with('error', 'Désolé, il n\'y a plus de places disponibles pour cet événement.');
+            }
+            if ((int) $event->available_seats < $quantity) {
+                return back()->with('error', 'Il ne reste que ' . (int) $event->available_seats . ' place(s) disponible(s).');
+            }
         }
 
-        if ($event->registrations()->where('user_id', $userId)->exists()) {
-            return back()->with('error', 'Vous êtes déjà inscrit à cet événement.');
-        }
+        // Autoriser plusieurs achats par utilisateur pour le même événement
 
         $registration = null;
         $isFreeEvent = (int) $event->price <= 0;
 
-        // Choix du mode de paiement pour les événements payants
+        // Choix du mode de paiement pour les événements payants (respecter les méthodes activées)
         $paymentMethod = null;
         if (! $isFreeEvent) {
+            $allowedMethods = [];
+            if ($event->allow_payment_numeric) { $allowedMethods[] = 'kkiapay'; }
+            if ($event->allow_payment_physical) { $allowedMethods[] = 'physical'; }
+            if (empty($allowedMethods)) {
+                return back()->with('error', "Aucune méthode de paiement n'est activée sur cet événement.")->withInput();
+            }
             $validatedPayment = $request->validate([
-                'payment_method' => ['required', Rule::in(['kkiapay', 'physical'])],
+                'payment_method' => ['required', Rule::in($allowedMethods)],
             ], [
                 'payment_method.required' => 'Veuillez choisir un mode de paiement.',
                 'payment_method.in' => 'Mode de paiement invalide.',
@@ -373,9 +469,10 @@ class EventController extends Controller
         $sourceRef = $request->filled('ref') ? (string) $request->input('ref') : null;
 
         try {
-            $registration = DB::transaction(function () use ($event, $userId, $isFreeEvent, $ageConfirmed, $paymentMethod, $sourceRef) {
+            $registration = DB::transaction(function () use ($event, $userId, $isFreeEvent, $ageConfirmed, $paymentMethod, $sourceRef, $quantity) {
                 $registration = new Registration([
                     'user_id' => $userId,
+                    'quantity' => $quantity,
                     'qr_code_data' => (string) Str::uuid(),
                     'is_validated' => false,
                     'payment_status' => $isFreeEvent ? 'paid' : ($paymentMethod === 'physical' ? 'unpaid' : 'pending'),
@@ -385,7 +482,9 @@ class EventController extends Controller
                 ]);
 
                 $event->registrations()->save($registration);
-                $event->decrement('available_seats');
+                if (!$event->is_capacity_unlimited) {
+                    $event->decrement('available_seats', $quantity);
+                }
 
                 if ($sourceRef) {
                     $event->increment('promo_registrations');
@@ -401,9 +500,22 @@ class EventController extends Controller
                     ]);
                 }
 
-                // Compter les billets gratuits comme "vendus" immédiatement
+                // Créer les tickets (un par place)
+                for ($i = 0; $i < $quantity; $i++) {
+                    Ticket::create([
+                        'event_id' => $event->id,
+                        'registration_id' => $registration->id,
+                        'owner_user_id' => $userId,
+                        'qr_code_data' => (string) Str::uuid(),
+                        'status' => 'valid',
+                        'paid' => $isFreeEvent ? true : ($paymentMethod === 'physical' ? false : false),
+                        'payment_method' => $isFreeEvent ? 'free' : ($paymentMethod === 'physical' ? 'physical' : null),
+                    ]);
+                }
+
+                // Compter les billets gratuits comme "vendus" immédiatement (x quantity)
                 if ($isFreeEvent) {
-                    $event->increment('total_tickets_sold');
+                    $event->increment('total_tickets_sold', $quantity);
                 }
 
                 return $registration;

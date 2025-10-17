@@ -194,6 +194,20 @@
                             @enderror
                         </div>
 
+                        <!-- Catégorie -->
+                        <div class="form-group">
+                            <label for="category" class="form-label">Catégorie</label>
+                            <select name="category" id="category" class="form-input">
+                                <option value="">— Sélectionner —</option>
+                                @foreach(($categories ?? []) as $key => $label)
+                                    <option value="{{ $key }}" @selected(old('category')===$key)>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                            @error('category')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         <!-- Description -->
                         <div class="form-group">
                             <label for="description" class="form-label">
@@ -239,6 +253,24 @@
                                 @enderror
                             </div>
                         </div>
+
+                        <!-- Heures par jour (optionnel) -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="form-group">
+                                <label for="daily_start_time" class="form-label">Heure de début (par jour)</label>
+                                <input type="time" name="daily_start_time" id="daily_start_time" value="{{ old('daily_start_time') }}" class="form-input @error('daily_start_time') error @enderror">
+                                @error('daily_start_time')
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div class="form-group">
+                                <label for="daily_end_time" class="form-label">Heure de fin (par jour)</label>
+                                <input type="time" name="daily_end_time" id="daily_end_time" value="{{ old('daily_end_time') }}" class="form-input @error('daily_end_time') error @enderror">
+                                @error('daily_end_time')
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Colonne de droite -->
@@ -278,55 +310,10 @@
                             @enderror
                         </div>
 
-                        <!-- Capacité et Prix -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="form-group">
-                                <label for="capacity" class="form-label">
-                                    Capacité maximale
-                                    <span class="text-[#6B7280] text-sm font-normal">(Optionnel)</span>
-                                </label>
-                                <input type="number" name="capacity" id="capacity" min="1" value="{{ old('capacity', 50) }}"
-                                    class="form-input @error('capacity') error @enderror"
-                                    placeholder="50">
-                                @error('capacity')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
+                        <!-- Section remplacée par capacité illimitée + type + prix/devise plus bas -->
+                        
 
-                            <div class="form-group">
-                                <label for="price" class="form-label">Prix *</label>
-                                <div class="relative">
-                                    <input type="number" name="price" id="price" min="0" step="0.01" value="{{ old('price', 0) }}"
-                                        class="form-input @error('price') error @enderror pr-12" required>
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                        <span class="text-[#6B7280] text-sm" id="currency-symbol">
-                                            {{ $currencies[$defaultCurrency]['symbol'] ?? $defaultCurrency }}
-                                        </span>
-                                    </div>
-                                </div>
-                                @error('price')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <!-- Devise -->
-                        <div class="form-group">
-                            <label for="currency" class="form-label">Devise *</label>
-                            <select name="currency" id="currency"
-                                class="form-input currency-select @error('currency') error @enderror" required>
-                                @foreach($currencies as $code => $data)
-                                    <option value="{{ $code }}"
-                                            data-symbol="{{ $data['symbol'] ?? $code }}"
-                                            @selected(old('currency', $defaultCurrency) === $code)>
-                                        {{ $code }} — {{ $data['name'] ?? $code }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('currency')
-                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
+                        <!-- Section devise déplacée dans la section paiement ci-dessus -->
 
                         <!-- Restriction d'âge -->
                         <div class="checkbox-card @if(old('is_restricted_18')) checked @endif" id="age-restriction-card">
@@ -485,6 +472,37 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialiser le compteur de description
     descriptionTextarea.dispatchEvent(new Event('input'));
+
+    // Toggle capacité illimitée
+    const unlimitedCheckbox = document.getElementById('is_capacity_unlimited');
+    const capacityGroup = document.getElementById('capacity-group');
+    const capacityInput = document.getElementById('capacity');
+    function syncCapacity() {
+        const isUnlimited = unlimitedCheckbox && unlimitedCheckbox.checked;
+        if (capacityGroup) {
+            capacityGroup.style.display = isUnlimited ? 'none' : '';
+        }
+        if (capacityInput) {
+            capacityInput.disabled = !!isUnlimited;
+        }
+    }
+    if (unlimitedCheckbox) {
+        unlimitedCheckbox.addEventListener('change', syncCapacity);
+        syncCapacity();
+    }
+
+    // Toggle gratuit/payant
+    const priceSection = document.getElementById('price-section');
+    const paymentTypeRadios = document.querySelectorAll('input[name="payment_type"]');
+    function syncPaymentType() {
+        let type = 'free';
+        paymentTypeRadios.forEach(r => { if (r.checked) type = r.value; });
+        if (priceSection) priceSection.style.display = type === 'paid' ? '' : 'none';
+        const paymentMethods = document.getElementById('payment-methods');
+        if (paymentMethods) paymentMethods.style.display = type === 'paid' ? '' : 'none';
+    }
+    paymentTypeRadios.forEach(r => r.addEventListener('change', syncPaymentType));
+    syncPaymentType();
 });
 </script>
 @endpush
