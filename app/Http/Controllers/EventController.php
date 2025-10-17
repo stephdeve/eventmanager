@@ -571,8 +571,15 @@ class EventController extends Controller
             // Supprimer l'inscription
             $registration->delete();
 
-            // Incrémenter le nombre de places disponibles
-            $event->increment('available_seats');
+            // Restaurer le nombre de places disponibles (événements à capacité limitée uniquement)
+            if (!$event->is_capacity_unlimited) {
+                $qty = max(1, (int) ($registration->quantity ?? 1));
+                $newAvailable = (int) $event->available_seats + $qty;
+                if ($event->capacity !== null) {
+                    $newAvailable = min((int) $event->capacity, $newAvailable);
+                }
+                $event->update(['available_seats' => $newAvailable]);
+            }
 
             return redirect()
                 ->route('events.show', $event)

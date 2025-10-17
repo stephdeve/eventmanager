@@ -93,8 +93,9 @@ class TicketController extends Controller
                     'metadata' => null,
                 ]);
 
-                // Reassign owner
+                // Reassign owner and note recipient
                 $ticket->owner_user_id = $recipientUser?->id;
+                $ticket->transferred_to = $recipientUser?->email ?: $recipientEmail;
 
                 // Regenerate QR code
                 $ticket->qr_code_data = (string) Str::uuid();
