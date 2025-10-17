@@ -6,6 +6,7 @@ use App\Events\TicketValidated;
 use App\Models\Event;
 use App\Models\Registration;
 use App\Models\Ticket;
+use App\Notifications\OrganizerPhysicalUnpaidScanned;
 use App\Services\QrCodeService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class RegistrationController extends Controller
 {
@@ -22,6 +24,78 @@ class RegistrationController extends Controller
     {
         $this->middleware('auth');
         $this->qrCodeService = $qrCodeService;
+    }
+
+    /**
+     * Export attendees as CSV (per event, applies same filters as attendees()).
+     */
+    public function exportAttendeesCsv(Event $event, Request $request): StreamedResponse
+    {
+        $this->authorize('viewAttendees', $event);
+
+        $status = $request->query('status');
+        $method = $request->query('method');
+        $from = $request->query('from');
+        $to = $request->query('to');
+
+        $q = $event->registrations()->with('user');
+        if ($status) { $q->where('payment_status', $status); }
+        if ($method) { $q->where('payment_metadata->mode', $method === 'numeric' ? 'kkiapay' : $method); }
+        if ($from) { $q->whereDate('created_at', '>=', $from); }
+        if ($to) { $q->whereDate('created_at', '<=', $to); }
+
+        $rows = $q->orderBy('created_at')->get();
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="attendees-' . $event->slug . '.csv"',
+        ];
+
+        return response()->streamDownload(function () use ($rows) {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF");
+            fputcsv($out, ['Nom', 'Email', 'Inscrit le', 'Statut paiement', 'Méthode', 'Validé']);
+            foreach ($rows as $r) {
+                $method = $r->payment_metadata['mode'] ?? null;
+                if ($method === 'kkiapay') { $method = 'numeric'; }
+                fputcsv($out, [
+                    optional($r->user)->name,
+                    optional($r->user)->email,
+                    optional($r->created_at)?->toDateTimeString(),
+                    $r->payment_status,
+                    $method,
+                    $r->is_validated ? 'oui' : 'non',
+                ]);
+            }
+            fclose($out);
+        }, 200, $headers);
+    }
+
+    /**
+     * Export attendees as PDF (per event, applies same filters as attendees()).
+     */
+    public function exportAttendeesPdf(Event $event, Request $request)
+    {
+        $this->authorize('viewAttendees', $event);
+
+        $status = $request->query('status');
+        $method = $request->query('method');
+        $from = $request->query('from');
+        $to = $request->query('to');
+
+        $q = $event->registrations()->with('user');
+        if ($status) { $q->where('payment_status', $status); }
+        if ($method) { $q->where('payment_metadata->mode', $method === 'numeric' ? 'kkiapay' : $method); }
+        if ($from) { $q->whereDate('created_at', '>=', $from); }
+        if ($to) { $q->whereDate('created_at', '<=', $to); }
+
+        $rows = $q->orderBy('created_at')->get();
+
+        $pdf = Pdf::loadView('reports.attendees_pdf', [
+            'event' => $event,
+            'rows' => $rows,
+        ]);
+        return $pdf->download('attendees-' . $event->slug . '.pdf');
     }
 
     /**
@@ -82,6 +156,14 @@ class RegistrationController extends Controller
             }
 
             $ticket->refresh()->load(['event', 'owner']);
+
+            // Notify organizer if physical unpaid scanned
+            if (!$ticket->paid && $ticket->payment_method === 'physical') {
+                $organizer = optional($ticket->event)->organizer;
+                if ($organizer) {
+                    try { $organizer->notify(new OrganizerPhysicalUnpaidScanned($ticket->event, $ticket)); } catch (\Throwable $e) { report($e); }
+                }
+            }
 
             $notice = null;
             if (!$ticket->paid && $ticket->payment_method === 'physical') {
@@ -186,6 +268,11 @@ class RegistrationController extends Controller
         $notice = null;
         if ($registration->payment_status === 'unpaid') {
             $notice = 'Accès autorisé — Paiement à effectuer sur place.';
+            // Notify organizer for unpaid physical scanned
+            $organizer = optional($registration->event)->organizer;
+            if ($organizer) {
+                try { $organizer->notify(new OrganizerPhysicalUnpaidScanned($registration->event, null)); } catch (\Throwable $e) { report($e); }
+            }
         }
 
         return response()->json([
@@ -514,26 +601,68 @@ class RegistrationController extends Controller
     /**
      * Show the list of attendees for an event (organizer only).
      */
-    public function attendees(Event $event)
+    public function attendees(Event $event, Request $request)
     {
         $this->authorize('viewAttendees', $event);
         
-        $attendees = $event->registrations()
-            ->with('user')
+        // Filters
+        $status = $request->query('status'); // paid, unpaid, pending, failed
+        $method = $request->query('method'); // physical, numeric, free
+        $from = $request->query('from'); // YYYY-MM-DD
+        $to = $request->query('to'); // YYYY-MM-DD
+
+        $query = $event->registrations()->with('user');
+
+        if ($status) {
+            $query->where('payment_status', $status);
+        }
+        if ($method) {
+            // payment method stored in payment_metadata->mode for registrations
+            $methodVal = $method === 'numeric' ? 'kkiapay' : $method; // map numeric -> provider
+            $query->where('payment_metadata->mode', $methodVal);
+        }
+        if ($from) {
+            $query->whereDate('created_at', '>=', $from);
+        }
+        if ($to) {
+            $query->whereDate('created_at', '<=', $to);
+        }
+
+        $attendees = $query
             ->orderBy('is_validated')
             ->orderBy('created_at')
-            ->paginate(20);
+            ->paginate(20)
+            ->appends($request->query());
+
+        // Statistics including tickets and transfers
+        $total = $event->registrations()->count();
+        $validated = $event->registrations()->where('is_validated', true)->count();
+        $paidTickets = \App\Models\Ticket::where('event_id', $event->id)->where('paid', true)->count();
+        $unpaidTickets = \App\Models\Ticket::where('event_id', $event->id)->where('paid', false)->count();
+        $transfers = \App\Models\TicketTransfer::whereHas('ticket', function($q) use ($event) {
+            $q->where('event_id', $event->id);
+        })->count();
 
         $statistics = [
-            'total' => $event->registrations()->count(),
-            'validated' => $event->registrations()->where('is_validated', true)->count(),
+            'total' => $total,
+            'validated' => $validated,
             'remaining' => max(0, (int) $event->available_seats),
+            'paid_tickets' => $paidTickets,
+            'unpaid_tickets' => $unpaidTickets,
+            'transfers' => $transfers,
+            'revenue_minor' => (int) ($event->total_revenue_minor ?? 0),
         ];
 
         return view('registrations.attendees', [
             'event' => $event,
             'attendees' => $attendees,
             'statistics' => $statistics,
+            'filters' => [
+                'status' => $status,
+                'method' => $method,
+                'from' => $from,
+                'to' => $to,
+            ],
         ]);
     }
 }
