@@ -33,11 +33,64 @@
                         <a href="{{ route('scanner') }}"
                            class="inline-flex items-center px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 border border-transparent rounded-xl text-sm font-medium text-white hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zM17 8h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
                             </svg>
                             Scanner un billet
                         </a>
+                        @php $qs = http_build_query($filters ?? []); @endphp
+                        <a href="{{ route('events.attendees.export.csv', $event) }}{{ $qs ? ('?'.$qs) : '' }}"
+                           class="inline-flex items-center px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 shadow-sm hover:shadow-md">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16h8M8 12h8M8 8h8M4 6h16M4 18h16"/>
+                            </svg>
+                            Export CSV
+                        </a>
+                        <a href="{{ route('events.attendees.export.pdf', $event) }}{{ $qs ? ('?'.$qs) : '' }}"
+                           class="inline-flex items-center px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 shadow-sm hover:shadow-md">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6H6m6 0h6"/>
+                            </svg>
+                            Export PDF
+                        </a>
                     </div>
+                </div>
+
+                <!-- Filtres -->
+                <div class="mb-6">
+                    <form method="GET" action="{{ route('events.attendees', $event) }}" class="bg-white rounded-2xl border border-gray-200 p-4">
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Statut paiement</label>
+                                <select name="status" class="mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+                                    <option value="">Tous</option>
+                                    @foreach(['paid' => 'Payé', 'unpaid' => 'Non payé', 'pending' => 'En attente', 'failed' => 'Échec'] as $val => $label)
+                                        <option value="{{ $val }}" @selected(($filters['status'] ?? '') === $val)>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Méthode</label>
+                                <select name="method" class="mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+                                    <option value="">Toutes</option>
+                                    @foreach(['physical' => 'Physique', 'numeric' => 'En ligne', 'free' => 'Gratuit'] as $val => $label)
+                                        <option value="{{ $val }}" @selected(($filters['method'] ?? '') === $val)>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Du</label>
+                                <input type="date" name="from" value="{{ $filters['from'] ?? '' }}" class="mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Au</label>
+                                <input type="date" name="to" value="{{ $filters['to'] ?? '' }}" class="mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" />
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="submit" class="inline-flex items-center px-4 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700">Filtrer</button>
+                                <a href="{{ route('events.attendees', $event) }}" class="inline-flex items-center px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50">Réinitialiser</a>
+                            </div>
+                        </div>
+                    </form>
                 </div>
 
                 <!-- Statistiques compactes -->
@@ -81,6 +134,55 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
                                 </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistiques paiements / transferts -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-gradient-to-br from-emerald-50 to-green-50 p-5 rounded-2xl border border-emerald-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-emerald-900/80 mb-1">Tickets payés</p>
+                                <p class="text-2xl font-bold text-emerald-900">{{ $statistics['paid_tickets'] }}</p>
+                            </div>
+                            <div class="p-3 bg-emerald-100 rounded-xl">
+                                <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-br from-yellow-50 to-amber-50 p-5 rounded-2xl border border-yellow-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-yellow-900/80 mb-1">Tickets non payés</p>
+                                <p class="text-2xl font-bold text-yellow-900">{{ $statistics['unpaid_tickets'] }}</p>
+                            </div>
+                            <div class="p-3 bg-yellow-100 rounded-xl">
+                                <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-br from-cyan-50 to-blue-50 p-5 rounded-2xl border border-cyan-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-cyan-900/80 mb-1">Tickets transférés</p>
+                                <p class="text-2xl font-bold text-cyan-900">{{ $statistics['transfers'] }}</p>
+                            </div>
+                            <div class="p-3 bg-cyan-100 rounded-xl">
+                                <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-br from-rose-50 to-pink-50 p-5 rounded-2xl border border-rose-100">
+                        @php $rev = (int)($statistics['revenue_minor'] ?? 0); $currency = $event->currency ?? 'XOF'; @endphp
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-rose-900/80 mb-1">Revenus générés</p>
+                                <p class="text-2xl font-bold text-rose-900">{{ \App\Support\Currency::format($rev, $currency) }}</p>
+                            </div>
+                            <div class="p-3 bg-rose-100 rounded-xl">
+                                <svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 1.119-3 2.5S10.343 13 12 13s3 1.119 3 2.5S13.657 18 12 18m0-10V6m0 12v-2m8-4a8 8 0 11-16 0 8 8 0 0116 0z"/></svg>
                             </div>
                         </div>
                     </div>

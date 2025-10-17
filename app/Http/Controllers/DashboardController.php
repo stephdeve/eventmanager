@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\Registration;
+use App\Models\Ticket;
+use App\Models\TicketTransfer;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -74,10 +76,13 @@ class DashboardController extends Controller
             'recent_registrations' => $recentRegistrations,
         ];
 
-        // Finance: revenus et ventes
+        // Finance: revenus et ventes + tickets payés/non payés et transferts
         $financeTotals = [
             'total_revenue_minor' => (int) \App\Models\Event::whereIn('id', $organizedEventIds)->sum('total_revenue_minor'),
             'total_tickets_sold' => (int) \App\Models\Event::whereIn('id', $organizedEventIds)->sum('total_tickets_sold'),
+            'total_paid_tickets' => (int) Ticket::whereIn('event_id', $organizedEventIds)->where('paid', true)->count(),
+            'total_unpaid_tickets' => (int) Ticket::whereIn('event_id', $organizedEventIds)->where('paid', false)->count(),
+            'total_ticket_transfers' => (int) TicketTransfer::whereHas('ticket', function($q) use ($organizedEventIds) { $q->whereIn('event_id', $organizedEventIds); })->count(),
         ];
 
         $recentPayments = \App\Models\EventPayment::whereIn('event_id', $organizedEventIds)
@@ -86,6 +91,43 @@ class DashboardController extends Controller
             ->orderByDesc(\DB::raw('COALESCE(paid_at, created_at)'))
             ->take(10)
             ->get();
+
+        // Per-event finance table: revenue, tickets sold, paid/unpaid, transfers
+        $eventsFinanceList = $user->organizedEvents()
+            ->select('id', 'title', 'slug', 'start_date', 'currency', 'total_revenue_minor', 'total_tickets_sold')
+            ->orderByDesc('total_revenue_minor')
+            ->take(20)
+            ->get();
+
+        $ticketAgg = Ticket::select('event_id',
+                DB::raw('SUM(CASE WHEN paid = 1 THEN 1 ELSE 0 END) as paid_t'),
+                DB::raw('SUM(CASE WHEN paid = 0 THEN 1 ELSE 0 END) as unpaid_t')
+            )
+            ->whereIn('event_id', $organizedEventIds)
+            ->groupBy('event_id')
+            ->get()
+            ->keyBy('event_id');
+
+        $transfersAgg = DB::table('ticket_transfers')
+            ->join('tickets', 'ticket_transfers.ticket_id', '=', 'tickets.id')
+            ->select('tickets.event_id', DB::raw('COUNT(*) as transfers'))
+            ->whereIn('tickets.event_id', $organizedEventIds)
+            ->groupBy('tickets.event_id')
+            ->get()
+            ->keyBy('event_id');
+
+        $perEventFinance = $eventsFinanceList->map(function ($e) use ($ticketAgg, $transfersAgg) {
+            $agg = $ticketAgg->get($e->id);
+            $tr = $transfersAgg->get($e->id);
+            return [
+                'event' => $e,
+                'revenue_minor' => (int) ($e->total_revenue_minor ?? 0),
+                'tickets_sold' => (int) ($e->total_tickets_sold ?? 0),
+                'paid_tickets' => (int) ($agg->paid_t ?? 0),
+                'unpaid_tickets' => (int) ($agg->unpaid_t ?? 0),
+                'transfers' => (int) ($tr->transfers ?? 0),
+            ];
+        })->values();
 
         // Préparation du graphique « inscriptions sur 7 jours »
         $startOfPeriod = Carbon::now()->subDays(6)->startOfDay();
@@ -225,6 +267,7 @@ class DashboardController extends Controller
             'widgets' => $widgets,
             'financeTotals' => $financeTotals,
             'recentPayments' => $recentPayments,
+            'perEventFinance' => $perEventFinance,
             'salesChart' => [
                 'labels' => $salesLabels,
                 'series_minor' => $salesSeries,

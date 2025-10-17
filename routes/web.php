@@ -108,6 +108,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('events.attendees')
         ->middleware(EnsureActiveSubscription::class);
 
+    // Exports des participants (CSV / PDF)
+    Route::get('/events/{event}/attendees.csv', [RegistrationController::class, 'exportAttendeesCsv'])
+        ->name('events.attendees.export.csv')
+        ->middleware(EnsureActiveSubscription::class);
+    Route::get('/events/{event}/attendees.pdf', [RegistrationController::class, 'exportAttendeesPdf'])
+        ->name('events.attendees.export.pdf')
+        ->middleware(EnsureActiveSubscription::class);
+
     // (supprimé) Ancienne route validateRegistration obsolète
 
     // Gestion des billets

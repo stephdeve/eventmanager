@@ -164,6 +164,43 @@
             </a>
         </div>
 
+        <!-- Billetterie: synthèse tickets -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="dashboard-card bg-white rounded-2xl p-6 shadow-lg border ">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Tickets payés</p>
+                        <p class="text-2xl font-bold text-gray-900 mt-1">{{ number_format((int) data_get($financeTotals, 'total_paid_tickets', 0)) }}</p>
+                    </div>
+                    <div class="p-3 bg-emerald-50 rounded-xl">
+                        <svg class="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="dashboard-card bg-white rounded-2xl p-6 shadow-lg border ">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Tickets non payés</p>
+                        <p class="text-2xl font-bold text-gray-900 mt-1">{{ number_format((int) data_get($financeTotals, 'total_unpaid_tickets', 0)) }}</p>
+                    </div>
+                    <div class="p-3 bg-amber-50 rounded-xl">
+                        <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="dashboard-card bg-white rounded-2xl p-6 shadow-lg border ">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Tickets transférés</p>
+                        <p class="text-2xl font-bold text-gray-900 mt-1">{{ number_format((int) data_get($financeTotals, 'total_ticket_transfers', 0)) }}</p>
+                    </div>
+                    <div class="p-3 bg-cyan-50 rounded-xl">
+                        <svg class="w-8 h-8 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Graphiques et contenu principal -->
         <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
             <!-- Colonne principale -->
@@ -347,6 +384,54 @@
                             </div>
                         @endforelse
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Finances par événement -->
+        <div class="mt-12">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Finances par événement</h2>
+            </div>
+            <div class="dashboard-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50/80">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Événement</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ventes (tickets)</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tickets payés</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tickets non payés</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transferts</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Revenus</th>
+                                <th class="px-6 py-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @forelse(($perEventFinance ?? []) as $row)
+                                <tr class="hover:bg-gray-50/50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-semibold text-gray-900">{{ $row['event']->title }}</div>
+                                        <div class="text-xs text-gray-500">{{ optional($row['event']->start_date)?->isoFormat('D MMM YYYY • HH:mm') }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ number_format($row['tickets_sold']) }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-emerald-700">{{ number_format($row['paid_tickets']) }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-amber-700">{{ number_format($row['unpaid_tickets']) }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-700">{{ number_format($row['transfers']) }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                                        {{ \App\Support\Currency::format($row['revenue_minor'], ($row['event']->currency ?? 'XOF')) }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                                        <a href="{{ route('events.attendees', $row['event']) }}" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full bg-indigo-50 text-indigo-700 hover:bg-indigo-100">Voir</a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="px-6 py-8 text-center text-gray-500">Aucune donnée disponible.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
