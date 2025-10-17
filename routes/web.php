@@ -57,6 +57,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('events.generate-share');
     Route::get('/events', [EventController::class, 'index'])->name('events.index');
     Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
+    Route::post('/events/{event}/reviews', [\App\Http\Controllers\EventReviewController::class, 'store'])
+        ->name('events.reviews.store');
 
     // Vérification d'identité
     Route::get('/identity/verification', [\App\Http\Controllers\IdentityVerificationController::class, 'show'])

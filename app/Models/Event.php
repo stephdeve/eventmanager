@@ -153,6 +153,14 @@ class Event extends Model
     }
 
     /**
+     * Get approved reviews for the event.
+     */
+    public function reviews()
+    {
+        return $this->hasMany(EventReview::class)->where('approved', true)->latest();
+    }
+
+    /**
      * Get all users registered for the event.
      */
     public function attendees()

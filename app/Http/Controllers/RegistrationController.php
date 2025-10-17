@@ -38,6 +38,14 @@ class RegistrationController extends Controller
             // Load relations
             $ticket->load(['event', 'owner']);
 
+            // Reject if invalid
+            if ($ticket->status === 'invalid') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ce billet est invalide.',
+                ], 422);
+            }
+
             // Reject if already used
             if ($ticket->status === 'used') {
                 return response()->json([

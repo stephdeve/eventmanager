@@ -62,6 +62,30 @@
                             </span>
                         </div>
 
+                        @if(isset($recommendedEvents) && $recommendedEvents->isNotEmpty())
+                            <div class="pt-6 border-t border-gray-200">
+                                <h2 class="text-2xl font-bold text-gray-900 mb-4">Événements similaires</h2>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    @foreach($recommendedEvents as $rec)
+                                        <a href="{{ route('events.show', $rec) }}" class="group border border-gray-200 rounded-xl overflow-hidden hover:border-gray-300 hover:shadow transition">
+                                            <div class="h-32 w-full overflow-hidden bg-gray-100">
+                                                <img src="{{ $rec->cover_image_url }}" alt="{{ $rec->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform">
+                                            </div>
+                                            <div class="p-4">
+                                                <div class="font-semibold text-gray-900">{{ $rec->title }}</div>
+                                                <div class="text-xs text-gray-600 mt-1">
+                                                    @if($rec->start_date) {{ $rec->start_date->translatedFormat('d/m/Y H\hi') }} @endif — {{ $rec->location }}
+                                                </div>
+                                                <div class="mt-2 text-sm font-semibold {{ $rec->price>0 ? 'text-blue-700' : 'text-gray-700' }}">
+                                                    {{ $rec->price>0 ? \App\Support\Currency::format($rec->price, $rec->currency ?? 'XOF') : 'Gratuit' }}
+                                                </div>
+                                            </div>
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
                         <div class="flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
@@ -216,6 +240,71 @@
                                 @endif
                             </div>
                         @endcan
+
+                        <!-- Avis des participants -->
+                        <div class="pt-6 border-t border-gray-200">
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="text-2xl font-bold text-gray-900">Avis des participants</h2>
+                                @if(isset($avgRating) && $avgRating > 0)
+                                    <div class="flex items-center gap-2 text-yellow-600">
+                                        <span class="font-semibold">{{ number_format($avgRating, 1) }}/5</span>
+                                        <span>
+                                            @for($i=1;$i<=5;$i++)
+                                                @if($i <= floor($avgRating))
+                                                    ★
+                                                @else
+                                                    ☆
+                                                @endif
+                                            @endfor
+                                        </span>
+                                    </div>
+                                @endif
+                            </div>
+
+                            @if(isset($reviews) && $reviews->isNotEmpty())
+                                <div class="space-y-4">
+                                    @foreach($reviews as $review)
+                                        <div class="border border-gray-200 rounded-lg p-4">
+                                            <div class="flex items-center justify-between">
+                                                <div class="text-sm font-semibold text-gray-900">{{ optional($review->user)->name ?? 'Participant' }}</div>
+                                                <div class="text-yellow-600">
+                                                    @for($i=1;$i<=5;$i++)
+                                                        @if($i <= (int) $review->rating)★@else☆@endif
+                                                    @endfor
+                                                </div>
+                                            </div>
+                                            <p class="mt-2 text-sm text-gray-700">{{ $review->comment }}</p>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <p class="text-gray-600 text-sm">Aucun avis pour le moment.</p>
+                            @endif
+
+                            @if(isset($canReview) && $canReview)
+                                <div class="mt-6 border border-gray-200 rounded-lg p-4">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Laisser un avis</h3>
+                                    <form method="POST" action="{{ route('events.reviews.store', $event) }}" class="space-y-3">
+                                        @csrf
+                                        <div>
+                                            <label for="rating" class="block text-sm font-medium text-gray-700">Note</label>
+                                            <select id="rating" name="rating" class="mt-1 w-32 rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                                                @for($i=5;$i>=1;$i--)
+                                                    <option value="{{ $i }}">{{ $i }} / 5</option>
+                                                @endfor
+                                            </select>
+                                            @error('rating')<p class="text-sm text-red-600">{{ $message }}</p>@enderror
+                                        </div>
+                                        <div>
+                                            <label for="comment" class="block text-sm font-medium text-gray-700">Commentaire</label>
+                                            <textarea id="comment" name="comment" rows="3" class="mt-1 w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="Partagez votre expérience..."></textarea>
+                                            @error('comment')<p class="text-sm text-red-600">{{ $message }}</p>@enderror
+                                        </div>
+                                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700">Envoyer</button>
+                                    </form>
+                                </div>
+                            @endif
+                        </div>
                     </div>
 
                     <!-- Sidebar avec actions -->
@@ -517,6 +606,28 @@ document.addEventListener('DOMContentLoaded', function() {
             closeDeleteModal();
         }
     });
+});
+
+// Countdown to start date
+document.addEventListener('DOMContentLoaded', function() {
+    const el = document.getElementById('countdown');
+    if (!el) return;
+    const start = new Date(el.getAttribute('data-start'));
+    const out = el.querySelector('.js-countdown');
+    function updateCountdown() {
+        const now = new Date();
+        let diff = Math.max(0, start - now);
+        const sec = Math.floor(diff / 1000) % 60;
+        const min = Math.floor(diff / (1000*60)) % 60;
+        const hr = Math.floor(diff / (1000*60*60)) % 24;
+        const d = Math.floor(diff / (1000*60*60*24));
+        if (out) {
+            out.textContent = `${d}j ${hr}h ${min}m ${sec}s`;
+        }
+        if (diff > 0) setTimeout(updateCountdown, 1000);
+        else el.textContent = 'En cours';
+    }
+    updateCountdown();
 });
 
 // Animation d'entrée des éléments

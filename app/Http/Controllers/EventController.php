@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\Registration;
+use App\Models\EventReview;
 use App\Models\Ticket;
 use App\Services\QrCodeService;
 use App\Support\Currency;
@@ -270,10 +271,47 @@ class EventController extends Controller
             $isRegistered = !is_null($registration);
         }
 
+        // Reviews: average rating and latest approved reviews
+        $avgRating = (float) ($event->reviews()->avg('rating') ?? 0);
+        $reviews = $event->reviews()->with('user')->take(10)->get();
+
+        // Recommendations: based on user preferred categories, fallback to event category
+        $preferredCategories = [];
+        if (auth()->check()) {
+            $preferredCategories = Event::query()
+                ->whereHas('registrations', function ($q) { $q->where('user_id', auth()->id()); })
+                ->whereNotNull('category')
+                ->distinct()
+                ->pluck('category')
+                ->toArray();
+        }
+        if (empty($preferredCategories) && $event->category) {
+            $preferredCategories = [$event->category];
+        }
+        $recommendedEvents = Event::query()
+            ->where('id', '!=', $event->id)
+            ->when(!empty($preferredCategories), fn($q) => $q->whereIn('category', $preferredCategories))
+            ->where('start_date', '>=', now())
+            ->orderBy('start_date')
+            ->take(6)
+            ->get();
+
+        // Can the current user review?
+        $canReview = false;
+        if (auth()->check() && $event->end_date && now()->gte($event->end_date)) {
+            $hasRegistration = $isRegistered || Registration::where('event_id', $event->id)->where('user_id', auth()->id())->exists();
+            $alreadyReviewed = EventReview::where('event_id', $event->id)->where('user_id', auth()->id())->exists();
+            $canReview = $hasRegistration && !$alreadyReviewed;
+        }
+
         return view('events.show', [
             'event' => $event,
             'isRegistered' => $isRegistered,
             'registration' => $registration,
+            'avgRating' => $avgRating,
+            'reviews' => $reviews,
+            'recommendedEvents' => $recommendedEvents,
+            'canReview' => $canReview,
         ]);
     }
 
