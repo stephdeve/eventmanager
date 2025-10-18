@@ -45,12 +45,12 @@
                 <img src="{{ $event->cover_image_url }}"
                      alt="{{ $event->title }}"
                      class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent"></div>
 
                 <div class="absolute bottom-0 left-0 right-0 p-8">
                     <h1 class="text-4xl font-bold text-white mb-4">{{ $event->title }}</h1>
 
-                    <div class="flex flex-wrap items-center gap-6 text-white/90">
+                    <div class="flex flex-wrap  items-center  gap-6 text-white/90">
                         <div class="flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -80,7 +80,7 @@
                         </div>
 
                         @if($event->start_date && now()->lt($event->start_date))
-                            <div id="countdown" data-start="{{ $event->start_date->toIso8601String() }}" class="mt-6 inline-flex items-center gap-3 px-4 py-2 rounded-lg bg-white/10 text-white backdrop-blur-sm">
+                            <div id="countdown" data-start="{{ $event->start_date->toIso8601String() }}" class=" inline-flex items-center gap-3 px-4 py-2 rounded-lg bg-white/10 text-white backdrop-blur-sm">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>

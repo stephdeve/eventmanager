@@ -390,11 +390,11 @@
                                 <label class="form-label">Méthodes de paiement disponibles</label>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     <label class="checkbox-card flex items-center gap-3">
-                                        <input type="radio" name="allow_payment_numeric" value="1" class="h-5 w-5 rounded border-gray-300 text-[#4F46E5] focus:ring-[#4F46E5]">
+                                        <input type="checkbox" name="allow_payment_numeric" value="1" class="h-5 w-5 rounded border-gray-300 text-[#4F46E5] focus:ring-[#4F46E5]">
                                         <span class="text-sm">Paiement numérique (Kkiapay)</span>
                                     </label>
                                     <label class="checkbox-card flex items-center gap-3">
-                                        <input type="radio" name="allow_payment_physical" value="1" class="h-5 w-5 rounded border-gray-300 text-[#4F46E5] focus:ring-[#4F46E5]">
+                                        <input type="checkbox" name="allow_payment_physical" value="1" class="h-5 w-5 rounded border-gray-300 text-[#4F46E5] focus:ring-[#4F46E5]">
                                         <span class="text-sm">Paiement sur place</span>
                                     </label>
                                 </div>
