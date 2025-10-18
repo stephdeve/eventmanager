@@ -309,6 +309,109 @@
                             @enderror
                         </div>
 
+                         <!-- Capacité -->
+                         <div class="space-y-2">
+                            <div class="checkbox-card" id="capacity-card">
+                                <label class="flex items-start space-x-3 cursor-pointer">
+                                    <input type="checkbox" id="is_capacity_unlimited" name="is_capacity_unlimited" value="1"
+                                           class="mt-1 h-5 w-5 rounded border-gray-300 text-[#4F46E5] focus:ring-[#4F46E5]"
+                                           
+                                           >
+                                    <div>
+                                        <span class="block text-sm font-semibold text-[#1E3A8A]">Places illimitées</span>
+                                        <span class="block text-xs text-[#6B7280]">Décochez pour définir une capacité maximale</span>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="form-group" id="capacity-group">
+                                <label for="capacity" class="form-label">Capacité maximale</label>
+                                <input type="number" name="capacity" id="capacity" min="1"
+                                       value=""
+                                       class="form-input @error('capacity') error @enderror" placeholder="50">
+                                @error('capacity')
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+
+                         <!-- Type d'événement et Paiement -->
+                         <div class="space-y-4">
+                            <div class="form-group">
+                                <label class="form-label">Type d'événement</label>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <label class="checkbox-card">
+                                        <input type="radio" name="payment_type" value="free" class="hidden" @checked(old('payment_type', ($event->price ?? 0) > 0 ? 'paid' : 'free')==='free')>
+                                        <span class="block text-sm font-semibold text-[#1E3A8A]">Gratuit</span>
+                                    </label>
+                                    <label class="checkbox-card">
+                                        <input type="radio" name="payment_type" value="paid" class="hidden" @checked(old('payment_type', ($event->price ?? 0) > 0 ? 'paid' : 'free')==='paid')>
+                                        <span class="block text-sm font-semibold text-[#1E3A8A]">Payant</span>
+                                    </label>
+                                </div>
+                                @error('payment_type')
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="price-section">
+                                <div class="form-group">
+                                    <label for="price" class="form-label">Prix</label>
+                                    <div class="relative">
+                                        <input type="number" name="price" id="price" min="0" step="0.01"
+                                               value=""
+                                               class="form-input @error('price') error @enderror pr-12">
+                                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                            <span class="text-[#6B7280] text-sm" id="currency-symbol">
+                                               
+                                            </span>
+                                        </div>
+                                    </div>
+                                    @error('price')
+                                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div class="form-group">
+                                    <label for="currency" class="form-label">Devise *</label>
+                                    <select name="currency" id="currency" class="form-input currency-select @error('currency') error @enderror">
+                                        @foreach($currencies as $code => $data)
+                                            <option value="{{ $code }}" data-symbol="{{ $data['symbol'] ?? $code }}">
+                                                {{ $code }} — {{ $data['name'] ?? $code }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('currency')
+                                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <!-- Méthodes de paiement disponibles -->
+                            <div class="form-group" id="payment-methods">
+                                <label class="form-label">Méthodes de paiement disponibles</label>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <label class="checkbox-card flex items-center gap-3">
+                                        <input type="checkbox" name="allow_payment_numeric" value="1" class="h-5 w-5 rounded border-gray-300 text-[#4F46E5] focus:ring-[#4F46E5]">
+                                        <span class="text-sm">Paiement numérique (Kkiapay)</span>
+                                    </label>
+                                    <label class="checkbox-card flex items-center gap-3">
+                                        <input type="checkbox" name="allow_payment_physical" value="1" class="h-5 w-5 rounded border-gray-300 text-[#4F46E5] focus:ring-[#4F46E5]">
+                                        <span class="text-sm">Paiement sur place</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Politique de transfert de ticket -->
+                        <div class="checkbox-card">
+                            <label class="flex items-start space-x-3 cursor-pointer">
+                                <input id="allow_ticket_transfer" name="allow_ticket_transfer" type="checkbox" value="1" class="mt-1 h-5 w-5 rounded border-gray-300 text-[#4F46E5] focus:ring-[#4F46E5]">
+                                <div class="flex-1">
+                                    <span class="block text-sm font-semibold text-[#1E3A8A]">Autoriser le transfert de tickets</span>
+                                    <span class="mt-1 block text-sm text-[#6B7280]">Les participants peuvent transférer leur ticket à une autre personne.</span>
+                                </div>
+                            </label>
+                        </div>
+
                         <!-- Section remplacée par capacité illimitée + type + prix/devise plus bas -->
                         
 

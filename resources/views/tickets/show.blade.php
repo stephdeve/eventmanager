@@ -112,22 +112,22 @@
                 @endif
 
                 @if(auth()->check() && auth()->id() === $ticket->owner_user_id && $ticket->event && $ticket->event->allow_ticket_transfer && $ticket->status === 'valid' && (!$ticket->event->end_date || now()->lt($ticket->event->end_date)))
-                    <div class="mt-8 border border-gray-200 rounded-xl p-6">
+                    <div class="mt-8 border border-indigo-200 bg-indigo-50 rounded-xl p-6">
                         <h2 class="text-lg font-semibold text-gray-900">Transférer ce ticket</h2>
-                        <p class="mt-1 text-sm text-gray-600">Saisissez l'email du destinataire. Un nouveau QR code sera généré et vous perdrez l'accès à ce ticket.</p>
-                        <form class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3" action="{{ route('tickets.transfer', $ticket->qr_code_data) }}" method="POST">
+                        <p class="mt-1 text-sm text-gray-600">Entrez l'email du destinataire. Un nouveau QR sera généré et vous perdrez l'accès à ce ticket.</p>
+                        <form class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3" action="{{ route('tickets.transfer', $ticket->qr_code_data) }}" method="POST">
                             @csrf
-                            <div class="md:col-span-2">
+                            <div class="sm:col-span-2">
                                 <label for="recipient_email" class="sr-only">Email du destinataire</label>
-                                <input type="email" required name="recipient_email" id="recipient_email" placeholder="destinataire@example.com" class="w-full rounded-md border-gray-300 focus:ring-indigo-500 focus:border-indigo-500" />
+                                <input type="email" required name="recipient_email" id="recipient_email" placeholder="destinataire@example.com" class="w-full rounded-md border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" />
                             </div>
-                            <div>
-                                <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                    Transférer le ticket
+                            <div class="flex items-center">
+                                <button type="submit" class="inline-flex items-center justify-center px-4 py-2 min-w-[180px] bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    Confirmer le transfert
                                 </button>
                             </div>
                         </form>
-                        <p class="mt-2 text-xs text-gray-500">Cette action est <span class="font-semibold">irréversible</span>. Le nouveau détenteur recevra le ticket immédiatement.</p>
+                        <p class="mt-2 text-xs text-gray-600">Action irréversible. Si le destinataire n'a pas de compte, il recevra un email avec son ticket.</p>
                     </div>
                 @endif
             </div>
