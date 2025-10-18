@@ -62,10 +62,6 @@
                             </span>
                         </div>
 
-<<<<<<< HEAD
-
-=======
->>>>>>> b8b367ed66883b8ad0003dc508512480dd6986b1
                         <div class="flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
@@ -156,32 +152,6 @@
                                 {!! nl2br(e($event->description)) !!}
                             </div>
                         </div>
-
-                        @if(isset($recommendedEvents) && $recommendedEvents->isNotEmpty())
-                            <div class="pt-6 border-t border-gray-200">
-                                <h2 class="text-2xl font-bold text-gray-900 mb-4">Événements similaires</h2>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    @foreach($recommendedEvents as $rec)
-                                        <a href="{{ route('events.show', $rec) }}" class="group block border border-gray-200 rounded-xl overflow-hidden hover:border-gray-300 hover:shadow transition">
-                                            <div class="w-full bg-gray-100">
-                                                <div class="w-full aspect-[16/9] overflow-hidden">
-                                                    <img src="{{ $rec->cover_image_url }}" alt="{{ $rec->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                                                </div>
-                                            </div>
-                                            <div class="p-4">
-                                                <div class="font-semibold text-gray-900">{{ $rec->title }}</div>
-                                                <div class="text-xs text-gray-600 mt-1">
-                                                    @if($rec->start_date) {{ $rec->start_date->translatedFormat('d/m/Y H\hi') }} @endif — {{ $rec->location }}
-                                                </div>
-                                                <div class="mt-2 text-sm font-semibold {{ $rec->price>0 ? 'text-blue-700' : 'text-gray-700' }}">
-                                                    {{ $rec->price>0 ? \App\Support\Currency::format($rec->price, $rec->currency ?? 'XOF') : 'Gratuit' }}
-                                                </div>
-                                            </div>
-                                        </a>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif
 
                         <!-- Organisateur -->
                         <div class="pt-6 border-t border-gray-200">
