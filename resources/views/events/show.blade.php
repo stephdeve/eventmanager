@@ -748,6 +748,29 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Countdown to start date
+document.addEventListener('DOMContentLoaded', function() {
+    const el = document.getElementById('countdown');
+    if (!el) return;
+    const start = new Date(el.getAttribute('data-start'));
+    const out = el.querySelector('.js-countdown');
+    function updateCountdown() {
+        const now = new Date();
+        let diff = Math.max(0, start - now);
+        const sec = Math.floor(diff / 1000) % 60;
+        const min = Math.floor(diff / (1000*60)) % 60;
+        const hr = Math.floor(diff / (1000*60*60)) % 24;
+        const d = Math.floor(diff / (1000*60*60*24));
+        if (out) {
+            out.textContent = `${d}j ${hr}h ${min}m ${sec}s`;
+        }
+        if (diff > 0) setTimeout(updateCountdown, 1000);
+        else el.textContent = 'En cours';
+    }
+    updateCountdown();
+});
+
+
 // Gestion des interactions
 document.addEventListener('DOMContentLoaded', function() {
     // Animation au survol des cartes
