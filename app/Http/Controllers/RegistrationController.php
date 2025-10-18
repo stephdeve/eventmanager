@@ -101,8 +101,9 @@ class RegistrationController extends Controller
     /**
      * Validate a ticket using its QR code data (code string).
      */
-    public function validateTicketByCode(string $code)
+    public function validateTicketByCode(Request $request, string $code)
     {
+        $asJson = $request->expectsJson() || $request->ajax();
         // 1) Try to validate a Ticket code first (new ticket-level QR)
         $ticket = Ticket::where('qr_code_data', $code)->first();
         if ($ticket) {
@@ -114,26 +115,35 @@ class RegistrationController extends Controller
 
             // Reject if invalid
             if ($ticket->status === 'invalid') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Ce billet est invalide.',
-                ], 422);
+                if ($asJson) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Ce billet est invalide.',
+                    ], 422);
+                }
+                return redirect()->route('scanner')->with('error', 'Ce billet est invalide.');
             }
 
             // Reject if already used
             if ($ticket->status === 'used') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Ce billet a déjà été utilisé.',
-                ], 409);
+                if ($asJson) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Ce billet a déjà été utilisé.',
+                    ], 409);
+                }
+                return redirect()->route('scanner')->with('error', 'Ce billet a déjà été utilisé.');
             }
 
             // Payment rules: if numeric and not paid, reject; if physical unpaid, allow with notice
             if (($ticket->payment_method === 'numeric' || $ticket->payment_method === null) && !$ticket->paid) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Ticket invalide ou paiement en attente. Finalisez le paiement en ligne.',
-                ], 422);
+                if ($asJson) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Ticket invalide ou paiement en attente. Finalisez le paiement en ligne.',
+                    ], 422);
+                }
+                return redirect()->route('scanner')->with('error', 'Ticket invalide ou paiement en attente. Finalisez le paiement en ligne.');
             }
 
             // Atomic update to mark used
@@ -170,61 +180,73 @@ class RegistrationController extends Controller
                 $notice = 'Accès autorisé — Paiement à effectuer sur place.';
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Billet validé avec succès!',
-                'ticket' => [
-                    'id' => $ticket->id,
-                    'event' => [
-                        'title' => $ticket->event->title,
-                    ],
-                    'owner' => [
-                        'name' => optional($ticket->owner)->name,
-                    ],
-                    'status' => $ticket->status,
-                    'validated_at' => optional($ticket->validated_at)->format('d/m/Y H:i'),
-                    'paid' => (bool) $ticket->paid,
-                    'payment_method' => $ticket->payment_method,
-                    'notice' => $notice,
-                ]
-            ]);
+            if ($asJson) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Billet validé avec succès!',
+                    'ticket' => [
+                        'id' => $ticket->id,
+                        'event' => [
+                            'title' => $ticket->event->title,
+                        ],
+                        'owner' => [
+                            'name' => optional($ticket->owner)->name,
+                        ],
+                        'status' => $ticket->status,
+                        'validated_at' => optional($ticket->validated_at)->format('d/m/Y H:i'),
+                        'paid' => (bool) $ticket->paid,
+                        'payment_method' => $ticket->payment_method,
+                        'notice' => $notice,
+                    ]
+                ]);
+            }
+            return redirect()->route('scanner')->with('success', 'Billet validé avec succès!');
         }
 
         // 2) Backward compatibility: registration-level QR
         $registration = Registration::where('qr_code_data', $code)->first();
 
         if (!$registration) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Billet introuvable.',
-            ], 404);
+            if ($asJson) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Billet introuvable.',
+                ], 404);
+            }
+            return redirect()->route('scanner')->with('error', 'Billet introuvable.');
         }
 
         $this->authorize('validate', $registration);
 
         if ($registration->is_validated) {
             $registration->load(['event', 'user']);
-            return response()->json([
-                'success' => false,
-                'message' => 'Ce billet a déjà été validé.',
-                'registration' => [
-                    'event' => [
-                        'title' => $registration->event->title,
-                    ],
-                    'user' => [
-                        'name' => $registration->user->name,
-                    ],
-                    'is_validated' => true,
-                    'validated_at' => optional($registration->validated_at)->format('d/m/Y H:i'),
-                ]
-            ], 409);
+            if ($asJson) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ce billet a déjà été validé.',
+                    'registration' => [
+                        'event' => [
+                            'title' => $registration->event->title,
+                        ],
+                        'user' => [
+                            'name' => $registration->user->name,
+                        ],
+                        'is_validated' => true,
+                        'validated_at' => optional($registration->validated_at)->format('d/m/Y H:i'),
+                    ]
+                ], 409);
+            }
+            return redirect()->route('scanner')->with('error', 'Ce billet a déjà été validé.');
         }
 
         if (in_array($registration->payment_status, ['pending', 'failed'], true)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Ticket invalide ou paiement en attente. Finalisez le paiement en ligne.',
-            ], 422);
+            if ($asJson) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ticket invalide ou paiement en attente. Finalisez le paiement en ligne.',
+                ], 422);
+            }
+            return redirect()->route('scanner')->with('error', 'Ticket invalide ou paiement en attente. Finalisez le paiement en ligne.');
         }
 
         $updated = DB::transaction(function () use ($registration) {
@@ -275,23 +297,26 @@ class RegistrationController extends Controller
             }
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Billet validé avec succès!',
-            'registration' => [
-                'id' => $registration->id,
-                'event' => [
-                    'title' => $registration->event->title,
-                ],
-                'user' => [
-                    'name' => $registration->user->name,
-                ],
-                'is_validated' => true,
-                'validated_at' => optional($registration->validated_at)->format('d/m/Y H:i'),
-                'payment_status' => $registration->payment_status,
-                'notice' => $notice,
-            ]
-        ]);
+        if ($asJson) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Billet validé avec succès!',
+                'registration' => [
+                    'id' => $registration->id,
+                    'event' => [
+                        'title' => $registration->event->title,
+                    ],
+                    'user' => [
+                        'name' => $registration->user->name,
+                    ],
+                    'is_validated' => true,
+                    'validated_at' => optional($registration->validated_at)->format('d/m/Y H:i'),
+                    'payment_status' => $registration->payment_status,
+                    'notice' => $notice,
+                ]
+            ]);
+        }
+        return redirect()->route('scanner')->with('success', 'Billet validé avec succès!');
     }
 
     /**

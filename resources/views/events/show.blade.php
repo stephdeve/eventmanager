@@ -62,29 +62,6 @@
                             </span>
                         </div>
 
-                        @if(isset($recommendedEvents) && $recommendedEvents->isNotEmpty())
-                            <div class="pt-6 border-t border-gray-200">
-                                <h2 class="text-2xl font-bold text-gray-900 mb-4">Événements similaires</h2>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    @foreach($recommendedEvents as $rec)
-                                        <a href="{{ route('events.show', $rec) }}" class="group border border-gray-200 rounded-xl overflow-hidden hover:border-gray-300 hover:shadow transition">
-                                            <div class="h-32 w-full overflow-hidden bg-gray-100">
-                                                <img src="{{ $rec->cover_image_url }}" alt="{{ $rec->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform">
-                                            </div>
-                                            <div class="p-4">
-                                                <div class="font-semibold text-gray-900">{{ $rec->title }}</div>
-                                                <div class="text-xs text-gray-600 mt-1">
-                                                    @if($rec->start_date) {{ $rec->start_date->translatedFormat('d/m/Y H\hi') }} @endif — {{ $rec->location }}
-                                                </div>
-                                                <div class="mt-2 text-sm font-semibold {{ $rec->price>0 ? 'text-blue-700' : 'text-gray-700' }}">
-                                                    {{ $rec->price>0 ? \App\Support\Currency::format($rec->price, $rec->currency ?? 'XOF') : 'Gratuit' }}
-                                                </div>
-                                            </div>
-                                        </a>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif
 
                         <div class="flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -102,6 +79,16 @@
                         <div class="flex items-center gap-2 font-semibold">
                             <span>{{ \App\Support\Currency::format($event->price, $event->currency ?? 'XOF') }}</span>
                         </div>
+
+                        @if($event->start_date && now()->lt($event->start_date))
+                            <div id="countdown" data-start="{{ $event->start_date->toIso8601String() }}" class="mt-6 inline-flex items-center gap-3 px-4 py-2 rounded-lg bg-white/10 text-white backdrop-blur-sm">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <span class="text-sm font-semibold">Débute dans</span>
+                                <span class="js-countdown text-lg font-bold"></span>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -166,6 +153,32 @@
                                 {!! nl2br(e($event->description)) !!}
                             </div>
                         </div>
+
+                        @if(isset($recommendedEvents) && $recommendedEvents->isNotEmpty())
+                            <div class="pt-6 border-t border-gray-200">
+                                <h2 class="text-2xl font-bold text-gray-900 mb-4">Événements similaires</h2>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    @foreach($recommendedEvents as $rec)
+                                        <a href="{{ route('events.show', $rec) }}" class="group block border border-gray-200 rounded-xl overflow-hidden hover:border-gray-300 hover:shadow transition">
+                                            <div class="w-full bg-gray-100">
+                                                <div class="w-full aspect-[16/9] overflow-hidden">
+                                                    <img src="{{ $rec->cover_image_url }}" alt="{{ $rec->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                                </div>
+                                            </div>
+                                            <div class="p-4">
+                                                <div class="font-semibold text-gray-900">{{ $rec->title }}</div>
+                                                <div class="text-xs text-gray-600 mt-1">
+                                                    @if($rec->start_date) {{ $rec->start_date->translatedFormat('d/m/Y H\hi') }} @endif — {{ $rec->location }}
+                                                </div>
+                                                <div class="mt-2 text-sm font-semibold {{ $rec->price>0 ? 'text-blue-700' : 'text-gray-700' }}">
+                                                    {{ $rec->price>0 ? \App\Support\Currency::format($rec->price, $rec->currency ?? 'XOF') : 'Gratuit' }}
+                                                </div>
+                                            </div>
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
 
                         <!-- Organisateur -->
                         <div class="pt-6 border-t border-gray-200">
@@ -352,7 +365,7 @@
                                                                value="{{ $event->shareable_link }}"
                                                                class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">
                                                         <button type="button"
-                                                                onclick="copyToClipboard('{{ $event->shareable_link }}')"
+                                                                onclick="copyToClipboard('{{ $event->shareable_link }}', this)"
                                                                 class="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200">
                                                             Copier
                                                         </button>
@@ -553,23 +566,47 @@
 
 @push('scripts')
 <script>
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(function() {
-        const button = event.target;
-        const originalText = button.textContent;
-        button.textContent = 'Copié !';
-        button.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-        button.classList.add('bg-green-600', 'hover:bg-green-700');
+function copyToClipboard(text, btn) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function() {
+            const button = btn;
+            const originalText = button.textContent;
+            button.textContent = 'Copié !';
+            button.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            button.classList.add('bg-green-600', 'hover:bg-green-700');
 
-        setTimeout(() => {
-            button.textContent = originalText;
-            button.classList.remove('bg-green-600', 'hover:bg-green-700');
-            button.classList.add('bg-blue-600', 'hover:bg-blue-700');
-        }, 2000);
-    }).catch(function(err) {
-        console.error('Erreur lors de la copie: ', err);
-        alert('Erreur lors de la copie du lien');
-    });
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.classList.remove('bg-green-600', 'hover:bg-green-700');
+                button.classList.add('bg-blue-600', 'hover:bg-blue-700');
+            }, 2000);
+        }).catch(fallbackCopy);
+    } else {
+        fallbackCopy();
+    }
+
+    function fallbackCopy(err) {
+        try {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.top = '-1000px';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            const ok = document.execCommand('copy');
+            document.body.removeChild(ta);
+            if (!ok) throw new Error('execCommand failed');
+            if (btn) {
+                const originalText = btn.textContent;
+                btn.textContent = 'Copié !';
+                setTimeout(() => { btn.textContent = originalText; }, 2000);
+            }
+        } catch (e) {
+            console.error('Erreur lors de la copie: ', e || err);
+            alert('Erreur lors de la copie du lien');
+        }
+    }
 }
 
 // Gestion du modal de suppression

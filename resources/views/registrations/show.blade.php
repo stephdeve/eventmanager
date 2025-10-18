@@ -79,7 +79,7 @@
                             <h2 class="text-lg font-semibold text-gray-900">Vos billets ({{ $registration->tickets->count() }})</h2>
                             <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                                 @foreach($registration->tickets as $ticket)
-                                    <div class="border rounded-lg p-4 flex items-center justify-between">
+                                    <div class="border rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between">
                                         <div>
                                             <p class="text-sm text-gray-900 font-semibold">Billet #{{ $ticket->id }}</p>
                                             <p class="text-xs text-gray-600">QR: {{ Str::limit($ticket->qr_code_data, 10) }}</p>
@@ -100,11 +100,33 @@
                                                 @endif
                                             </div>
                                         </div>
-                                        <div>
+                                        <div class="mt-3 md:mt-0 flex items-center gap-2">
                                             <a href="{{ route('tickets.show', $ticket->qr_code_data) }}" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md border border-indigo-600 text-indigo-600 hover:bg-indigo-50">
                                                 Ouvrir
                                             </a>
+                                            @if($registration->event && $registration->event->allow_ticket_transfer && $ticket->status === 'valid' && (!$registration->event->end_date || now()->lt($registration->event->end_date)) && ((int) $ticket->owner_user_id === (int) $registration->user_id))
+                                                <button type="button" onclick="toggleTransfer({{ $ticket->id }})" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md border border-indigo-600 text-indigo-600 hover:bg-indigo-50">
+                                                    Transférer
+                                                </button>
+                                            @endif
                                         </div>
+                                        @if($registration->event && $registration->event->allow_ticket_transfer && $ticket->status === 'valid' && (!$registration->event->end_date || now()->lt($registration->event->end_date)) && ((int) $ticket->owner_user_id === (int) $registration->user_id))
+                                            <div id="transfer-form-{{ $ticket->id }}" class="mt-3 w-full hidden">
+                                                <form method="POST" action="{{ route('tickets.transfer', $ticket->qr_code_data) }}" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                                    @csrf
+                                                    <div class="md:col-span-2">
+                                                        <label for="recipient_email_{{ $ticket->id }}" class="sr-only">Email du destinataire</label>
+                                                        <input type="email" required name="recipient_email" id="recipient_email_{{ $ticket->id }}" placeholder="destinataire@example.com" class="w-full rounded-md border-gray-300 focus:ring-indigo-500 focus:border-indigo-500" />
+                                                    </div>
+                                                    <div>
+                                                        <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700">
+                                                            Confirmer le transfert
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                                <p class="mt-2 text-xs text-gray-500">Action irréversible. Un nouveau QR sera généré et vous perdrez l'accès à ce ticket.</p>
+                                            </div>
+                                        @endif
                                     </div>
                                 @endforeach
                             </div>
@@ -149,3 +171,17 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+function toggleTransfer(id) {
+    var el = document.getElementById('transfer-form-' + id);
+    if (!el) return;
+    if (el.classList.contains('hidden')) {
+        el.classList.remove('hidden');
+    } else {
+        el.classList.add('hidden');
+    }
+}
+</script>
+@endpush
