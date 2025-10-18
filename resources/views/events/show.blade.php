@@ -62,30 +62,6 @@
                             </span>
                         </div>
 
-                        @if(isset($recommendedEvents) && $recommendedEvents->isNotEmpty())
-                            <div class="pt-6 border-t border-gray-200">
-                                <h2 class="text-2xl font-bold text-gray-900 mb-4">Événements similaires</h2>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    @foreach($recommendedEvents as $rec)
-                                        <a href="{{ route('events.show', $rec) }}" class="group border border-gray-200 rounded-xl overflow-hidden hover:border-gray-300 hover:shadow transition">
-                                            <div class="h-32 w-full overflow-hidden bg-gray-100">
-                                                <img src="{{ $rec->cover_image_url }}" alt="{{ $rec->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform">
-                                            </div>
-                                            <div class="p-4">
-                                                <div class="font-semibold text-gray-900">{{ $rec->title }}</div>
-                                                <div class="text-xs text-gray-600 mt-1">
-                                                    @if($rec->start_date) {{ $rec->start_date->translatedFormat('d/m/Y H\hi') }} @endif — {{ $rec->location }}
-                                                </div>
-                                                <div class="mt-2 text-sm font-semibold {{ $rec->price>0 ? 'text-blue-700' : 'text-gray-700' }}">
-                                                    {{ $rec->price>0 ? \App\Support\Currency::format($rec->price, $rec->currency ?? 'XOF') : 'Gratuit' }}
-                                                </div>
-                                            </div>
-                                        </a>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif
-
                         <div class="flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
@@ -507,6 +483,121 @@
                 </div>
             </div>
         </div>
+
+        <!-- Section Événements similaires - Placée après la carte principale -->
+        @if(isset($recommendedEvents) && $recommendedEvents->isNotEmpty())
+            <div class="mt-12">
+                <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h2 class="text-3xl font-bold text-gray-900">Événements similaires</h2>
+                            <p class="text-gray-600 mt-2">Découvrez d'autres événements qui pourraient vous intéresser</p>
+                        </div>
+                        <a href="{{ route('events.index') }}"
+                           class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors duration-200">
+                            Voir tous les événements
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        @foreach($recommendedEvents as $rec)
+                            <a href="{{ route('events.show', $rec) }}"
+                               class="group bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-2">
+                                <!-- Image -->
+                                <div class="relative h-48 overflow-hidden">
+                                    <img src="{{ $rec->cover_image_url }}"
+                                         alt="{{ $rec->title }}"
+                                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+
+                                    <!-- Badge prix -->
+                                    <div class="absolute top-3 right-3">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold {{ $rec->price > 0 ? 'bg-blue-600 text-white' : 'bg-green-600 text-white' }}">
+                                            {{ $rec->price > 0 ? \App\Support\Currency::format($rec->price, $rec->currency) : 'Gratuit' }}
+                                        </span>
+                                    </div>
+
+                                    <!-- Badge statut -->
+                                    <div class="absolute top-3 left-3">
+                                        @php
+                                            $now = now();
+                                            if ($rec->end_date && $now->gt($rec->end_date)) {
+                                                $recState = 'Terminé';
+                                                $recStateClass = 'bg-gray-600 text-white';
+                                            } elseif (!$rec->is_capacity_unlimited && (int) $rec->available_seats <= 0) {
+                                                $recState = 'Complet';
+                                                $recStateClass = 'bg-red-600 text-white';
+                                            } elseif ($rec->start_date && $now->lt($rec->start_date)) {
+                                                $recState = 'À venir';
+                                                $recStateClass = 'bg-blue-600 text-white';
+                                            } else {
+                                                $recState = 'En cours';
+                                                $recStateClass = 'bg-green-600 text-white';
+                                            }
+                                        @endphp
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold {{ $recStateClass }}">
+                                            {{ $recState }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Contenu -->
+                                <div class="p-5">
+                                    <h3 class="font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors duration-200">
+                                        {{ $rec->title }}
+                                    </h3>
+
+                                    <!-- Informations date et lieu -->
+                                    <div class="space-y-2 text-sm text-gray-600">
+                                        <div class="flex items-center gap-2">
+                                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                            </svg>
+                                            <span class="truncate">
+                                                @if($rec->start_date)
+                                                    {{ $rec->start_date->translatedFormat('d M Y, H\\hi') }}
+                                                @endif
+                                            </span>
+                                        </div>
+
+                                        <div class="flex items-center gap-2">
+                                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            </svg>
+                                            <span class="truncate">{{ $rec->location }}</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Places disponibles -->
+                                    <div class="mt-3 flex items-center justify-between">
+                                        <span class="text-xs font-medium {{ ($rec->is_capacity_unlimited || $rec->available_seats > 0) ? 'text-green-600' : 'text-red-600' }}">
+                                            @if($rec->is_capacity_unlimited)
+                                                Places illimitées
+                                            @elseif($rec->available_seats > 0)
+                                                {{ $rec->available_seats }} place{{ $rec->available_seats > 1 ? 's' : '' }}
+                                            @else
+                                                Complet
+                                            @endif
+                                        </span>
+
+                                        <span class="inline-flex items-center text-blue-600 text-sm font-semibold group-hover:translate-x-1 transition-transform duration-200">
+                                            Voir détails
+                                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                            </svg>
+                                        </span>
+                                    </div>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 </div>
 
@@ -608,28 +699,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Countdown to start date
-document.addEventListener('DOMContentLoaded', function() {
-    const el = document.getElementById('countdown');
-    if (!el) return;
-    const start = new Date(el.getAttribute('data-start'));
-    const out = el.querySelector('.js-countdown');
-    function updateCountdown() {
-        const now = new Date();
-        let diff = Math.max(0, start - now);
-        const sec = Math.floor(diff / 1000) % 60;
-        const min = Math.floor(diff / (1000*60)) % 60;
-        const hr = Math.floor(diff / (1000*60*60)) % 24;
-        const d = Math.floor(diff / (1000*60*60*24));
-        if (out) {
-            out.textContent = `${d}j ${hr}h ${min}m ${sec}s`;
-        }
-        if (diff > 0) setTimeout(updateCountdown, 1000);
-        else el.textContent = 'En cours';
-    }
-    updateCountdown();
-});
-
 // Animation d'entrée des éléments
 document.addEventListener('DOMContentLoaded', function() {
     const elements = document.querySelectorAll('.bg-white');
@@ -689,6 +758,14 @@ document.addEventListener('DOMContentLoaded', function() {
         opacity: 1;
         transform: scale(1) translateY(0);
     }
+}
+
+/* Style pour le line-clamp */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 </style>
 @endpush
