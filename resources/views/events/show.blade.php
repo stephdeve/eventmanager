@@ -232,23 +232,24 @@
                             <div class="flex items-center justify-between mb-4">
                                 <h2 class="text-2xl font-bold text-gray-900">Avis des participants</h2>
                                 @if(isset($avgRating) && $avgRating > 0)
-                                    <div class="flex items-center gap-2 text-yellow-600">
-                                        <span class="font-semibold">{{ number_format($avgRating, 1) }}/5</span>
-                                        <span>
+                                    <div id="avg-rating-box" class="flex items-center gap-2 text-yellow-600">
+                                        <span class="font-semibold"><span id="avg-rating-value">{{ number_format($avgRating, 1) }}</span>/5</span>
+                                        <span id="avg-rating-stars">
                                             @for($i=1;$i<=5;$i++)
-                                                @if($i <= floor($avgRating))
-                                                    ★
-                                                @else
-                                                    ☆
-                                                @endif
+                                                @if($i <= floor($avgRating))★@else☆@endif
                                             @endfor
                                         </span>
+                                    </div>
+                                @else
+                                    <div id="avg-rating-box" class="hidden text-yellow-600">
+                                        <span class="font-semibold"><span id="avg-rating-value">0.0</span>/5</span>
+                                        <span id="avg-rating-stars">☆☆☆☆☆</span>
                                     </div>
                                 @endif
                             </div>
 
                             @if(isset($reviews) && $reviews->isNotEmpty())
-                                <div class="space-y-4">
+                                <div id="reviews-list" class="space-y-4">
                                     @foreach($reviews as $review)
                                         <div class="border border-gray-200 rounded-lg p-4">
                                             <div class="flex items-center justify-between">
@@ -264,13 +265,15 @@
                                     @endforeach
                                 </div>
                             @else
-                                <p class="text-gray-600 text-sm">Aucun avis pour le moment.</p>
+                                <div id="reviews-list">
+                                    <p id="no-reviews-msg" class="text-gray-600 text-sm">Aucun avis pour le moment.</p>
+                                </div>
                             @endif
 
                             @if(isset($canReview) && $canReview)
                                 <div class="mt-6 border border-gray-200 rounded-lg p-4">
                                     <h3 class="text-lg font-semibold text-gray-900 mb-2">Laisser un avis</h3>
-                                    <form method="POST" action="{{ route('events.reviews.store', $event) }}" class="space-y-3">
+                                    <form id="review-form" method="POST" action="{{ route('events.reviews.store', $event) }}" class="space-y-3">
                                         @csrf
                                         <div>
                                             <label for="rating" class="block text-sm font-medium text-gray-700">Note</label>
@@ -279,14 +282,17 @@
                                                     <option value="{{ $i }}">{{ $i }} / 5</option>
                                                 @endfor
                                             </select>
-                                            @error('rating')<p class="text-sm text-red-600">{{ $message }}</p>@enderror
                                         </div>
                                         <div>
                                             <label for="comment" class="block text-sm font-medium text-gray-700">Commentaire</label>
                                             <textarea id="comment" name="comment" rows="3" class="mt-1 w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="Partagez votre expérience..."></textarea>
-                                            @error('comment')<p class="text-sm text-red-600">{{ $message }}</p>@enderror
                                         </div>
-                                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700">Envoyer</button>
+                                        <div class="flex items-center gap-3">
+                                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700">Envoyer</button>
+                                            <span id="review-loading" class="text-sm text-gray-500 hidden">Envoi...</span>
+                                        </div>
+                                        <div id="review-error" class="text-sm text-red-600 hidden"></div>
+                                        <div id="review-success" class="text-sm text-green-700 hidden"></div>
                                     </form>
                                 </div>
                             @endif
@@ -768,6 +774,102 @@ document.addEventListener('DOMContentLoaded', function() {
         else el.textContent = 'En cours';
     }
     updateCountdown();
+});
+
+// AJAX submit for review form (no page reload)
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('review-form');
+    if (!form) return;
+
+    const ratingEl = form.querySelector('#rating');
+    const commentEl = form.querySelector('#comment');
+    const loadingEl = document.getElementById('review-loading');
+    const errorEl = document.getElementById('review-error');
+    const successEl = document.getElementById('review-success');
+    const reviewsList = document.getElementById('reviews-list');
+    const noReviewsMsg = document.getElementById('no-reviews-msg');
+    const avgBox = document.getElementById('avg-rating-box');
+    const avgValue = document.getElementById('avg-rating-value');
+    const avgStars = document.getElementById('avg-rating-stars');
+
+    function stars(n) {
+        const full = Math.floor(Number(n) || 0);
+        return '★★★★★'.slice(0, full) + '☆☆☆☆☆'.slice(0, 5 - full);
+    }
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        if (errorEl) { errorEl.textContent = ''; errorEl.classList.add('hidden'); }
+        if (successEl) { successEl.textContent = ''; successEl.classList.add('hidden'); }
+        if (loadingEl) loadingEl.classList.remove('hidden');
+
+        try {
+            const fd = new FormData(form);
+            const res = await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: fd,
+            });
+
+            let data = {};
+            try { data = await res.json(); } catch(_) {}
+            if (!res.ok || !data.success) {
+                let msg = 'Une erreur est survenue.';
+                if (data && data.errors) {
+                    const firstKey = Object.keys(data.errors)[0];
+                    if (firstKey && data.errors[firstKey] && data.errors[firstKey][0]) {
+                        msg = data.errors[firstKey][0];
+                    }
+                } else if (data && data.message) {
+                    msg = data.message;
+                } else if (res.status === 401) {
+                    msg = 'Veuillez vous connecter pour laisser un avis.';
+                }
+                if (errorEl) { errorEl.textContent = msg; errorEl.classList.remove('hidden'); }
+                return;
+            }
+
+            // Success: prepend new review and update average
+            if (noReviewsMsg) noReviewsMsg.remove();
+            if (avgBox) avgBox.classList.remove('hidden');
+            if (avgValue && typeof data.avg_rating !== 'undefined') {
+                avgValue.textContent = Number(data.avg_rating).toFixed(1);
+            }
+            if (avgStars && typeof data.avg_rating !== 'undefined') {
+                avgStars.textContent = stars(data.avg_rating);
+            }
+
+            if (reviewsList && data.review) {
+                const card = document.createElement('div');
+                card.className = 'border border-gray-200 rounded-lg p-4';
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm font-semibold text-gray-900">${(data.review.user && data.review.user.name) ? data.review.user.name : 'Participant'}</div>
+                        <div class="text-yellow-600">${stars(data.review.rating)}</div>
+                    </div>
+                    <p class="mt-2 text-sm text-gray-700"></p>
+                `;
+                card.querySelector('p').textContent = data.review.comment || '';
+                reviewsList.prepend(card);
+            }
+
+            // Clear form and show success
+            if (commentEl) commentEl.value = '';
+            if (ratingEl) ratingEl.value = '5';
+            if (successEl) { successEl.textContent = data.message || 'Merci pour votre avis !'; successEl.classList.remove('hidden'); }
+
+            // Optionally disable the form to avoid a duplicate submit
+            form.querySelector('button[type="submit"]').disabled = true;
+        } catch (err) {
+            if (errorEl) { errorEl.textContent = 'Impossible d\'envoyer votre avis pour le moment.'; errorEl.classList.remove('hidden'); }
+        } finally {
+            if (loadingEl) loadingEl.classList.add('hidden');
+        }
+    });
 });
 
 

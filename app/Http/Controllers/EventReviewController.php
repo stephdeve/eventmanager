@@ -17,8 +17,15 @@ class EventReviewController extends Controller
 
     public function store(Request $request, Event $event)
     {
+        $asJson = $request->expectsJson() || $request->ajax();
         // Event must be finished
         if (!$event->end_date || now()->lt($event->end_date)) {
+            if ($asJson) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Vous pourrez laisser un avis après la fin de l'événement.",
+                ], 422);
+            }
             return back()->with('error', "Vous pourrez laisser un avis après la fin de l'événement.");
         }
 
@@ -27,6 +34,12 @@ class EventReviewController extends Controller
             ->where('user_id', Auth::id())
             ->exists();
         if (!$hasRegistration) {
+            if ($asJson) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Seuls les participants peuvent laisser un avis.',
+                ], 403);
+            }
             return back()->with('error', "Seuls les participants peuvent laisser un avis.");
         }
 
@@ -35,6 +48,12 @@ class EventReviewController extends Controller
             ->where('user_id', Auth::id())
             ->exists();
         if ($already) {
+            if ($asJson) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Vous avez déjà laissé un avis pour cet événement.',
+                ], 409);
+            }
             return back()->with('info', 'Vous avez déjà laissé un avis pour cet événement.');
         }
 
@@ -43,13 +62,28 @@ class EventReviewController extends Controller
             'comment' => ['required', 'string', 'min:10', 'max:2000'],
         ]);
 
-        EventReview::create([
+        $review = EventReview::create([
             'event_id' => $event->id,
             'user_id' => Auth::id(),
             'rating' => (int) $data['rating'],
             'comment' => $data['comment'],
             'approved' => true, // auto-approve for now
         ]);
+
+        if ($asJson) {
+            $avg = (float) ($event->reviews()->avg('rating') ?? 0);
+            return response()->json([
+                'success' => true,
+                'message' => 'Merci pour votre avis !',
+                'avg_rating' => round($avg, 1),
+                'review' => [
+                    'user' => [ 'name' => optional(Auth::user())->name ],
+                    'rating' => (int) $review->rating,
+                    'comment' => (string) $review->comment,
+                    'created_at' => now()->format('d/m/Y H:i'),
+                ],
+            ]);
+        }
 
         return back()->with('success', 'Merci pour votre avis !');
     }
