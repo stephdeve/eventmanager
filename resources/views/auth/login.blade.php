@@ -141,7 +141,6 @@
             outline: none;
             border-color: #4F46E5;
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-            transform: translateY(-1px);
         }
 
         .form-control:focus+.input-icon {
@@ -375,17 +374,11 @@
         .remember-me input[type="checkbox"] {
             width: 16px;
             height: 16px;
-            border: 1.5px solid #D1D5DB;
             border-radius: 4px;
-            background: white;
             cursor: pointer;
             transition: all 0.3s ease;
         }
 
-        .remember-me input[type="checkbox"]:checked {
-            background: #4F46E5;
-            border-color: #4F46E5;
-        }
 
         .remember-me label {
             font-size: 0.875rem;
