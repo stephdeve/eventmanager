@@ -8,7 +8,7 @@ Broadcast::channel('events.{event}', function ($user, Event $event) {
     return (int) $user->id === (int) $event->organizer_id;
 });
 
-Broadcast::channel('presence-event.{eventId}', function ($user, $eventId) {
+Broadcast::channel('event.{eventId}', function ($user, $eventId) {
     $event = Event::find($eventId);
     if (!$event) return false;
     $allowed = (int) $user->id === (int) $event->organizer_id
@@ -20,6 +20,6 @@ Broadcast::channel('presence-event.{eventId}', function ($user, $eventId) {
     ];
 });
 
-Broadcast::channel('private-user.{id}', function ($user, $id) {
+Broadcast::channel('user.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
