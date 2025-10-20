@@ -269,7 +269,6 @@
             outline: none;
             border-color: #4F46E5;
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-            transform: translateY(-1px);
         }
 
         .form-control:focus+.input-icon {
