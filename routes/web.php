@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\EventChatController;
 use App\Http\Middleware\EnsureActiveSubscription;
 use App\Http\Controllers\ReportsController;
 use App\Models\Event;
@@ -59,6 +60,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
     Route::post('/events/{event}/reviews', [\App\Http\Controllers\EventReviewController::class, 'store'])
         ->name('events.reviews.store');
+
+    // Communauté / Chat temps réel par événement
+    Route::get('/events/{event}/chat', [EventChatController::class, 'show'])->name('events.chat');
+    Route::post('/events/{event}/chat/messages', [EventChatController::class, 'store'])->middleware('throttle:60,1')->name('events.chat.messages');
 
     // Vérification d'identité
     Route::get('/identity/verification', [\App\Http\Controllers\IdentityVerificationController::class, 'show'])

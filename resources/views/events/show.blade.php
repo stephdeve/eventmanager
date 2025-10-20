@@ -380,6 +380,14 @@
                         <!-- Actions utilisateur -->
                         <div class="bg-white border border-gray-200 rounded-xl p-6">
                             <h3 class="text-lg font-semibold text-gray-900 mb-4">Participation</h3>
+                            @if(auth()->check() && ((auth()->user()->can('update', $event)) || $isRegistered))
+                                <div class="mb-4">
+                                    <a href="{{ route('events.chat', $event) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-md hover:bg-indigo-700">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h6m-6 4h10M5 20l2-2H19a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                        Ouvrir la communauté
+                                    </a>
+                                </div>
+                            @endif
 
                             @if(auth()->check() && auth()->user()->isStudent())
                                 @if($event->attendees->contains(auth()->id()))

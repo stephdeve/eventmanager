@@ -111,6 +111,13 @@
 
         <!-- Livewire Scripts -->
         {{-- @livewireScripts --}}
+        @auth
+        <script>
+            window.CURRENT_USER_ID = {{ (int) auth()->id() }};
+            window.CURRENT_USER_NAME = @json(optional(auth()->user())->name ?? 'Utilisateur');
+        </script>
+        @endauth
+        <div id="toast-container" class="fixed bottom-0 right-0 m-4"></div>
 </body>
 
 </html>
