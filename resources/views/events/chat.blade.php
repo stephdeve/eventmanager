@@ -190,13 +190,15 @@
         if (!text) return;
         sendBtn.disabled = true;
         try {
+            const headers = {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json',
+            };
+            const sid = (window.Echo && typeof window.Echo.socketId === 'function') ? window.Echo.socketId() : null;
+            if (sid) headers['X-Socket-Id'] = sid;
             const res = await fetch(@json(route('events.chat.messages', $event)), {
                 method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'X-Socket-Id': (window.Echo && typeof window.Echo.socketId === 'function') ? window.Echo.socketId() : '',
-                    'Accept': 'application/json',
-                },
+                headers,
                 body: new URLSearchParams({ message: text })
             });
             const data = await res.json();

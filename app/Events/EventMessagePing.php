@@ -25,7 +25,8 @@ class EventMessagePing implements ShouldBroadcast
 
     public function broadcastOn(): Channel
     {
-        return new PrivateChannel('private-user.' . $this->recipientUserId);
+        // Do not prefix with 'private-'; Laravel adds it based on channel class
+        return new PrivateChannel('user.' . $this->recipientUserId);
     }
 
     public function broadcastAs(): string

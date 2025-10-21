@@ -23,7 +23,7 @@ class EventMessageSent implements ShouldBroadcastNow
 
     public function broadcastOn(): Channel
     {
-        return new PresenceChannel('presence-event.' . $this->event->id);
+        return new PresenceChannel('event.' . $this->event->id);
     }
 
     public function broadcastAs(): string

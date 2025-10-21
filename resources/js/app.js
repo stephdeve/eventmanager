@@ -15,7 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!window.Echo || typeof window.CURRENT_USER_ID === 'undefined') return;
 
   try {
-    const channel = window.Echo.private('private-user.' + window.CURRENT_USER_ID);
+    // Must match routes/channels.php: Broadcast::channel('user.{id}', ...)
+    const channel = window.Echo.private('user.' + window.CURRENT_USER_ID);
     channel.listen('.message.notification', (e) => {
       // Skip toast if we're already on the same chat page
       try {
