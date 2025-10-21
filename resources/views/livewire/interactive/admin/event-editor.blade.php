@@ -1,81 +1,415 @@
-<div class="max-w-4xl mx-auto py-8">
-    <h1 class="text-2xl font-semibold text-gray-900 mb-6">Éditer l'événement interactif</h1>
-
-    <form wire:submit.prevent="save" class="space-y-5 bg-white border border-gray-200 rounded-xl p-6">
-        <div>
-            <label class="block text-sm font-medium text-gray-700">Titre</label>
-            <input type="text" wire:model.defer="title" class="mt-1 w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" />
-            @error('title')<div class="text-sm text-red-600">{{ $message }}</div>@enderror
+<div class="min-h-screen py-8 ">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- En-tête -->
+        <div class="text-start mb-8">
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-[#1E3A8A] to-[#4F46E5] bg-clip-text text-transparent mb-3">
+                Éditer l'événement interactif
+            </h1>
+            <p class="text-[#6B7280] text-lg">Modifiez les paramètres de votre événement interactif</p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 border-t pt-6">
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Activer l'expérience interactive</label>
-                <div class="mt-2 flex items-center gap-3">
-                    <input type="checkbox" wire:model.defer="is_interactive" class="h-4 w-4 text-indigo-600 border-gray-300 rounded" />
-                    <span class="text-sm text-gray-600">Active les onglets Votes/Classement sur la page publique</span>
+        <!-- Carte du formulaire -->
+        <div class="form-card rounded-2xl border p-8">
+            <form wire:submit.prevent="save" class="space-y-8">
+                <!-- Titre -->
+                <div class="form-group">
+                    <label class="form-label">
+                        Titre de l'événement *
+                        <span class="text-[#6B7280] text-sm font-normal">(Nom de votre événement)</span>
+                    </label>
+                    <input type="text" wire:model.defer="title"
+                           class="form-input @error('title') error @enderror"
+                           placeholder="Ex: Conférence Tech Interactive 2024" required>
+                    @error('title')
+                        <p class="mt-2 text-sm text-red-600 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {{ $message }}
+                        </p>
+                    @enderror
                 </div>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Page interactive publique</label>
-                <div class="mt-2 flex items-center gap-3">
-                    <input type="checkbox" wire:model.defer="interactive_public" class="h-4 w-4 text-indigo-600 border-gray-300 rounded" />
-                    <span class="text-sm text-gray-600">Consultation sans connexion (votes nécessitent connexion)</span>
-                </div>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Début de l'expérience</label>
-                <input type="datetime-local" wire:model.defer="interactive_starts_at" class="mt-1 w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" />
-                @error('interactive_starts_at')<div class="text-sm text-red-600">{{ $message }}</div>@enderror
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Fin de l'expérience</label>
-                <input type="datetime-local" wire:model.defer="interactive_ends_at" class="mt-1 w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" />
-                @error('interactive_ends_at')<div class="text-sm text-red-600">{{ $message }}</div>@enderror
-            </div>
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700">Description</label>
-            <textarea rows="5" wire:model.defer="description" class="mt-1 w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"></textarea>
-            @error('description')<div class="text-sm text-red-600">{{ $message }}</div>@enderror
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Début</label>
-                <input type="datetime-local" wire:model.defer="start_date" class="mt-1 w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" />
-                @error('start_date')<div class="text-sm text-red-600">{{ $message }}</div>@enderror
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Fin</label>
-                <input type="datetime-local" wire:model.defer="end_date" class="mt-1 w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" />
-                @error('end_date')<div class="text-sm text-red-600">{{ $message }}</div>@enderror
-            </div>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Statut</label>
-                <select wire:model.defer="status" class="mt-1 w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-                    <option value="draft">Brouillon</option>
-                    <option value="published">Publié</option>
-                    <option value="running">En cours</option>
-                    <option value="finished">Terminé</option>
-                </select>
-                @error('status')<div class="text-sm text-red-600">{{ $message }}</div>@enderror
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">YouTube URL</label>
-                <input type="text" wire:model.defer="youtube_url" class="mt-1 w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" />
-                @error('youtube_url')<div class="text-sm text-red-600">{{ $message }}</div>@enderror
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">TikTok URL</label>
-                <input type="text" wire:model.defer="tiktok_url" class="mt-1 w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" />
-                @error('tiktok_url')<div class="text-sm text-red-600">{{ $message }}</div>@enderror
-            </div>
-        </div>
 
-        <div class="pt-4 border-t">
-            <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Sauvegarder</button>
+                <!-- Section expérience interactive -->
+                <div class="border-t border-[#E0E7FF] pt-8">
+                    <h3 class="text-xl font-semibold text-[#1E3A8A] mb-6">Configuration interactive</h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Activation interactive -->
+                        <div class="checkbox-card @if($is_interactive) checked @endif">
+                            <label class="flex items-start space-x-3 cursor-pointer">
+                                <input type="checkbox" wire:model.defer="is_interactive"
+                                       class="mt-1 h-5 w-5 rounded border-gray-300 text-[#4F46E5] focus:ring-[#4F46E5]">
+                                <div class="flex-1">
+                                    <span class="block text-sm font-semibold text-[#1E3A8A]">Activer l'expérience interactive</span>
+                                    <span class="mt-1 block text-sm text-[#6B7280]">Active les onglets Votes/Classement sur la page publique</span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Page publique -->
+                        <div class="checkbox-card @if($interactive_public) checked @endif">
+                            <label class="flex items-start space-x-3 cursor-pointer">
+                                <input type="checkbox" wire:model.defer="interactive_public"
+                                       class="mt-1 h-5 w-5 rounded border-gray-300 text-[#4F46E5] focus:ring-[#4F46E5]">
+                                <div class="flex-1">
+                                    <span class="block text-sm font-semibold text-[#1E3A8A]">Page interactive publique</span>
+                                    <span class="mt-1 block text-sm text-[#6B7280]">Consultation sans connexion (votes nécessitent connexion)</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Période interactive -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="form-group">
+                            <label class="form-label">Début de l'expérience interactive</label>
+                            <input type="datetime-local" wire:model.defer="interactive_starts_at"
+                                   class="form-input @error('interactive_starts_at') error @enderror">
+                            @error('interactive_starts_at')
+                                <p class="mt-2 text-sm text-red-600 flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Fin de l'expérience interactive</label>
+                            <input type="datetime-local" wire:model.defer="interactive_ends_at"
+                                   class="form-input @error('interactive_ends_at') error @enderror">
+                            @error('interactive_ends_at')
+                                <p class="mt-2 text-sm text-red-600 flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label class="form-label">
+                        Description de l'événement *
+                        <span class="text-[#6B7280] text-sm font-normal">(Décrivez votre événement en détail)</span>
+                    </label>
+                    <textarea rows="5" wire:model.defer="description"
+                              class="form-input @error('description') error @enderror resize-none"
+                              placeholder="Décrivez votre événement, son objectif, et ce qui le rend spécial..."
+                              required></textarea>
+                    <div class="flex justify-between text-xs text-[#6B7280] mt-1">
+                        <span>Minimum 50 caractères</span>
+                        <span id="description-counter">{{ strlen($description ?? '') }} caractères</span>
+                    </div>
+                    @error('description')
+                        <p class="mt-2 text-sm text-red-600 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+
+                <!-- Dates de l'événement -->
+                <div class="border-t border-[#E0E7FF] pt-8">
+                    <h3 class="text-xl font-semibold text-[#1E3A8A] mb-6">Période de l'événement</h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="form-group">
+                            <label class="form-label">Date et heure de début *</label>
+                            <input type="datetime-local" wire:model.defer="start_date"
+                                   class="form-input @error('start_date') error @enderror" required>
+                            @error('start_date')
+                                <p class="mt-2 text-sm text-red-600 flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Date et heure de fin *</label>
+                            <input type="datetime-local" wire:model.defer="end_date"
+                                   class="form-input @error('end_date') error @enderror" required>
+                            @error('end_date')
+                                <p class="mt-2 text-sm text-red-600 flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statut et Réseaux sociaux -->
+                <div class="border-t border-[#E0E7FF] pt-8">
+                    <h3 class="text-xl font-semibold text-[#1E3A8A] mb-6">Configuration avancée</h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Statut -->
+                        <div class="form-group">
+                            <label class="form-label">Statut de l'événement</label>
+                            <select wire:model.defer="status" class="form-input @error('status') error @enderror">
+                                <option value="draft">Brouillon</option>
+                                <option value="published">Publié</option>
+                                <option value="running">En cours</option>
+                                <option value="finished">Terminé</option>
+                            </select>
+                            @error('status')
+                                <p class="mt-2 text-sm text-red-600 flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
+
+                        <!-- YouTube -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                YouTube URL
+                                <span class="text-[#6B7280] text-sm font-normal">(Optionnel)</span>
+                            </label>
+                            <input type="text" wire:model.defer="youtube_url"
+                                   class="form-input @error('youtube_url') error @enderror"
+                                   placeholder="https://youtube.com/...">
+                            @error('youtube_url')
+                                <p class="mt-2 text-sm text-red-600 flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
+
+                        <!-- TikTok -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                TikTok URL
+                                <span class="text-[#6B7280] text-sm font-normal">(Optionnel)</span>
+                            </label>
+                            <input type="text" wire:model.defer="tiktok_url"
+                                   class="form-input @error('tiktok_url') error @enderror"
+                                   placeholder="https://tiktok.com/...">
+                            @error('tiktok_url')
+                                <p class="mt-2 text-sm text-red-600 flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Boutons de soumission -->
+                <div class="mt-12 pt-8 border-t border-[#E0E7FF] flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-4">
+                    <a href="{{ route('events.show', $event) }}" class="cancel-btn order-2 sm:order-1 text-center">
+                        Annuler
+                    </a>
+                    <button type="submit" class="submit-btn order-1 sm:order-2">
+                        <span class="flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Sauvegarder les modifications
+                        </span>
+                    </button>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 </div>
+
+@push('styles')
+<style>
+    .form-gradient {
+        background: linear-gradient(135deg, #F9FAFB 0%, #FFFFFF 50%, #E0E7FF 100%);
+    }
+
+    .form-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        box-shadow:
+            0 20px 40px rgba(79, 70, 229, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    }
+
+    .form-group {
+        position: relative;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #1E3A8A;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #E5E7EB;
+        border-radius: 12px;
+        background: white;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #4F46E5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        transform: translateY(-1px);
+    }
+
+    .form-input.error {
+        border-color: #EF4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+
+    .checkbox-card {
+        border: 2px solid #FEF3C7;
+        border-radius: 12px;
+        background: #FFFBEB;
+        padding: 1.25rem;
+        transition: all 0.3s ease;
+    }
+
+    .checkbox-card:hover {
+        border-color: #F59E0B;
+        transform: translateY(-2px);
+    }
+
+    .checkbox-card.checked {
+        border-color: #4F46E5;
+        background: #E0E7FF;
+    }
+
+    .submit-btn {
+        background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%);
+        color: white;
+        padding: 0.875rem 2rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 25px rgba(79, 70, 229, 0.3);
+    }
+
+    .submit-btn:active {
+        transform: translateY(0);
+    }
+
+    .cancel-btn {
+        background: white;
+        color: #6B7280;
+        border: 2px solid #E5E7EB;
+        padding: 0.875rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .cancel-btn:hover {
+        border-color: #4F46E5;
+        color: #4F46E5;
+        transform: translateY(-1px);
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Compteur de caractères pour la description
+    const descriptionTextarea = document.querySelector('textarea[wire\\:model\\.defer="description"]');
+    const descriptionCounter = document.getElementById('description-counter');
+
+    if (descriptionTextarea && descriptionCounter) {
+        descriptionTextarea.addEventListener('input', () => {
+            const length = descriptionTextarea.value.length;
+            descriptionCounter.textContent = `${length} caractères`;
+
+            if (length < 50) {
+                descriptionCounter.classList.add('text-red-600');
+            } else {
+                descriptionCounter.classList.remove('text-red-600');
+            }
+        });
+
+        // Initialiser le compteur
+        descriptionTextarea.dispatchEvent(new Event('input'));
+    }
+
+    // Gestion des cartes de checkbox
+    const checkboxCards = document.querySelectorAll('.checkbox-card');
+    checkboxCards.forEach(card => {
+        const checkbox = card.querySelector('input[type="checkbox"]');
+        if (checkbox) {
+            // Mettre à jour l'état initial
+            if (checkbox.checked) {
+                card.classList.add('checked');
+            }
+
+            // Écouter les changements
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    card.classList.add('checked');
+                } else {
+                    card.classList.remove('checked');
+                }
+            });
+        }
+    });
+
+    // Validation des dates
+    const startDateInput = document.querySelector('input[wire\\:model\\.defer="start_date"]');
+    const endDateInput = document.querySelector('input[wire\\:model\\.defer="end_date"]');
+
+    function validateDates() {
+        if (startDateInput && endDateInput && startDateInput.value && endDateInput.value) {
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+
+            if (endDate <= startDate) {
+                endDateInput.classList.add('error');
+            } else {
+                endDateInput.classList.remove('error');
+            }
+        }
+    }
+
+    if (startDateInput) startDateInput.addEventListener('change', validateDates);
+    if (endDateInput) endDateInput.addEventListener('change', validateDates);
+});
+</script>
+@endpush
