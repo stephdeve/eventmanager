@@ -37,6 +37,41 @@
         </div>
     </a>
 
+    <!-- Expériences interactives -->
+    <a href="{{ route('events.index', ['interactive' => 1]) }}"
+       class="flex items-center px-3 py-3 rounded-xl transition-all duration-200 group relative"
+       :class="[
+           sidebarCollapsed ? 'lg:justify-center lg:h-10 lg:hover:bg-transparent' : 'lg:space-x-3',
+           isActive ? 'bg-emerald-50  border-none  text-emerald-700 border border-emerald-600' : 'text-gray-700 hover:bg-emerald-50 hover:text-emerald-700'
+       ]"
+       x-data="{
+           isActive: {{ request()->routeIs('events.index') && request('interactive') == '1' ? 'true' : 'false' }}
+       }">
+
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors flex-shrink-0"
+             :class="isActive ? 'bg-emerald-200' : 'bg-emerald-100 group-hover:bg-emerald-200'">
+            <svg class="w-4 h-4" :class="isActive ? 'text-emerald-700' : 'text-emerald-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+        </div>
+
+        <span class="font-medium whitespace-nowrap transition-all duration-300 ml-3 lg:ml-0"
+              :class="sidebarCollapsed ? 'lg:hidden' : ''">
+            Expériences interactives
+        </span>
+
+        <div x-show="sidebarCollapsed && isActive"
+             class="absolute -right-1 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-emerald-600 rounded-full hidden lg:block"
+             x-cloak>
+        </div>
+
+        <div x-show="sidebarCollapsed && !isActive"
+             class="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50 hidden lg:block"
+             x-cloak>
+            Expériences interactives
+        </div>
+    </a>
+
     <!-- Événements -->
     <a href="{{ route('events.index') }}"
        class="flex items-center px-3 py-3 rounded-xl transition-all duration-200 group relative"
@@ -74,6 +109,41 @@
     </a>
 
     @if(auth()->user()->isOrganizer())
+        <!-- Gérer l'interactif -->
+        <a href="{{ route('events.index', ['interactive' => 1]) }}"
+           class="flex items-center px-3 py-3 rounded-xl transition-all duration-200 group relative"
+           :class="[
+               sidebarCollapsed ? 'lg:justify-center lg:h-10 lg:hover:bg-transparent' : 'lg:space-x-3',
+               isActive ? 'bg-indigo-50  border-none  text-indigo-700 border border-indigo-600' : 'text-gray-700 hover:bg-indigo-50 hover:text-indigo-700'
+           ]"
+           x-data="{
+               isActive: {{ request()->routeIs('events.index') && request('interactive') == '1' ? 'true' : 'false' }}
+           }">
+
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors flex-shrink-0"
+                 :class="isActive ? 'bg-indigo-200' : 'bg-indigo-100 group-hover:bg-indigo-200'">
+                <svg class="w-4 h-4" :class="isActive ? 'text-indigo-700' : 'text-indigo-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l4 2" />
+                </svg>
+            </div>
+
+            <span class="font-medium whitespace-nowrap transition-all duration-300 ml-3 lg:ml-0"
+                  :class="sidebarCollapsed ? 'lg:hidden' : ''">
+                Gérer l'interactif
+            </span>
+
+            <div x-show="sidebarCollapsed && isActive"
+                 class="absolute -right-1 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-indigo-600 rounded-full hidden lg:block"
+                 x-cloak>
+            </div>
+
+            <div x-show="sidebarCollapsed && !isActive"
+                 class="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50 hidden lg:block"
+                 x-cloak>
+                Gérer l'interactif
+            </div>
+        </a>
+
         <!-- Créer un événement -->
         <a href="{{ route('events.create') }}"
            class="flex items-center px-3 py-3 rounded-xl transition-all duration-200 group relative"

@@ -140,7 +140,7 @@
                 $isUpcoming = $event->start_date && $event->start_date->isFuture();
             @endphp
 
-            <div class="group bg-white rounded-3xl shadow-lg hover:shadow-xl border border-gray-100 overflow-hidden transition-all duration-300 transform hover:-translate-y-2 event-card">
+            <div class="group bg-white rounded-3xl shadow-lg hover:shadow-xl border border-gray-100 overflow-hidden transition-all duration-300 transform hover:-translate-y-2 event-card" data-interactive="{{ $event->is_interactive ? 1 : 0 }}">
                 <!-- Image Container -->
                 <div class="relative h-56 overflow-hidden">
                     <img src="{{ $event->cover_image_url }}"
@@ -170,6 +170,20 @@
                         <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold {{ $isFree ? 'bg-blue-500 text-white shadow-md' : 'bg-purple-500 text-white shadow-md' }}">
                             {{ $isFree ? 'Gratuit' : $event->price_for_display }}
                         </span>
+                        @if($event->is_interactive)
+                            @if(!empty($event->slug))
+                                <a href="{{ route('interactive.events.show', ['event' => $event->slug]) }}" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-600 text-white shadow-md hover:bg-emerald-700">
+                                    @if(method_exists($event, 'isInteractiveActive') && $event->isInteractiveActive())
+                                        <span class="w-1.5 h-1.5 bg-white rounded-full mr-1.5 animate-pulse"></span>
+                                    @endif
+                                    Interactif
+                                </a>
+                            @else
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-600 text-white shadow-md">
+                                    Interactif
+                                </span>
+                            @endif
+                        @endif
                     </div>
                 </div>
 
@@ -215,13 +229,24 @@
                     </p>
 
                     <!-- CTA Button -->
-                    <a href="{{ route('events.show', $event) }}"
-                       class="group/btn w-full inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 text-sm">
-                        <span>Voir les détails</span>
-                        <svg class="w-3 h-3 ml-2 group-hover/btn:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
-                    </a>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <a href="{{ route('events.show', $event) }}"
+                           class="group/btn flex-1 inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 text-sm">
+                            <span>Voir les détails</span>
+                            <svg class="w-3 h-3 ml-2 group-hover/btn:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                        @if($event->is_interactive && !empty($event->slug))
+                        <a href="{{ route('interactive.events.show', ['event' => $event->slug]) }}?tab=votes"
+                           class="flex-1 inline-flex items-center justify-center px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 text-sm">
+                            <span>Expérience interactive</span>
+                            <svg class="w-3 h-3 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                        @endif
+                    </div>
                 </div>
             </div>
             @endforeach
@@ -265,6 +290,18 @@ document.addEventListener('DOMContentLoaded', function() {
         card.style.transform = 'translateY(20px)';
         observer.observe(card);
     });
+
+    // Filtre: n'afficher que les événements interactifs si ?interactive=1
+    const params = new URLSearchParams(window.location.search);
+    const interactiveOnly = params.get('interactive') === '1';
+    if (interactiveOnly) {
+        eventCards.forEach((card) => {
+            const isInteractive = card.getAttribute('data-interactive') === '1';
+            if (!isInteractive) {
+                card.style.display = 'none';
+            }
+        });
+    }
 
     // Recherche en temps réel
     const searchInput = document.querySelector('input[type="text"]');

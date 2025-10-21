@@ -21,6 +21,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Additional CSS -->
+    @if (class_exists(\Livewire\Livewire::class))
+        @livewireStyles
+    @endif
     @stack('styles')
 </head>
 
@@ -87,6 +90,7 @@
 
                 <!-- Page Content -->
                 <main class="flex-1 overflow-y-auto p-4 lg:p-6">
+                    {{ $slot ?? '' }}
                     @yield('content')
                 </main>
 
@@ -110,7 +114,9 @@
         @stack('scripts')
 
         <!-- Livewire Scripts -->
-        {{-- @livewireScripts --}}
+        @if (class_exists(\Livewire\Livewire::class))
+            @livewireScripts
+        @endif
         @auth
         <script>
             window.CURRENT_USER_ID = {{ (int) auth()->id() }};

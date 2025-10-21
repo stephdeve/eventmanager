@@ -41,6 +41,14 @@ class Event extends Model
         'shareable_link',
         'promo_clicks',
         'promo_registrations',
+        // Interactive module
+        'status',
+        'youtube_url',
+        'tiktok_url',
+        'is_interactive',
+        'interactive_public',
+        'interactive_starts_at',
+        'interactive_ends_at',
         // Finance
         'total_revenue_minor',
         'total_tickets_sold',
@@ -63,6 +71,13 @@ class Event extends Model
         'currency' => 'string',
         'category' => 'string',
         'google_maps_url' => 'string',
+        'status' => 'string',
+        'youtube_url' => 'string',
+        'tiktok_url' => 'string',
+        'is_interactive' => 'boolean',
+        'interactive_public' => 'boolean',
+        'interactive_starts_at' => 'datetime',
+        'interactive_ends_at' => 'datetime',
         'allow_payment_numeric' => 'boolean',
         'allow_payment_physical' => 'boolean',
         'allow_ticket_transfer' => 'boolean',
@@ -153,6 +168,29 @@ class Event extends Model
     }
 
     /**
+     * Interactive relationships
+     */
+    public function participants()
+    {
+        return $this->hasMany(Participant::class);
+    }
+
+    public function challenges()
+    {
+        return $this->hasMany(Challenge::class);
+    }
+
+    public function votes()
+    {
+        return $this->hasMany(Vote::class);
+    }
+
+    public function chatMessages()
+    {
+        return $this->hasMany(ChatMessage::class);
+    }
+
+    /**
      * Get approved reviews for the event.
      */
     public function reviews()
@@ -187,5 +225,20 @@ class Event extends Model
     public function getRegisteredAttendeesCountAttribute(): int
     {
         return $this->registrations()->count();
+    }
+
+    public function isInteractiveActive(): bool
+    {
+        if (!$this->is_interactive) {
+            return false;
+        }
+        $now = now();
+        if ($this->interactive_starts_at && $now->lt($this->interactive_starts_at)) {
+            return false;
+        }
+        if ($this->interactive_ends_at && $now->gt($this->interactive_ends_at)) {
+            return false;
+        }
+        return true;
     }
 }

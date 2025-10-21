@@ -64,6 +64,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Communauté / Chat temps réel par événement
     Route::get('/events/{event}/chat', [EventChatController::class, 'show'])->name('events.chat');
     Route::post('/events/{event}/chat/messages', [EventChatController::class, 'store'])->middleware('throttle:60,1')->name('events.chat.messages');
+    // Alias: communauté (même page que chat)
+    Route::get('/events/{event}/community', [EventChatController::class, 'show'])->name('events.community');
+
+    
 
     // Vérification d'identité
     Route::get('/identity/verification', [\App\Http\Controllers\IdentityVerificationController::class, 'show'])
@@ -78,7 +82,48 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('users', \App\Http\Controllers\Admin\UserController::class)->only(['index', 'edit', 'update', 'destroy']);
         Route::get('users/export', [\App\Http\Controllers\Admin\UserController::class, 'export'])
             ->name('users.export');
+        // Admin interactive events (Livewire) - guarded by class_exists
+        if (class_exists(\App\Livewire\Interactive\Admin\EventEditor::class)) {
+            Route::get('/interactive-events/{event}/edit', \App\Livewire\Interactive\Admin\EventEditor::class)
+                ->name('interactive.events.edit');
+        }
+        if (class_exists(\App\Livewire\Interactive\Admin\ParticipantsManager::class)) {
+            Route::get('/interactive-events/{event}/participants', \App\Livewire\Interactive\Admin\ParticipantsManager::class)
+                ->name('interactive.events.participants');
+        }
+        if (class_exists(\App\Livewire\Interactive\Admin\ChallengesManager::class)) {
+            Route::get('/interactive-events/{event}/challenges', \App\Livewire\Interactive\Admin\ChallengesManager::class)
+                ->name('interactive.events.challenges');
+        }
+        if (class_exists(\App\Livewire\Interactive\Admin\SettingsPanel::class)) {
+            Route::get('/interactive/settings', \App\Livewire\Interactive\Admin\SettingsPanel::class)
+                ->name('interactive.settings');
+        }
     });
+
+// Événement interactif (Livewire) – accessible en lecture sans authentification
+if (class_exists(\App\Livewire\Interactive\EventShowPage::class)) {
+    Route::get('/interactive/events/{event:slug}', \App\Livewire\Interactive\EventShowPage::class)
+        ->name('interactive.events.show');
+}
+
+// Gestion interactive par l'organisateur (droits via policy)
+Route::middleware(['auth','verified'])->group(function () {
+    Route::middleware('can:update,event')->group(function () {
+        if (class_exists(\App\Livewire\Interactive\Admin\EventEditor::class)) {
+            Route::get('/events/{event}/interactive/manage', \App\Livewire\Interactive\Admin\EventEditor::class)
+                ->name('events.interactive.manage');
+        }
+        if (class_exists(\App\Livewire\Interactive\Admin\ParticipantsManager::class)) {
+            Route::get('/events/{event}/interactive/participants', \App\Livewire\Interactive\Admin\ParticipantsManager::class)
+                ->name('events.interactive.participants');
+        }
+        if (class_exists(\App\Livewire\Interactive\Admin\ChallengesManager::class)) {
+            Route::get('/events/{event}/interactive/challenges', \App\Livewire\Interactive\Admin\ChallengesManager::class)
+                ->name('events.interactive.challenges');
+        }
+    });
+});
 
     // Inscription aux événements
     Route::post('/events/{event}/register', [EventController::class, 'register'])
@@ -91,6 +136,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('payments.pending');
     Route::match(['GET','POST'], '/payments/{registration}/confirm', [PaymentController::class, 'confirm'])
         ->name('payments.confirm');
+
+    // Coins checkout (auth requise)
+    Route::post('/coins/checkout', [\App\Http\Controllers\CoinsController::class, 'checkout'])
+        ->name('coins.checkout');
+    // Coins confirm (auth requise)
+    Route::post('/coins/confirm', [\App\Http\Controllers\CoinsController::class, 'confirmKkiapay'])
+        ->name('coins.confirm');
 
     // Abonnements organisateur
     Route::get('/subscriptions/plans', [\App\Http\Controllers\SubscriptionsController::class, 'plans'])
@@ -161,6 +213,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // Webhook paiement (public)
 Route::post('payment/callback', [PaymentController::class, 'callback'])
     ->name('payments.callback');
+
+ 
 
 // Page promo publique d'un événement (aperçu marketing)
 Route::get('/promo/{slug}', [\App\Http\Controllers\PromoController::class, 'show'])

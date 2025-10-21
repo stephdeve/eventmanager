@@ -70,13 +70,31 @@
                     <h1 class="text-3xl font-bold text-gray-900">Tableau de bord</h1>
                     <p class="mt-2 text-gray-600">Bienvenue, {{ $user->name }} 👋 Voici l'aperçu de vos activités.</p>
                 </div>
-                <a href="{{ route('events.create') }}"
-                   class="inline-flex items-center px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg transition-all duration-200 transform hover:scale-105 group">
-                    <svg class="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                    </svg>
-                    Nouvel événement
-                </a>
+                <div class="flex items-center gap-3">
+                    <a href="{{ route('events.create') }}"
+                       class="inline-flex items-center px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg transition-all duration-200 transform hover:scale-105 group">
+                        <svg class="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Nouvel événement
+                    </a>
+                    <a href="{{ route('events.index', ['interactive' => 1]) }}"
+                       class="inline-flex items-center px-6 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-lg transition-all duration-200 transform hover:scale-105">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Expériences interactives
+                    </a>
+                    @if(auth()->user()->isAdmin())
+                        <a href="{{ route('interactive.settings') }}"
+                           class="inline-flex items-center px-6 py-4 bg-white border border-gray-300 text-gray-800 font-semibold rounded-xl shadow-sm hover:bg-gray-50 transition-all duration-200">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Paramètres interactifs
+                        </a>
+                    @endif
+                </div>
             </div>
         </div>
 

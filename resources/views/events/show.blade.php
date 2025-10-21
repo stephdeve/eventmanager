@@ -374,6 +374,32 @@
                                         @endif
                                     </div>
                                 @endcan
+
+                                @can('update', $event)
+                                    <div class="mt-6 pt-6 border-t border-gray-200">
+                                        <h4 class="text-sm font-semibold text-gray-900 mb-3">Interactif</h4>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                            <a href="{{ route('events.interactive.manage', $event) }}" class="inline-flex items-center justify-center gap-2 px-3 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l4 2"/></svg>
+                                                Configurer l'interactif
+                                            </a>
+                                            <a href="{{ route('events.interactive.participants', $event) }}" class="inline-flex items-center justify-center gap-2 px-3 py-2 bg-white border border-gray-300 text-gray-800 text-sm font-semibold rounded-lg hover:bg-gray-50">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                                Gérer les participants
+                                            </a>
+                                            <a href="{{ route('events.interactive.challenges', $event) }}" class="inline-flex items-center justify-center gap-2 px-3 py-2 bg-white border border-gray-300 text-gray-800 text-sm font-semibold rounded-lg hover:bg-gray-50">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v8m-4-4h8"/></svg>
+                                                Gérer les défis
+                                            </a>
+                                            @if(!empty($event->slug))
+                                                <a href="{{ route('interactive.events.show', ['event' => $event->slug]) }}" class="inline-flex items-center justify-center gap-2 px-3 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7H7v10h10V7h-4zM7 7l5 5"/></svg>
+                                                    Ouvrir l'expérience
+                                                </a>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endcan
                             </div>
                         @endif
 
@@ -385,6 +411,23 @@
                                     <a href="{{ route('events.chat', $event) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-md hover:bg-indigo-700">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h6m-6 4h10M5 20l2-2H19a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                         Ouvrir la communauté
+                                    </a>
+                                </div>
+                            @endif
+
+                            @if(!empty($event->slug) && $event->isInteractiveActive())
+                                <div class="mb-4 flex flex-wrap gap-3">
+                                    <a href="{{ route('interactive.events.show', ['event' => $event->slug]) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-md hover:bg-emerald-700">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7H7v10h10V7h-4zM7 7l5 5"/></svg>
+                                        Expérience interactive
+                                    </a>
+                                    <a href="{{ route('interactive.events.show', ['event' => $event->slug]) }}?tab=votes" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                        Voter maintenant
+                                    </a>
+                                    <a href="{{ route('interactive.events.show', ['event' => $event->slug]) }}?tab=leaderboard" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-800 text-white text-sm font-semibold rounded-md hover:bg-gray-900">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h4v8H3zM10 8h4v12h-4zM17 4h4v16h-4z"/></svg>
+                                        Voir le classement
                                     </a>
                                 </div>
                             @endif
