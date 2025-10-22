@@ -48,9 +48,6 @@
                             </span>
                         @endif
                     </div>
-                    @if($row['bio'])
-                        <p class="text-xs text-gray-500 truncate">{{ $row['bio'] }}</p>
-                    @endif
                 </div>
 
                 <!-- Score -->
