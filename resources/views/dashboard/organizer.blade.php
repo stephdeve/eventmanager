@@ -361,6 +361,97 @@
                         </div>
                     </div>
 
+                    <!-- Finances par événement -->
+                    <div class="mt-12 ">
+                        <div class="dashboard-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                            <div class="relative bg-gradient-to-r  from-purple-600 to-fuchsia-500 px-6 py-5 overflow-hidden">
+                            <div
+                                class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16">
+                            </div>
+                            <div
+                                class="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12">
+                            </div>
+
+                            <div class="relative z-10 flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8c-1.657 0-3 1.119-3 2.5S10.343 13 12 13s3 1.119 3 2.5S13.657 18 12 18m0-10V6m0 12v-2m8-4a8 8 0 11-16 0 8 8 0 0116 0z" />
+                                </svg>
+                                    </div>
+                                    <div>
+                                        <h2 class="text-2xl font-bold text-white">Finances par événement</h2>
+                                        <p class="text-indigo-100 text-sm mt-1">Vues globales de vos finances par chaque  événement</p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50/80">
+                                        <tr>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Événement</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Ventes (tickets)</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Tickets payés</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Tickets non payés</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Transferts</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Revenus</th>
+                                            <th class="px-6 py-3"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        @forelse(($perEventFinance ?? []) as $row)
+                                            <tr class="hover:bg-gray-50/50 transition-colors">
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <div class="text-sm font-semibold text-gray-900">
+                                                        {{ $row['event']->title }}</div>
+                                                    <div class="text-xs text-gray-500">
+                                                        {{ optional($row['event']->start_date)?->isoFormat('D MMM YYYY • HH:mm') }}
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    {{ number_format($row['tickets_sold']) }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-emerald-700">
+                                                    {{ number_format($row['paid_tickets']) }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-amber-700">
+                                                    {{ number_format($row['unpaid_tickets']) }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-700">
+                                                    {{ number_format($row['transfers']) }}</td>
+                                                <td
+                                                    class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                                                    {{ \App\Support\Currency::format($row['revenue_minor'], $row['event']->currency ?? 'XOF') }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-right">
+                                                    <a href="{{ route('events.attendees', $row['event']) }}"
+                                                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full bg-indigo-50 text-indigo-700 hover:bg-indigo-100">Voir</a>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="7" class="px-6 py-8 text-center text-gray-500">Aucune
+                                                    donnée disponible.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Dernières inscriptions - DESIGN CRÉATIF AVEC SVG -->
                     <div class="dashboard-card bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
                         <!-- En-tête avec effet de vague -->
@@ -867,7 +958,7 @@
                                                     </div>
 
                                                     <!-- Barre de progression des inscriptions -->
-                                                    <div class="flex items-center justify-between">
+                                                    <div class="flex items-center flex-wrap justify-between">
                                                         <div class="flex items-center space-x-3">
                                                             <!-- Icône participants -->
                                                             <div class="flex items-center text-xs text-slate-500">
@@ -881,10 +972,9 @@
                                                                 <span>{{ $upcoming['registrations'] }} inscrit(s)</span>
                                                             </div>
                                                         </div>
-
                                                         <!-- Action rapide -->
-                                                        <a href="{{ route('events.show', $upcoming['event']) }}"
-                                                            class=" border group-hover:opacity-100 transition-all duration-300 p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg">
+                                                        <a href="{{ route('events.attendees', $upcoming['event']) }}"
+                                                            class=" border group-hover:opacity-100 flex space-x-2 items-center transition-all duration-300 p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg">
                                                             <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                                 viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -894,6 +984,8 @@
                                                                     stroke-width="2"
                                                                     d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                             </svg>
+                                                            <p>Voir la liste des inscriptions</p>
+
                                                         </a>
                                                     </div>
                                                 </div>
@@ -971,6 +1063,8 @@
                     </div>
                 </div>
             </div>
+
+
 
             <!-- Sections restantes (Finances et Événements à venir détaillés) -->
             <!-- ... (garder les sections existantes inchangées) ... -->
