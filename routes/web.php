@@ -66,11 +66,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/events/{event}/reviews', [\App\Http\Controllers\EventReviewController::class, 'store'])
         ->name('events.reviews.store');
 
-    // Communauté / Chat temps réel par événement
-    Route::get('/events/{event}/chat', [EventChatController::class, 'show'])->name('events.chat');
+    // Communauté / Chat temps réel par événement (basé Livewire)
+    Route::get('/events/{event}/chat', \App\Livewire\Interactive\CommunityChat::class)->name('events.chat');
     Route::post('/events/{event}/chat/messages', [EventChatController::class, 'store'])->middleware('throttle:60,1')->name('events.chat.messages');
     // Alias: communauté (même page que chat)
-    Route::get('/events/{event}/community', [EventChatController::class, 'show'])->name('events.community');
+    Route::get('/events/{event}/community', \App\Livewire\Interactive\CommunityChat::class)->name('events.community');
 
     
 

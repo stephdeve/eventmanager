@@ -121,7 +121,14 @@ class RegistrationController extends Controller
                         'message' => 'Ce billet est invalide.',
                     ], 422);
                 }
-                return redirect()->route('scanner')->with('error', 'Ce billet est invalide.');
+                return view('registrations.validation-result', [
+                    'status' => 'error',
+                    'title' => 'Billet invalide',
+                    'message' => 'Ce billet est invalide.',
+                    'type' => 'ticket',
+                    'ticket' => $ticket,
+                    'notice' => null,
+                ]);
             }
 
             // Reject if already used
@@ -132,7 +139,14 @@ class RegistrationController extends Controller
                         'message' => 'Ce billet a déjà été utilisé.',
                     ], 409);
                 }
-                return redirect()->route('scanner')->with('error', 'Ce billet a déjà été utilisé.');
+                return view('registrations.validation-result', [
+                    'status' => 'error',
+                    'title' => 'Billet déjà utilisé',
+                    'message' => 'Ce billet a déjà été utilisé.',
+                    'type' => 'ticket',
+                    'ticket' => $ticket,
+                    'notice' => null,
+                ]);
             }
 
             // Payment rules: if numeric and not paid, reject; if physical unpaid, allow with notice
@@ -143,7 +157,14 @@ class RegistrationController extends Controller
                         'message' => 'Ticket invalide ou paiement en attente. Finalisez le paiement en ligne.',
                     ], 422);
                 }
-                return redirect()->route('scanner')->with('error', 'Ticket invalide ou paiement en attente. Finalisez le paiement en ligne.');
+                return view('registrations.validation-result', [
+                    'status' => 'error',
+                    'title' => 'Paiement non confirmé',
+                    'message' => 'Ticket invalide ou paiement en attente. Finalisez le paiement en ligne.',
+                    'type' => 'ticket',
+                    'ticket' => $ticket,
+                    'notice' => null,
+                ]);
             }
 
             // Atomic update to mark used
@@ -159,10 +180,21 @@ class RegistrationController extends Controller
             });
 
             if ($updated !== 1) {
-                return response()->json([
-                    'success' => false,
+                if ($asJson) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Ce billet a déjà été utilisé.',
+                    ], 409);
+                }
+                $ticket->refresh()->load(['event', 'owner']);
+                return view('registrations.validation-result', [
+                    'status' => 'error',
+                    'title' => 'Billet déjà utilisé',
                     'message' => 'Ce billet a déjà été utilisé.',
-                ], 409);
+                    'type' => 'ticket',
+                    'ticket' => $ticket,
+                    'notice' => null,
+                ]);
             }
 
             $ticket->refresh()->load(['event', 'owner']);
@@ -200,7 +232,14 @@ class RegistrationController extends Controller
                     ]
                 ]);
             }
-            return redirect()->route('scanner')->with('success', 'Billet validé avec succès!');
+            return view('registrations.validation-result', [
+                'status' => 'success',
+                'title' => 'Billet validé avec succès',
+                'message' => 'L\'entrée a été validée.',
+                'type' => 'ticket',
+                'ticket' => $ticket,
+                'notice' => $notice,
+            ]);
         }
 
         // 2) Backward compatibility: registration-level QR
@@ -213,7 +252,14 @@ class RegistrationController extends Controller
                     'message' => 'Billet introuvable.',
                 ], 404);
             }
-            return redirect()->route('scanner')->with('error', 'Billet introuvable.');
+            return view('registrations.validation-result', [
+                'status' => 'error',
+                'title' => 'Billet introuvable',
+                'message' => 'Billet introuvable.',
+                'type' => 'registration',
+                'registration' => null,
+                'notice' => null,
+            ]);
         }
 
         $this->authorize('validate', $registration);
@@ -236,7 +282,14 @@ class RegistrationController extends Controller
                     ]
                 ], 409);
             }
-            return redirect()->route('scanner')->with('error', 'Ce billet a déjà été validé.');
+            return view('registrations.validation-result', [
+                'status' => 'error',
+                'title' => 'Billet déjà validé',
+                'message' => 'Ce billet a déjà été validé.',
+                'type' => 'registration',
+                'registration' => $registration,
+                'notice' => null,
+            ]);
         }
 
         if (in_array($registration->payment_status, ['pending', 'failed'], true)) {
@@ -246,7 +299,14 @@ class RegistrationController extends Controller
                     'message' => 'Ticket invalide ou paiement en attente. Finalisez le paiement en ligne.',
                 ], 422);
             }
-            return redirect()->route('scanner')->with('error', 'Ticket invalide ou paiement en attente. Finalisez le paiement en ligne.');
+            return view('registrations.validation-result', [
+                'status' => 'error',
+                'title' => 'Paiement non confirmé',
+                'message' => 'Ticket invalide ou paiement en attente. Finalisez le paiement en ligne.',
+                'type' => 'registration',
+                'registration' => $registration,
+                'notice' => null,
+            ]);
         }
 
         $updated = DB::transaction(function () use ($registration) {
@@ -261,20 +321,30 @@ class RegistrationController extends Controller
 
         if ($updated !== 1) {
             $registration->refresh()->load(['event', 'user']);
-            return response()->json([
-                'success' => false,
+            if ($asJson) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ce billet a déjà été validé.',
+                    'registration' => [
+                        'event' => [
+                            'title' => $registration->event->title,
+                        ],
+                        'user' => [
+                            'name' => $registration->user->name,
+                        ],
+                        'is_validated' => true,
+                        'validated_at' => optional($registration->validated_at)->format('d/m/Y H:i'),
+                    ]
+                ], 409);
+            }
+            return view('registrations.validation-result', [
+                'status' => 'error',
+                'title' => 'Billet déjà validé',
                 'message' => 'Ce billet a déjà été validé.',
-                'registration' => [
-                    'event' => [
-                        'title' => $registration->event->title,
-                    ],
-                    'user' => [
-                        'name' => $registration->user->name,
-                    ],
-                    'is_validated' => true,
-                    'validated_at' => optional($registration->validated_at)->format('d/m/Y H:i'),
-                ]
-            ], 409);
+                'type' => 'registration',
+                'registration' => $registration,
+                'notice' => null,
+            ]);
         }
 
         $registration->refresh()->load(['event', 'user']);
@@ -316,7 +386,14 @@ class RegistrationController extends Controller
                 ]
             ]);
         }
-        return redirect()->route('scanner')->with('success', 'Billet validé avec succès!');
+        return view('registrations.validation-result', [
+            'status' => 'success',
+            'title' => 'Billet validé avec succès',
+            'message' => 'L\'entrée a été validée.',
+            'type' => 'registration',
+            'registration' => $registration,
+            'notice' => $notice,
+        ]);
     }
 
     /**
@@ -410,7 +487,15 @@ class RegistrationController extends Controller
                     ]
                 ], 409);
             }
-            return back()->with('error', 'Ce billet a déjà été validé.');
+            $registration->load(['event','user']);
+            return view('registrations.validation-result', [
+                'status' => 'error',
+                'title' => 'Billet déjà validé',
+                'message' => 'Ce billet a déjà été validé.',
+                'type' => 'registration',
+                'registration' => $registration,
+                'notice' => null,
+            ]);
         }
 
         // Règles de paiement: refuser si paiement en attente (numérique), autoriser si unpaid (physique)
@@ -421,7 +506,15 @@ class RegistrationController extends Controller
                     'message' => 'Ticket invalide ou paiement en attente. Finalisez le paiement en ligne.',
                 ], 422);
             }
-            return back()->with('error', 'Ticket invalide ou paiement en attente. Finalisez le paiement en ligne.');
+            $registration->loadMissing(['event','user']);
+            return view('registrations.validation-result', [
+                'status' => 'error',
+                'title' => 'Paiement non confirmé',
+                'message' => 'Ticket invalide ou paiement en attente. Finalisez le paiement en ligne.',
+                'type' => 'registration',
+                'registration' => $registration,
+                'notice' => null,
+            ]);
         }
 
         // Marquer le billet comme validé (atomiquement)
@@ -455,7 +548,14 @@ class RegistrationController extends Controller
                     ]
                 ], 409);
             }
-            return back()->with('error', 'Ce billet a déjà été validé.');
+            return view('registrations.validation-result', [
+                'status' => 'error',
+                'title' => 'Billet déjà validé',
+                'message' => 'Ce billet a déjà été validé.',
+                'type' => 'registration',
+                'registration' => $registration,
+                'notice' => null,
+            ]);
         }
 
         // Recharger les relations
@@ -495,7 +595,14 @@ class RegistrationController extends Controller
                 ]
             ]);
         }
-        return back()->with('success', 'Billet validé avec succès!' . ($notice ? ' ' . $notice : ''));
+        return view('registrations.validation-result', [
+            'status' => 'success',
+            'title' => 'Billet validé avec succès',
+            'message' => 'L\'entrée a été validée.' . ($notice ? ' ' . $notice : ''),
+            'type' => 'registration',
+            'registration' => $registration,
+            'notice' => $notice,
+        ]);
     }
 
     /**

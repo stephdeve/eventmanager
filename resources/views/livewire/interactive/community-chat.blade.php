@@ -51,7 +51,7 @@
             </div>
 
             <!-- Zone des messages -->
-            <div id="messages" class="h-[60vh] overflow-y-auto p-6 space-y-5 bg-gradient-to-b from-gray-50 to-white">
+            <div id="messages" wire:poll.2s="refreshMessages" class="h-[60vh] overflow-y-auto p-6 space-y-5 bg-gradient-to-b from-gray-50 to-white">
                 @forelse($this->messages as $m)
                     @php $own = auth()->check() && auth()->id() === $m->user_id; @endphp
                     @if($own)
