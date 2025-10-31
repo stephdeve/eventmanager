@@ -1,18 +1,105 @@
-<div class="min-h-screen py-8 ">
+<div class="min-h-screen py-8 bg-[#0B1220] text-slate-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Navigation retour -->
+        <!-- Topbar + Hero + Sections -->
         <div class="mb-8">
-            <a href="{{ route('events.show', $event) }}"
-               class="group inline-flex items-center gap-3 px-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl text-sm font-medium text-gray-700 hover:bg-white hover:shadow-lg transition-all duration-300 hover:-translate-x-1">
-                <svg class="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                </svg>
-                Retour à l'événement
-            </a>
+            <div class="flex items-center justify-between">
+                <a href="{{ route('events.show', $event) }}" class="text-fuchsia-400 text-lg sm:text-xl font-semibold hover:text-fuchsia-300 transition">
+                    {{ $event->title }}
+                </a>
+                <div class="flex items-center gap-3 text-slate-300">
+                    <span class="hidden sm:inline">Scénario:</span>
+                    <span class="inline-flex rounded-full bg-slate-800 border border-slate-700 p-1">
+                        <a href="{{ route('interactive.events.show', ['event' => $event->slug ?? $event->id]) }}" class="px-3 py-1.5 text-xs font-semibold rounded-full bg-fuchsia-600 text-white shadow">
+                            User View
+                        </a>
+                        @can('update', $event)
+                            <a href="{{ route('events.interactive.manage', $event) }}" class="px-3 py-1.5 text-xs font-semibold rounded-full text-slate-300 hover:text-white hover:bg-slate-700">
+                                Admin View
+                            </a>
+                        @else
+                            <span class="px-3 py-1.5 text-xs font-semibold rounded-full text-slate-500">Admin View</span>
+                        @endcan
+                    </span>
+                </div>
+            </div>
+
+            <div class="mt-6 rounded-2xl overflow-hidden border border-slate-700" style="background-image: url('{{ $event->cover_image_url }}'); background-size: cover; background-position: center;">
+                <div class="bg-slate-900/70">
+                    <div class="px-6 sm:px-10 py-16 sm:py-24 text-center">
+                        <h1 class="text-4xl sm:text-5xl font-extrabold text-white drop-shadow">{{ $event->title }}</h1>
+                        @if($event->description)
+                            <p class="mt-4 max-w-3xl mx-auto text-slate-200 text-lg">
+                                {{ \Illuminate\Support\Str::limit(strip_tags($event->description), 220) }}
+                            </p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 space-y-8">
+                <!-- Event Details -->
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6">
+                    <h2 class="text-2xl font-semibold text-pink-400 mb-4">Event Details</h2>
+                    <div class="rounded-xl bg-slate-900/50 p-3">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            @if($event->youtube_url)
+                                <div class="space-y-3">
+                                    <div class="font-semibold text-slate-200">YouTube</div>
+                                    <div class="aspect-video bg-black rounded-xl overflow-hidden shadow-lg">
+                                        <iframe class="w-full h-full"
+                                                src="https://www.youtube.com/embed/{{ \Illuminate\Support\Str::afterLast($event->youtube_url, 'v=') }}"
+                                                title="YouTube video"
+                                                frameborder="0"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                allowfullscreen>
+                                        </iframe>
+                                    </div>
+                                </div>
+                            @endif
+                            @if($event->tiktok_url)
+                                <div class="space-y-3">
+                                    <div class="font-semibold text-slate-200">TikTok</div>
+                                    <div class="aspect-[9/16] bg-black rounded-xl overflow-hidden shadow-lg">
+                                        <iframe class="w-full h-full"
+                                                src="{{ $event->tiktok_url }}"
+                                                title="TikTok"
+                                                frameborder="0"
+                                                allowfullscreen>
+                                        </iframe>
+                                    </div>
+                                </div>
+                            @endif
+                            @unless($event->youtube_url || $event->tiktok_url)
+                                <div class="col-span-2 text-center py-10 text-slate-400">Aucune vidéo disponible</div>
+                            @endunless
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Participants (Voting) -->
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6">
+                    <h2 class="text-2xl font-semibold text-pink-400 mb-6">Meet the Participants</h2>
+                    @if($event->isInteractiveActive() && ($event->interactive_public || auth()->check()))
+                        <livewire:interactive.voting-panel :event="$event" />
+                    @else
+                        <div class="text-slate-300 text-sm">Les votes ne sont pas accessibles pour le moment.</div>
+                    @endif
+                </div>
+
+                <!-- Leaderboard -->
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6">
+                    <h2 class="text-2xl font-semibold text-pink-400 mb-6">Live Leaderboard</h2>
+                    @if($event->isInteractiveActive())
+                        <livewire:interactive.leaderboard :event="$event" />
+                    @else
+                        <div class="text-slate-300 text-sm">Le classement sera disponible lorsque l'expérience interactive sera active.</div>
+                    @endif
+                </div>
+            </div>
         </div>
 
-        <!-- Carte principale -->
-        <div class="form-card rounded-2xl border p-8">
+        <!-- Carte principale (legacy, masquée) -->
+        <div class="form-card rounded-2xl border p-8 hidden">
             <!-- En-tête de l'événement -->
             <div class="flex items-center gap-6 mb-8">
                 <div class="w-16 h-16 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white flex items-center justify-center text-2xl font-bold shadow-lg">

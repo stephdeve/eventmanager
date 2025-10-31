@@ -1,8 +1,8 @@
-<div x-data id="leaderboard" data-event-id="{{ $event->id }}" wire:poll.5s="refreshData" class="w-full">
-    <!-- En-tête du classement -->
+<div x-data id="leaderboard" data-event-id="{{ $event->id }}" wire:poll.5s="refreshData" class="w-full text-slate-200">
+    <!-- En-tête du classement (dark) -->
     <div class="flex items-center justify-between mb-6">
-        <h3 class="text-xl font-semibold text-[#1E3A8A]">Classement en direct</h3>
-        <div class="flex items-center gap-2 text-sm text-[#6B7280]">
+        <h3 class="text-xl font-semibold text-pink-400">Live Leaderboard</h3>
+        <div class="flex items-center gap-2 text-sm text-slate-400">
             <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
             <span>En temps réel</span>
         </div>
@@ -21,7 +21,7 @@
                 ];
             @endphp
 
-            <div class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
+            <div class="flex items-center gap-4 p-4 bg-slate-900 rounded-2xl border border-slate-700 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
                 <!-- Numéro de rang -->
                 <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center">
                     @if($isTop3)
@@ -29,7 +29,7 @@
                             {{ $rank }}
                         </div>
                     @else
-                        <div class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center text-sm font-semibold">
+                        <div class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center text-sm font-semibold">
                             {{ $rank }}
                         </div>
                     @endif
@@ -38,9 +38,9 @@
                 <!-- Informations du participant -->
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 mb-1">
-                        <span class="font-semibold text-gray-900 text-sm truncate">{{ $row['name'] }}</span>
+                        <span class="font-semibold text-slate-100 text-sm truncate">{{ $row['name'] }}</span>
                         @if($row['country'])
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-800 text-slate-300 text-xs rounded-full font-medium">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
@@ -53,10 +53,10 @@
                 <!-- Score -->
                 <div class="flex-shrink-0 text-right">
                     <div class="flex items-center gap-2">
-                        <span class="text-lg font-bold text-gray-900">{{ $row['score_total'] }}</span>
-                        <span class="text-xs text-gray-500 font-medium">pts</span>
+                        <span class="text-lg font-bold text-slate-100">{{ $row['score_total'] }}</span>
+                        <span class="text-xs text-slate-400 font-medium">pts</span>
                     </div>
-                    <div class="text-xs text-gray-400 mt-1">Score total</div>
+                    <div class="text-xs text-slate-500 mt-1">Score total</div>
                 </div>
             </div>
         @empty

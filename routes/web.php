@@ -88,6 +88,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('users/export', [\App\Http\Controllers\Admin\UserController::class, 'export'])
             ->name('users.export');
         // Admin interactive events (Livewire) - guarded by class_exists
+        if (class_exists(\App\Livewire\Interactive\Admin\Overview::class)) {
+            Route::get('/interactive', \App\Livewire\Interactive\Admin\Overview::class)
+                ->name('interactive.overview');
+        }
         if (class_exists(\App\Livewire\Interactive\Admin\EventEditor::class)) {
             Route::get('/interactive-events/{event}/edit', \App\Livewire\Interactive\Admin\EventEditor::class)
                 ->name('interactive.events.edit');
