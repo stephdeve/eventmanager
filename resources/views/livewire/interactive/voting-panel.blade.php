@@ -17,8 +17,7 @@
             <div>
                 <div class="text-sm font-medium text-gray-600">Votre solde de coins</div>
                 <div class="text-2xl font-bold text-gray-900" id="wallet-balance">{{ $walletBalance ?? 0 }}</div>
-                <div class="text-xs text-gray-500 mt-1">1 coin =
-                    {{ \App\Models\Setting::get('interactive.coin_price_minor', 100) / 100 }} F CFA</div>
+                <div class="text-xs text-gray-500 mt-1">1 coin = 100 F CFA</div>
             </div>
         </div>
 
@@ -162,12 +161,11 @@
                     <div class="flex items-center justify-between text-sm">
                         <span class="text-gray-600">Coût total :</span>
                         <span class="text-lg font-bold text-blue-700"
-                            x-text="(qty && qty>=min ? (qty*unit/100).toLocaleString('fr-FR') : '0') + ' ' + currency"></span>
+                            x-text="(qty && qty>=min ? (qty*unit).toLocaleString('fr-FR') : '0') + ' ' + currency"></span>
                     </div>
                     <div class="text-xs text-gray-500 mt-1">
                         <span x-text="qty || 0"></span> coins × <span
-                            x-text="(unit/100).toLocaleString('fr-FR')"></span> <span x-text="currency"></span> par
-                        coin
+                            x-text="unit.toLocaleString('fr-FR')"></span> <span x-text="currency"></span> par coin
                     </div>
                 </div>
             </div>
@@ -351,7 +349,7 @@
                         // Ouverture du widget
                         const name = @json(Auth::user()->name ?? '');
                         const email = @json(Auth::user()->email ?? '');
-                        
+
                         const opened = window.openKkiapayWidget?.({
                             amount: Number(data.amount),
                             currency: data.currency || 'XOF',
