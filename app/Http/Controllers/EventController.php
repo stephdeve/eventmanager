@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Carbon\Carbon;
 
 class EventController extends Controller
 {
@@ -145,6 +146,10 @@ class EventController extends Controller
             'allow_payment_physical' => 'nullable|boolean',
             'allow_ticket_transfer' => 'nullable|boolean',
             'is_restricted_18' => 'nullable|boolean',
+            'is_interactive' => 'nullable|boolean',
+            'interactive_public' => 'nullable|boolean',
+            'interactive_starts_at' => 'nullable|date',
+            'interactive_ends_at' => 'nullable|date|after_or_equal:interactive_starts_at',
         ], [
             'start_date.after' => 'La date de début doit être une date future.',
             'end_date.after' => 'La date de fin doit être postérieure à la date de début.',
@@ -245,6 +250,10 @@ class EventController extends Controller
                 || app()->environment(['local','development'])
                 || $hasBypass
             ) ? $shareLink : null,
+            'is_interactive' => $request->boolean('is_interactive'),
+            'interactive_public' => $request->boolean('interactive_public'),
+            'interactive_starts_at' => $request->input('interactive_starts_at') ? Carbon::parse($request->input('interactive_starts_at')) : null,
+            'interactive_ends_at' => $request->input('interactive_ends_at') ? Carbon::parse($request->input('interactive_ends_at')) : null,
         ]);
 
         $event->save();
@@ -369,6 +378,10 @@ class EventController extends Controller
             'allow_payment_physical' => 'nullable|boolean',
             'allow_ticket_transfer' => 'nullable|boolean',
             'is_restricted_18' => 'nullable|boolean',
+            'is_interactive' => 'nullable|boolean',
+            'interactive_public' => 'nullable|boolean',
+            'interactive_starts_at' => 'nullable|date',
+            'interactive_ends_at' => 'nullable|date|after_or_equal:interactive_starts_at',
         ]);
 
         // En mise à jour, empêcher de dépasser la capacité max du plan
@@ -414,6 +427,10 @@ class EventController extends Controller
             'allow_payment_physical' => $request->boolean('allow_payment_physical'),
             'allow_ticket_transfer' => $request->boolean('allow_ticket_transfer'),
             'is_restricted_18' => $request->boolean('is_restricted_18'),
+            'is_interactive' => $request->boolean('is_interactive'),
+            'interactive_public' => $request->boolean('interactive_public'),
+            'interactive_starts_at' => $request->input('interactive_starts_at') ? Carbon::parse($request->input('interactive_starts_at')) : $event->interactive_starts_at,
+            'interactive_ends_at' => $request->input('interactive_ends_at') ? Carbon::parse($request->input('interactive_ends_at')) : $event->interactive_ends_at,
         ]);
 
         return redirect()

@@ -124,6 +124,18 @@
         </script>
         @endauth
         <div id="toast-container" class="fixed bottom-0 right-0 m-4"></div>
+        @if (session('toast'))
+            <script>
+                (function(){
+                    const container = document.getElementById('toast-container') || document.body;
+                    const toast = document.createElement('div');
+                    toast.className = 'mb-2 max-w-sm bg-emerald-600 text-white px-4 py-3 rounded shadow';
+                    toast.textContent = @json(session('toast'));
+                    container.appendChild(toast);
+                    setTimeout(() => { toast.remove(); }, 4000);
+                })();
+            </script>
+        @endif
 </body>
 
 </html>

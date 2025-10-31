@@ -399,6 +399,42 @@
                                     </label>
                                 </div>
                             </div>
+
+                            <!-- Expérience interactive -->
+                            <div class="space-y-4">
+                                <div class="checkbox-card @if(old('is_interactive')) checked @endif">
+                                    <label class="flex items-start space-x-3 cursor-pointer">
+                                        <input type="checkbox" name="is_interactive" value="1"
+                                               class="mt-1 h-5 w-5 rounded border-gray-300 text-[#4F46E5] focus:ring-[#4F46E5]"
+                                               {{ old('is_interactive') ? 'checked' : '' }}>
+                                        <div class="flex-1">
+                                            <span class="block text-sm font-semibold text-[#1E3A8A]">Activer l'expérience interactive</span>
+                                            <span class="mt-1 block text-sm text-[#6B7280]">Affiche les onglets Votes/Classement sur la page publique</span>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="checkbox-card @if(old('interactive_public')) checked @endif">
+                                    <label class="flex items-start space-x-3 cursor-pointer">
+                                        <input type="checkbox" name="interactive_public" value="1"
+                                               class="mt-1 h-5 w-5 rounded border-gray-300 text-[#4F46E5] focus:ring-[#4F46E5]"
+                                               {{ old('interactive_public') ? 'checked' : '' }}>
+                                        <div class="flex-1">
+                                            <span class="block text-sm font-semibold text-[#1E3A8A]">Page interactive publique</span>
+                                            <span class="mt-1 block text-sm text-[#6B7280]">Consultation sans connexion (votes nécessitent connexion)</span>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="form-group">
+                                        <label class="form-label">Début de l'expérience interactive</label>
+                                        <input type="datetime-local" name="interactive_starts_at" value="{{ old('interactive_starts_at') }}" class="form-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Fin de l'expérience interactive</label>
+                                        <input type="datetime-local" name="interactive_ends_at" value="{{ old('interactive_ends_at') }}" class="form-input">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Politique de transfert de ticket -->

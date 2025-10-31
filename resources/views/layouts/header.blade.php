@@ -61,10 +61,15 @@
                 <button @click="open = !open"
                     class="flex items-center space-x-2 lg:space-x-3 p-1 lg:p-2 rounded-xl border border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 min-w-0"
                     :class="{ 'border-indigo-300 bg-indigo-50': open }">
-                    <div
-                        class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-sm flex-shrink-0">
-                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                    </div>
+                    @if (Auth::user()->avatar_url)
+                        <img src="{{ Auth::user()->avatar_url }}" alt="{{ Auth::user()->name }}"
+                             class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+                    @else
+                        <div
+                            class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-sm flex-shrink-0">
+                            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                        </div>
+                    @endif
                     <div class="text-left hidden lg:block min-w-0 flex-1">
                         <div class="text-sm font-medium text-gray-900 truncate">{{ Auth::user()->name }}</div>
                         <div class="text-xs text-gray-500 capitalize truncate">

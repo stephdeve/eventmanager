@@ -387,34 +387,41 @@ class RegistrationController extends Controller
     /**
      * Validate a ticket by scanning its QR code.
      */
-    public function validateTicket(Registration $registration)
+    public function validateTicket(Request $request, Registration $registration)
     {
         $this->authorize('validate', $registration);
+        $asJson = $request->expectsJson() || $request->ajax();
 
         // Vérifier si le billet est déjà validé
         if ($registration->is_validated) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Ce billet a déjà été validé.',
-                'registration' => [
-                    'event' => [
-                        'title' => $registration->event->title,
-                    ],
-                    'user' => [
-                        'name' => $registration->user->name,
-                    ],
-                    'is_validated' => true,
-                    'validated_at' => optional($registration->validated_at)->format('d/m/Y H:i'),
-                ]
-            ], 409);
+            if ($asJson) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ce billet a déjà été validé.',
+                    'registration' => [
+                        'event' => [
+                            'title' => $registration->event->title,
+                        ],
+                        'user' => [
+                            'name' => $registration->user->name,
+                        ],
+                        'is_validated' => true,
+                        'validated_at' => optional($registration->validated_at)->format('d/m/Y H:i'),
+                    ]
+                ], 409);
+            }
+            return back()->with('error', 'Ce billet a déjà été validé.');
         }
 
         // Règles de paiement: refuser si paiement en attente (numérique), autoriser si unpaid (physique)
         if (in_array($registration->payment_status, ['pending', 'failed'], true)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Ticket invalide ou paiement en attente. Finalisez le paiement en ligne.',
-            ], 422);
+            if ($asJson) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ticket invalide ou paiement en attente. Finalisez le paiement en ligne.',
+                ], 422);
+            }
+            return back()->with('error', 'Ticket invalide ou paiement en attente. Finalisez le paiement en ligne.');
         }
 
         // Marquer le billet comme validé (atomiquement)
@@ -432,20 +439,23 @@ class RegistrationController extends Controller
             // Conflit concurrent: déjà validé entre-temps
             $registration->refresh();
             $registration->load(['event', 'user']);
-            return response()->json([
-                'success' => false,
-                'message' => 'Ce billet a déjà été validé.',
-                'registration' => [
-                    'event' => [
-                        'title' => $registration->event->title,
-                    ],
-                    'user' => [
-                        'name' => $registration->user->name,
-                    ],
-                    'is_validated' => true,
-                    'validated_at' => optional($registration->validated_at)->format('d/m/Y H:i'),
-                ]
-            ], 409);
+            if ($asJson) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ce billet a déjà été validé.',
+                    'registration' => [
+                        'event' => [
+                            'title' => $registration->event->title,
+                        ],
+                        'user' => [
+                            'name' => $registration->user->name,
+                        ],
+                        'is_validated' => true,
+                        'validated_at' => optional($registration->validated_at)->format('d/m/Y H:i'),
+                    ]
+                ], 409);
+            }
+            return back()->with('error', 'Ce billet a déjà été validé.');
         }
 
         // Recharger les relations
@@ -466,23 +476,26 @@ class RegistrationController extends Controller
             $notice = 'Accès autorisé — Paiement à effectuer sur place.';
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Billet validé avec succès!',
-            'registration' => [
-                'id' => $registration->id,
-                'event' => [
-                    'title' => $registration->event->title,
-                ],
-                'user' => [
-                    'name' => $registration->user->name,
-                ],
-                'is_validated' => true,
-                'validated_at' => optional($registration->validated_at)->format('d/m/Y H:i'),
-                'payment_status' => $registration->payment_status,
-                'notice' => $notice,
-            ]
-        ]);
+        if ($asJson) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Billet validé avec succès!',
+                'registration' => [
+                    'id' => $registration->id,
+                    'event' => [
+                        'title' => $registration->event->title,
+                    ],
+                    'user' => [
+                        'name' => $registration->user->name,
+                    ],
+                    'is_validated' => true,
+                    'validated_at' => optional($registration->validated_at)->format('d/m/Y H:i'),
+                    'payment_status' => $registration->payment_status,
+                    'notice' => $notice,
+                ]
+            ]);
+        }
+        return back()->with('success', 'Billet validé avec succès!' . ($notice ? ' ' . $notice : ''));
     }
 
     /**

@@ -10,6 +10,7 @@ use App\Http\Controllers\BillingController;
 use App\Http\Controllers\EventChatController;
 use App\Http\Middleware\EnsureActiveSubscription;
 use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Models\Event;
 use Illuminate\Support\Facades\Route;
 
@@ -38,6 +39,10 @@ Route::get('/', function () {
 
 // Routes d'authentification
 require __DIR__.'/auth.php';
+
+// Authentification Google (publique)
+Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect'])->name('auth.google.redirect');
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
 
 // Routes protégées (authentification requise)
 Route::middleware(['auth', 'verified'])->group(function () {
