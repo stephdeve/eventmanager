@@ -26,7 +26,6 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -256,33 +255,30 @@
             transition: color 0.3s ease;
         }
 
-
         .forgot-password:hover {
             color: red;
         }
 
-
+        /* Nouveau style pour le séparateur */
         .separator {
+            display: flex;
+            align-items: center;
             text-align: center;
             margin: 1.5rem 0;
-            position: relative;
+            color: #6B7280;
+            font-size: 0.8rem;
         }
 
-        .separator::before {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: #E5E7EB;
+        .separator::before,
+        .separator::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #E5E7EB;
         }
 
         .separator span {
-            background: white;
             padding: 0 1rem;
-            color: #6B7280;
-            font-size: 0.8rem;
+            background: white;
         }
 
         .register-link {
@@ -379,12 +375,51 @@
             transition: all 0.3s ease;
         }
 
-
         .remember-me label {
             font-size: 0.875rem;
             color: #374151;
             cursor: pointer;
             margin: 0;
+        }
+
+        /* Styles pour le bouton Google */
+        .google-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .google-btn {
+            width: 100%;
+            background: #ffffff;
+            color: #374151;
+            padding: 0.875rem 1.5rem;
+            border: 1.5px solid #E5E7EB;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            position: relative;
+        }
+
+        .google-btn:hover {
+            background: #f9fafb;
+            border-color: #D1D5DB;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .google-btn:active {
+            transform: translateY(0);
+        }
+
+        .google-icon {
+            width: 18px;
+            height: 18px;
         }
 
         @media (max-width: 480px) {
@@ -423,9 +458,10 @@
                 </div>
             @endif
 
-            <div class="mb-4">
-                <a href="{{ route('auth.google.redirect') }}" class="btn-primary" style="display:flex;align-items:center;justify-content:center;gap:.5rem;background:#EA4335;">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="18" height="18">
+            <!-- Section Google en premier -->
+            <div class="google-section">
+                <a href="{{ route('auth.google.redirect') }}" class="google-btn">
+                    <svg class="google-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
                         <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12 s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C33.602,6.053,29.062,4,24,4C12.955,4,4,12.955,4,24 s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
                         <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,16.108,18.961,14,24,14c3.059,0,5.842,1.154,7.961,3.039 l5.657-5.657C33.602,6.053,29.062,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>
                         <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.193l-6.191-5.238C29.211,35.091,26.715,36,24,36 c-5.202,0-9.619-3.317-11.283-7.946l-6.541,5.036C9.507,39.556,16.227,44,24,44z"/>
@@ -435,7 +471,10 @@
                 </a>
             </div>
 
-            <div class="separator"><span>ou</span></div>
+            <!-- Séparateur amélioré -->
+            <div class="separator">
+                <span>ou connectez-vous avec email</span>
+            </div>
 
             <form method="POST" action="{{ route('login') }}" id="loginForm">
                 @csrf
@@ -461,11 +500,8 @@
                         <div>
                             <label for="password">Mot de passe</label>
                         </div>
-
-
                         @if (Route::has('password.request'))
-                            <div >
-
+                            <div>
                                 <a href="{{ route('password.request') }}" class="forgot-password">
                                     Mot de passe oublié ?
                                 </a>
@@ -507,8 +543,6 @@
                     <label for="remember">Se souvenir de moi</label>
                 </div>
 
-
-
                 <div style="margin: 1.5rem 0;">
                     <button type="submit" class="btn-primary" id="submitButton">
                         <span class="spinner"></span>
@@ -517,8 +551,8 @@
                 </div>
 
                 <div class="register-link">
-                    <span style="margin-right: 0.5rem ;">Pas de compte ?</span><a href="{{ route('register') }}">Créer
-                        un compte</a>
+                    <span style="margin-right: 0.5rem ;">Pas de compte ?</span>
+                    <a href="{{ route('register') }}">Créer un compte</a>
                 </div>
 
                 <div class="footer">
