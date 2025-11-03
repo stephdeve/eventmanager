@@ -192,7 +192,7 @@
                 const container = document.getElementById('toast-container') || document.body;
                 const toast = document.createElement('div');
                 toast.className =
-                    'fixed z-60 top-4 right-4 max-w-sm px-4 py-3 rounded-xl shadow-lg text-white transform transition-all duration-300 ' +
+                    'fixed z-60 top-4 right-4 max-w-sm px-4 z-60 py-3 rounded-xl shadow-lg text-white transform transition-all duration-300 ' +
                     (e.detail.type === 'success' ? 'bg-gradient-to-r from-emerald-600 to-green-600' :
                         e.detail.type === 'warning' ? 'bg-gradient-to-r from-amber-600 to-orange-600' :
                         'bg-gradient-to-r from-gray-800 to-gray-700');

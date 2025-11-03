@@ -7,17 +7,31 @@
                     {{ $event->title }}
                 </a>
                 <div class="flex items-center gap-3 text-slate-300">
-                    <span class="hidden sm:inline">Scénario:</span>
+                    {{-- <span class="hidden sm:inline">Scénario:</span> --}}
                     <span class="inline-flex rounded-full bg-slate-800 border border-slate-700 p-1">
                         <a href="{{ route('interactive.events.show', ['event' => $event->slug ?? $event->id]) }}" class="px-3 py-1.5 text-xs font-semibold rounded-full bg-fuchsia-600 text-white shadow">
-                            User View
+                        Vue Utilisateur
                         </a>
                         @can('update', $event)
                             <a href="{{ route('events.interactive.manage', $event) }}" class="px-3 py-1.5 text-xs font-semibold rounded-full text-slate-300 hover:text-white hover:bg-slate-700">
-                                Admin View
+                                Vue Admin
+                            </a>
+                            <a href="{{ route('events.community', $event) }}"
+                               class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-semibold rounded-xl hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                </svg>
+                                Ouvrir la communauté
                             </a>
                         @else
-                            <span class="px-3 py-1.5 text-xs font-semibold rounded-full text-slate-500">Admin View</span>
+                            <a href="{{ route('events.community', $event) }}"
+                                class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-semibold rounded-xl hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                </svg>
+                                Ouvrir la communauté
+                            </a>
+                            {{-- <span class="px-3 py-1.5 text-xs font-semibold rounded-full text-slate-500">Admin</span> --}}
                         @endcan
                     </span>
                 </div>
@@ -39,7 +53,7 @@
             <div class="mt-8 space-y-8">
                 <!-- Event Details -->
                 <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6">
-                    <h2 class="text-2xl font-semibold text-pink-400 mb-4">Event Details</h2>
+                    <h2 class="text-2xl font-semibold text-pink-400 mb-4">Details Evènement</h2>
                     <div class="rounded-xl bg-slate-900/50 p-3">
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             @if($event->youtube_url)
@@ -78,7 +92,7 @@
 
                 <!-- Participants (Voting) -->
                 <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6">
-                    <h2 class="text-2xl font-semibold text-pink-400 mb-6">Meet the Participants</h2>
+                    <h2 class="text-2xl font-semibold text-pink-400 mb-6">Rencontrez les Participants</h2>
                     @if($event->isInteractiveActive() && ($event->interactive_public || auth()->check()))
                         <livewire:interactive.voting-panel :event="$event" />
                     @else
@@ -88,7 +102,7 @@
 
                 <!-- Leaderboard -->
                 <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6">
-                    <h2 class="text-2xl font-semibold text-pink-400 mb-6">Live Leaderboard</h2>
+                    <h2 class="text-2xl font-semibold text-pink-400 mb-6">Classement en Direct</h2>
                     @if($event->isInteractiveActive())
                         <livewire:interactive.leaderboard :event="$event" />
                     @else
