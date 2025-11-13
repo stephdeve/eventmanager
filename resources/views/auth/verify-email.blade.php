@@ -21,6 +21,8 @@
         .card-header p { opacity: .95; }
         .card-body { padding: 2rem; }
         .btn-primary { width: 100%; background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%); color: #fff; padding: .875rem 1.25rem; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all .2s ease; }
+        .btn-secondary { width: 100%; background: linear-gradient(135deg, #d30505 0%, #ba0505 100%); color: #fff; padding: .875rem 1.25rem; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all .2s ease; }
+        .btn-secondary:hover { filter: brightness(1.05); transform: translateY(-1px); }
         .btn-primary:hover { filter: brightness(1.05); transform: translateY(-1px); }
         .btn-link { color: #4F46E5; font-weight: 500; text-decoration: none; }
         .btn-row { display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center; }
@@ -61,7 +63,7 @@
             </form>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="btn-link">Se déconnecter</button>
+                <button type="submit" class="btn-secondary">Se déconnecter</button>
             </form>
         </div>
 
