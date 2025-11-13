@@ -53,6 +53,48 @@
             overflow: hidden;
         }
 
+        /* Floating Animation */
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) translateX(0px) scale(1);
+                opacity: 0.3;
+            }
+            25% {
+                transform: translateY(-20px) translateX(10px) scale(1.1);
+                opacity: 0.6;
+            }
+            50% {
+                transform: translateY(-10px) translateX(-5px) scale(0.9);
+                opacity: 0.8;
+            }
+            75% {
+                transform: translateY(-30px) translateX(15px) scale(1.05);
+                opacity: 0.4;
+            }
+        }
+
+        /* Particle Float Animation */
+        @keyframes particleFloat {
+            0%, 100% {
+                transform: translateY(0px) translateX(0px);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        .particle {
+            animation: particleFloat linear infinite;
+        }
+
         .hero-background {
             position: absolute;
             top: 0;
@@ -258,41 +300,116 @@
 </head>
 
 <body class="min-h-full bg-black overflow-x-hidden">
-    <!-- Navigation -->
-    <nav class="fixed top-0 w-full nav-blur z-50 border-b border-gray-800">
+    <!-- Navigation Cohérente -->
+    <nav class="fixed top-0 w-full z-50 transition-all duration-300" x-data="{ 
+        scrolled: false,
+        mobileMenuOpen: false,
+        init() {
+            window.addEventListener('scroll', () => {
+                this.scrolled = window.scrollY > 20;
+            });
+        }
+    }" :class="scrolled ? 'bg-black/90 backdrop-blur-lg border-b border-white/10 shadow-xl' : 'bg-transparent'">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
                 <div class="flex items-center">
-                    <a href="{{ url('/') }}" class="flex items-center space-x-3">
-                        <div class="flex items-center justify-center h-8 w-8 rounded-lg bg-gradient-to-r from-violet-600 to-blue-500 text-white font-bold">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
+                    <a href="{{ url('/') }}" class="group flex items-center space-x-3">
+                        <div class="relative">
+                            <div class="absolute inset-0 bg-gradient-to-r from-violet-600 to-blue-500 rounded-lg blur-md group-hover:blur-lg transition-all duration-300 opacity-75 group-hover:opacity-100"></div>
+                            <div class="relative flex items-center justify-center h-8 w-8 rounded-lg bg-gradient-to-r from-violet-600 to-blue-500 text-white font-bold shadow-md group-hover:shadow-lg transition-all duration-300">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
                         </div>
-                        <span class="text-xl font-bold text-white">EventManager</span>
+                        <div>
+                            <span class="text-lg font-bold text-white group-hover:text-violet-200 transition-colors duration-300">EventManager</span>
+                        </div>
                     </a>
                 </div>
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="#features" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Fonctionnalités</a>
-                    <a href="#pricing" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Tarifs</a>
-                    <a href="#testimonials" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Avis</a>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-2">
+                    <a href="#features" class="nav-item group relative px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-all duration-300">
+                        <span class="relative z-10">Fonctionnalités</span>
+                        <div class="absolute inset-0 bg-violet-600/20 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300"></div>
+                    </a>
+                    <a href="#pricing" class="nav-item group relative px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-all duration-300">
+                        <span class="relative z-10">Tarifs</span>
+                        <div class="absolute inset-0 bg-violet-600/20 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300"></div>
+                    </a>
+                    <a href="#testimonials" class="nav-item group relative px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-all duration-300">
+                        <span class="relative z-10">Avis</span>
+                        <div class="absolute inset-0 bg-violet-600/20 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300"></div>
+                    </a>
+                    
                     @auth
-                        <a href="{{ route('dashboard') }}" class="text-sm font-medium text-violet-400 hover:text-violet-300">Tableau de bord</a>
+                        <a href="{{ route('dashboard') }}" class="group relative px-4 py-2 text-sm font-medium text-violet-400 hover:text-violet-300 transition-all duration-300">
+                            <span class="relative z-10 flex items-center">
+                                <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                </svg>
+                                Tableau de bord
+                            </span>
+                            <div class="absolute inset-0 bg-violet-600/20 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300"></div>
+                        </a>
                     @else
-                        <a href="{{ route('login') }}" class="text-sm font-medium text-gray-300 hover:text-white">Connexion</a>
-                        <a href="{{ route('register') }}" class="text-sm font-medium text-white bg-gradient-to-r from-violet-600 to-blue-500 hover:from-violet-700 hover:to-blue-700 px-4 py-2 rounded-lg transition-colors">
-                            S'inscrire
+                        <a href="{{ route('login') }}" class="group relative px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-all duration-300">
+                            <span class="relative z-10">Connexion</span>
+                            <div class="absolute inset-0 bg-white/10 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300"></div>
+                        </a>
+                        <a href="{{ route('register') }}" class="group relative px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-violet-600 to-blue-500 hover:from-violet-700 hover:to-blue-700 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
+                            <span class="relative z-10">S'inscrire</span>
                         </a>
                     @endauth
                 </div>
+
                 <!-- Mobile menu button -->
                 <div class="md:hidden flex items-center">
-                    <button type="button" id="mobile-menu-button" class="p-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" 
+                            class="relative p-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-300">
                         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  :class="mobileMenuOpen ? 'hidden' : 'block'" d="M4 6h16M4 12h16M4 18h16" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  :class="mobileMenuOpen ? 'block' : 'hidden'" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
+                </div>
+            </div>
+
+            <!-- Mobile menu -->
+            <div x-show="mobileMenuOpen" 
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 -translate-y-2"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 -translate-y-2"
+                 class="md:hidden bg-black/90 backdrop-blur-lg rounded-xl mt-2 p-4 border border-white/10">
+                <div class="flex flex-col space-y-2">
+                    <a href="#features" @click="mobileMenuOpen = false" class="block px-4 py-3 text-base font-medium text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300">
+                        Fonctionnalités
+                    </a>
+                    <a href="#pricing" @click="mobileMenuOpen = false" class="block px-4 py-3 text-base font-medium text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300">
+                        Tarifs
+                    </a>
+                    <a href="#testimonials" @click="mobileMenuOpen = false" class="block px-4 py-3 text-base font-medium text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300">
+                        Avis
+                    </a>
+                    @auth
+                        <a href="{{ route('dashboard') }}" @click="mobileMenuOpen = false" class="block px-4 py-3 text-base font-medium text-violet-400 hover:text-violet-300 hover:bg-violet-600/20 rounded-lg transition-all duration-300">
+                            Tableau de bord
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}" @click="mobileMenuOpen = false" class="block px-4 py-3 text-base font-medium text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300">
+                            Connexion
+                        </a>
+                        <a href="{{ route('register') }}" @click="mobileMenuOpen = false" class="block px-4 py-3 text-base font-medium text-white bg-gradient-to-r from-violet-600 to-blue-500 hover:from-violet-700 hover:to-blue-700 rounded-lg transition-all duration-300">
+                            S'inscrire
+                        </a>
+                    @endauth
                 </div>
             </div>
         </div>
@@ -300,13 +417,44 @@
 
     <!-- Hero Section -->
     <section class="relative min-h-screen flex items-center justify-center overflow-hidden hero-section text-white pt-16">
-        <!-- Background Elements -->
-        <div class="absolute top-20 left-10 w-72 h-72 bg-black/10 rounded-full blur-3xl floating"></div>
-        <div class="absolute bottom-20 right-10 w-96 h-96 bg-indigo-300/10 rounded-full blur-3xl floating" style="animation-delay: 2s;"></div>
+        <!-- Background Image with Overlay -->
+        <div class="absolute inset-0 bg-gradient-to-br from-black via-purple-900/20 to-black">
+            <div class="absolute inset-0 bg-gradient-to-r from-violet-900/20 via-blue-900/20 to-indigo-900/20"></div>
+            <img src="https://images.unsplash.com/photo-1472653431158-636457a7753f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80" 
+                 alt="" 
+                 class="absolute inset-0 w-full h-full object-cover opacity-25"
+                 onerror="this.style.display='none'">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
+            
+            <!-- Animated gradient overlay -->
+            <div class="absolute inset-0 opacity-50">
+                <div class="absolute inset-0 bg-gradient-to-br from-violet-600/10 via-transparent to-blue-600/10 animate-pulse"></div>
+            </div>
+        </div>
+        
+        <!-- Animated Background Elements -->
+        <div class="absolute top-20 left-10 w-72 h-72 bg-violet-600/20 rounded-full blur-3xl floating"></div>
+        <div class="absolute bottom-20 right-10 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl floating" style="animation-delay: 2s;"></div>
+        <div class="absolute top-1/2 left-1/4 w-64 h-64 bg-blue-600/10 rounded-full blur-2xl floating" style="animation-delay: 4s;"></div>
+        
+        <!-- Particle Animation -->
+        <div class="absolute inset-0 overflow-hidden">
+            <div class="particles absolute inset-0">
+                <div class="particle absolute w-1 h-1 bg-white rounded-full opacity-50" style="top: 20%; left: 10%; animation: float 8s infinite;"></div>
+                <div class="particle absolute w-2 h-2 bg-violet-300 rounded-full opacity-40" style="top: 30%; left: 80%; animation: float 12s infinite;"></div>
+                <div class="particle absolute w-1 h-1 bg-blue-300 rounded-full opacity-60" style="top: 60%; left: 20%; animation: float 10s infinite;"></div>
+                <div class="particle absolute w-1 h-1 bg-white rounded-full opacity-30" style="top: 80%; left: 70%; animation: float 15s infinite;"></div>
+                <div class="particle absolute w-2 h-2 bg-indigo-300 rounded-full opacity-40" style="top: 15%; left: 50%; animation: float 9s infinite;"></div>
+                <div class="particle absolute w-1 h-1 bg-violet-200 rounded-full opacity-50" style="top: 70%; left: 85%; animation: float 11s infinite;"></div>
+                <div class="particle absolute w-1 h-1 bg-blue-200 rounded-full opacity-40" style="top: 40%; left: 30%; animation: float 13s infinite;"></div>
+                <div class="particle absolute w-2 h-2 bg-white rounded-full opacity-30" style="top: 90%; left: 40%; animation: float 14s infinite;"></div>
+            </div>
+        </div>
 
         <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <!-- Badge -->
-            <div class="inline-flex items-center space-x-2 bg-black/20 px-4 py-2 rounded-full text-sm font-medium text-white mb-8 backdrop-blur-sm">
+            <div class="inline-flex items-center space-x-2 bg-violet-600/30 backdrop-blur-md border border-violet-400/30 px-4 py-2 rounded-full text-sm font-medium text-white mb-8 shadow-lg shadow-violet-600/20">
+                <span class="w-2 h-2 bg-violet-400 rounded-full animate-pulse"></span>
                 <span>🎯 Plateforme événementielle tout-en-un</span>
             </div>
 
@@ -326,44 +474,47 @@
             <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
                 @auth
                     <a href="{{ route('events.create') }}"
-                       class="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors shadow-lg">
-                        <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                       class="group inline-flex items-center justify-center px-8 py-4 text-base font-medium text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 rounded-xl transition-all duration-300 shadow-xl shadow-violet-600/30 hover:shadow-2xl hover:shadow-violet-600/40 transform hover:-translate-y-1">
+                        <svg class="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
                         Créer un événement
                     </a>
                 @else
                     <a href="{{ route('register') }}"
-                       class="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors shadow-lg">
+                       class="group inline-flex items-center justify-center px-8 py-4 text-base font-medium text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 rounded-xl transition-all duration-300 shadow-xl shadow-violet-600/30 hover:shadow-2xl hover:shadow-violet-600/40 transform hover:-translate-y-1">
                         Commencer gratuitement
-                        <svg class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                         </svg>
                     </a>
                 @endauth
                 <a href="#features"
-                   class="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white border-2 border-white/30 hover:border-white/50 rounded-lg transition-colors">
+                   class="group inline-flex items-center justify-center px-8 py-4 text-base font-medium text-white border-2 border-white/40 hover:border-white/60 bg-white/10 backdrop-blur-sm hover:bg-white/20 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                     Voir les fonctionnalités
+                    <svg class="w-5 h-5 ml-2 group-hover:translate-y-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
                 </a>
             </div>
 
             <!-- Stats -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-2xl mx-auto">
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-white">50K+</div>
-                    <div class="text-indigo-200 text-sm">Événements</div>
+                <div class="group text-center bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
+                    <div class="text-3xl font-bold text-white group-hover:scale-110 transition-transform duration-300">50K+</div>
+                    <div class="text-indigo-200 text-sm mt-1">Événements</div>
                 </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-white">2M+</div>
-                    <div class="text-indigo-200 text-sm">Participants</div>
+                <div class="group text-center bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
+                    <div class="text-3xl font-bold text-white group-hover:scale-110 transition-transform duration-300">2M+</div>
+                    <div class="text-indigo-200 text-sm mt-1">Participants</div>
                 </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-white">98%</div>
-                    <div class="text-indigo-200 text-sm">Satisfaction</div>
+                <div class="group text-center bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
+                    <div class="text-3xl font-bold text-white group-hover:scale-110 transition-transform duration-300">98%</div>
+                    <div class="text-indigo-200 text-sm mt-1">Satisfaction</div>
                 </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-white">24/7</div>
-                    <div class="text-indigo-200 text-sm">Support</div>
+                <div class="group text-center bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
+                    <div class="text-3xl font-bold text-white group-hover:scale-110 transition-transform duration-300">24/7</div>
+                    <div class="text-indigo-200 text-sm mt-1">Support</div>
                 </div>
             </div>
         </div>

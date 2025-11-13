@@ -1,377 +1,1046 @@
-<div class="min-h-screen py-8 bg-[#0B1220] text-slate-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Topbar + Hero + Sections -->
+<style>
+/* Enhanced Animated Background System */
+.event-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(ellipse at top left, rgba(79, 70, 229, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom right, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at center, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+        linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #16213e 100%);
+    z-index: -2;
+}
+
+.event-background::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(135deg, rgba(79, 70, 229, 0.2) 0%, transparent 30%),
+        linear-gradient(225deg, rgba(139, 92, 246, 0.2) 0%, transparent 30%),
+        linear-gradient(45deg, rgba(236, 72, 153, 0.15) 0%, transparent 40%);
+    animation: backgroundPulse 8s ease-in-out infinite;
+}
+
+@keyframes backgroundPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Enhanced Floating Elements */
+.floating-element {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.3;
+    animation: complexFloat 18s ease-in-out infinite;
+    mix-blend-mode: screen;
+}
+
+.float-1 {
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(79, 70, 229, 0.8) 0%, rgba(99, 102, 241, 0.4) 50%, transparent 70%);
+    top: -15%;
+    left: -15%;
+    animation-delay: 0s;
+    animation-duration: 25s;
+}
+
+.float-2 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.8) 0%, rgba(167, 139, 250, 0.4) 50%, transparent 70%);
+    top: 35%;
+    right: -10%;
+    animation-delay: 7s;
+    animation-duration: 30s;
+}
+
+.float-3 {
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, rgba(236, 72, 153, 0.8) 0%, rgba(244, 114, 182, 0.4) 50%, transparent 70%);
+    bottom: -10%;
+    left: 25%;
+    animation-delay: 14s;
+    animation-duration: 28s;
+}
+
+.float-4 {
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, rgba(34, 197, 94, 0.6) 0%, rgba(134, 239, 172, 0.3) 50%, transparent 70%);
+    top: 25%;
+    left: 40%;
+    animation-delay: 21s;
+    animation-duration: 22s;
+}
+
+@keyframes complexFloat {
+    0%, 100% {
+        transform: translateY(0px) translateX(0px) scale(1) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-50px) translateX(40px) scale(1.2) rotate(90deg);
+    }
+    50% {
+        transform: translateY(-25px) translateX(-20px) scale(0.8) rotate(180deg);
+    }
+    75% {
+        transform: translateY(-60px) translateX(30px) scale(1.15) rotate(270deg);
+    }
+}
+
+/* Enhanced Particle System */
+.event-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.event-particle {
+    position: absolute;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.4) 50%, transparent 70%);
+    border-radius: 50%;
+    animation: particleFloat 30s linear infinite;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+}
+
+@keyframes particleFloat {
+    0% {
+        transform: translateY(100vh) translateX(0px) rotate(0deg) scale(0);
+        opacity: 0;
+    }
+    10% {
+        transform: translateY(80vh) translateX(30px) rotate(36deg) scale(1);
+        opacity: 1;
+    }
+    90% {
+        transform: translateY(20vh) translateX(-30px) rotate(324deg) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(0vh) translateX(0px) rotate(360deg) scale(0);
+        opacity: 0;
+    }
+}
+
+/* Interactive Light Orbs */
+.light-orb {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.6) 40%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: orbFloat 35s linear infinite;
+    box-shadow: 
+        0 0 30px rgba(255, 255, 255, 0.9),
+        0 0 60px rgba(255, 255, 255, 0.5),
+        0 0 90px rgba(255, 255, 255, 0.3);
+}
+
+@keyframes orbFloat {
+    0% {
+        transform: translateY(100vh) translateX(0px) scale(0);
+        opacity: 0;
+    }
+    10% {
+        transform: translateY(80vh) translateX(15px) scale(1);
+        opacity: 1;
+    }
+    90% {
+        transform: translateY(20vh) translateX(-15px) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100vh) translateX(40px) scale(0);
+        opacity: 0;
+    }
+}
+
+/* Enhanced Event Container */
+.event-container {
+    background: 
+        linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%),
+        rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(30px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow: 
+        0 40px 80px rgba(0, 0, 0, 0.4),
+        0 20px 40px rgba(79, 70, 229, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    animation: eventEntrance 1.5s ease-out;
+}
+
+@keyframes eventEntrance {
+    0% {
+        opacity: 0;
+        transform: translateY(80px) scale(0.9) rotateX(20deg);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1) rotateX(0deg);
+    }
+}
+
+.event-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    animation: topShimmer 4s ease-in-out infinite;
+}
+
+@keyframes topShimmer {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+}
+
+/* Enhanced Hero Section */
+.hero-section {
+    position: relative;
+    border-radius: 32px;
+    overflow: hidden;
+    margin-bottom: 3rem;
+    animation: heroFloat 6s ease-in-out infinite;
+}
+
+@keyframes heroFloat {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    filter: brightness(0.7);
+    transition: all 0.8s ease;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(135deg, rgba(79, 70, 229, 0.8) 0%, rgba(139, 92, 246, 0.6) 50%, rgba(236, 72, 153, 0.4) 100%);
+    backdrop-filter: blur(5px);
+    animation: heroOverlayPulse 4s ease-in-out infinite;
+}
+
+@keyframes heroOverlayPulse {
+    0%, 100% { opacity: 0.9; }
+    50% { opacity: 0.7; }
+}
+
+.hero-content {
+    position: relative;
+    padding: 6rem 4rem;
+    text-align: center;
+    z-index: 2;
+}
+
+.event-title {
+    font-size: 4rem;
+    font-weight: 900;
+    color: white;
+    text-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    margin-bottom: 1.5rem;
+    animation: titleGlow 3s ease-in-out infinite alternate;
+    letter-spacing: -0.02em;
+}
+
+@keyframes titleGlow {
+    0% { text-shadow: 0 8px 16px rgba(0, 0, 0, 0.4), 0 0 30px rgba(255, 255, 255, 0.3); }
+    100% { text-shadow: 0 8px 16px rgba(0, 0, 0, 0.4), 0 0 50px rgba(255, 255, 255, 0.6); }
+}
+
+.event-description {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 4xl;
+    margin: 0 auto;
+    line-height: 1.6;
+    font-weight: 500;
+}
+
+/* Enhanced Navigation Tabs */
+.navigation-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 3rem;
+    background: 
+        linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    backdrop-filter: blur(15px);
+    padding: 0.5rem;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.tab-button {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 1rem 1.5rem;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.tab-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.6s ease;
+}
+
+.tab-button:hover::before {
+    left: 100%;
+}
+
+.tab-button:hover {
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-button.active {
+    background: 
+        linear-gradient(135deg, #4F46E5 0%, #6366F1 50%, #8B5CF6 100%);
+    color: white;
+    box-shadow: 
+        0 12px 24px rgba(79, 70, 229, 0.3),
+        0 6px 12px rgba(79, 70, 229, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Enhanced Content Cards */
+.content-card {
+    background: 
+        linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.08) 100%),
+        rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 24px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    animation: cardEntrance 0.8s ease-out;
+}
+
+@keyframes cardEntrance {
+    0% {
+        opacity: 0;
+        transform: translateY(40px) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.content-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+    transition: left 0.8s ease;
+}
+
+.content-card:hover::before {
+    left: 100%;
+}
+
+.content-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 
+        0 30px 60px rgba(0, 0, 0, 0.3),
+        0 15px 30px rgba(79, 70, 229, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    background: 
+        linear-gradient(135deg, #4F46E5 0%, #6366F1 50%, #8B5CF6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.25rem;
+    box-shadow: 0 8px 16px rgba(79, 70, 229, 0.3);
+    transition: all 0.3s ease;
+}
+
+.card-icon:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 12px 24px rgba(79, 70, 229, 0.4);
+}
+
+.card-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Enhanced Video Container */
+.video-container {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.4);
+    transition: all 0.4s ease;
+}
+
+.video-container:hover {
+    transform: scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.video-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.video-label {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: 
+        linear-gradient(135deg, rgba(79, 70, 229, 0.9) 0%, rgba(139, 92, 246, 0.8) 100%);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    animation: videoLabelPulse 2s ease-in-out infinite;
+}
+
+@keyframes videoLabelPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Enhanced Voting Panel */
+.voting-panel {
+    background: 
+        linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(34, 197, 94, 0.05) 100%);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+}
+
+.participant-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.participant-card {
+    background: 
+        linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.participant-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.6s ease;
+}
+
+.participant-card:hover::before {
+    left: 100%;
+}
+
+.participant-card:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.3),
+        0 10px 20px rgba(79, 70, 229, 0.2);
+    border-color: rgba(79, 70, 229, 0.4);
+}
+
+.participant-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    background: 
+        linear-gradient(135deg, #4F46E5 0%, #6366F1 50%, #8B5CF6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 auto 1rem;
+    box-shadow: 0 8px 16px rgba(79, 70, 229, 0.3);
+    transition: all 0.3s ease;
+}
+
+.participant-card:hover .participant-avatar {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 12px 24px rgba(79, 70, 229, 0.4);
+}
+
+.participant-name {
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.participant-votes {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.vote-button {
+    background: 
+        linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+}
+
+.vote-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.vote-button:hover::before {
+    left: 100%;
+}
+
+.vote-button:hover {
+    background: 
+        linear-gradient(135deg, #16A34A 0%, #15803D 100%);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 
+        0 12px 24px rgba(34, 197, 94, 0.4),
+        0 6px 12px rgba(34, 197, 94, 0.3);
+}
+
+.vote-button:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.vote-button.voted {
+    background: 
+        linear-gradient(135deg, #4F46E5 0%, #6366F1 100%);
+}
+
+/* Enhanced Community Button */
+.community-button {
+    background: 
+        linear-gradient(135deg, #4F46E5 0%, #6366F1 50%, #8B5CF6 100%);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    box-shadow: 
+        0 12px 24px rgba(79, 70, 229, 0.3),
+        0 6px 12px rgba(79, 70, 229, 0.2);
+}
+
+.community-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s ease;
+}
+
+.community-button:hover::before {
+    left: 100%;
+}
+
+.community-button:hover {
+    background: 
+        linear-gradient(135deg, #4338CA 0%, #5853DF 50%, #7C3AED 100%);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 
+        0 20px 40px rgba(79, 70, 229, 0.4),
+        0 10px 20px rgba(79, 70, 229, 0.3);
+}
+
+.community-button:active {
+    transform: translateY(-1px) scale(1.02);
+}
+
+/* Enhanced Admin Toggle */
+.admin-toggle {
+    display: inline-flex;
+    background: 
+        linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 0.25rem;
+    gap: 0.25rem;
+}
+
+.toggle-option {
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.toggle-option:hover {
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.toggle-option.active {
+    background: 
+        linear-gradient(135deg, #4F46E5 0%, #6366F1 50%, #8B5CF6 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+/* Enhanced Empty States */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    animation: emptyStateFadeIn 1s ease-out;
+}
+
+@keyframes emptyStateFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.empty-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 2rem;
+    border-radius: 24px;
+    background: 
+        linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.7);
+    animation: emptyIconFloat 3s ease-in-out infinite;
+}
+
+@keyframes emptyIconFloat {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.empty-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.empty-description {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .hero-content {
+        padding: 4rem 2rem;
+    }
+    
+    .event-title {
+        font-size: 3rem;
+    }
+    
+    .participant-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .event-container {
+        border-radius: 20px;
+        margin: 1rem;
+    }
+    
+    .hero-section {
+        border-radius: 20px;
+    }
+    
+    .hero-content {
+        padding: 3rem 1.5rem;
+    }
+    
+    .event-title {
+        font-size: 2rem;
+    }
+    
+    .event-description {
+        font-size: 1rem;
+    }
+    
+    .navigation-tabs {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .content-card {
+        padding: 1.5rem;
+        border-radius: 16px;
+    }
+    
+    .participant-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Loading Animation */
+.loading-dots {
+    display: inline-flex;
+    gap: 0.25rem;
+}
+
+.loading-dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.8);
+    animation: loadingDot 1.4s ease-in-out infinite;
+}
+
+.loading-dots span:nth-child(1) { animation-delay: 0s; }
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes loadingDot {
+    0%, 80%, 100% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+}
+</style>
+
+<div class="min-h-screen py-8 bg-[#0B1220] text-slate-200 relative">
+    <!-- Enhanced Animated Background -->
+    <div class="event-background">
+        <div class="floating-element float-1"></div>
+        <div class="floating-element float-2"></div>
+        <div class="floating-element float-3"></div>
+        <div class="floating-element float-4"></div>
+        
+        <!-- Enhanced Particle System -->
+        <div class="event-particles">
+            <div class="event-particle" style="width: 10px; height: 10px; left: 5%; animation-delay: 0s; animation-duration: 25s;"></div>
+            <div class="event-particle" style="width: 8px; height: 8px; left: 15%; animation-delay: 5s; animation-duration: 30s;"></div>
+            <div class="event-particle" style="width: 12px; height: 12px; left: 25%; animation-delay: 10s; animation-duration: 20s;"></div>
+            <div class="event-particle" style="width: 6px; height: 6px; left: 35%; animation-delay: 15s; animation-duration: 35s;"></div>
+            <div class="event-particle" style="width: 9px; height: 9px; left: 45%; animation-delay: 20s; animation-duration: 28s;"></div>
+            <div class="event-particle" style="width: 11px; height: 11px; left: 55%; animation-delay: 25s; animation-duration: 22s;"></div>
+            <div class="event-particle" style="width: 7px; height: 7px; left: 65%; animation-delay: 30s; animation-duration: 32s;"></div>
+            <div class="event-particle" style="width: 10px; height: 10px; left: 75%; animation-delay: 35s; animation-duration: 26s;"></div>
+            <div class="event-particle" style="width: 8px; height: 8px; left: 85%; animation-delay: 40s; animation-duration: 29s;"></div>
+            <div class="event-particle" style="width: 9px; height: 9px; left: 95%; animation-delay: 45s; animation-duration: 24s;"></div>
+        </div>
+
+        <!-- Interactive Light Orbs -->
+        <div class="light-orb" style="left: 10%; animation-delay: 0s; animation-duration: 40s;"></div>
+        <div class="light-orb" style="left: 30%; animation-delay: 12s; animation-duration: 45s;"></div>
+        <div class="light-orb" style="left: 50%; animation-delay: 24s; animation-duration: 35s;"></div>
+        <div class="light-orb" style="left: 70%; animation-delay: 6s; animation-duration: 42s;"></div>
+        <div class="light-orb" style="left: 90%; animation-delay: 18s; animation-duration: 38s;"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <!-- Enhanced Header Section -->
         <div class="mb-8">
-            <div class="flex items-center justify-between">
-                <a href="{{ route('events.show', $event) }}" class="text-fuchsia-400 text-lg sm:text-xl font-semibold hover:text-fuchsia-300 transition">
+            <div class="flex items-center justify-between mb-6">
+                <a href="{{ route('events.show', $event) }}" class="text-fuchsia-400 text-xl sm:text-2xl font-bold hover:text-fuchsia-300 transition-all duration-300 hover:scale-105">
                     {{ $event->title }}
                 </a>
-                <div class="flex items-center gap-3 text-slate-300">
-                    {{-- <span class="hidden sm:inline">Scénario:</span> --}}
-                    <span class="inline-flex rounded-full bg-slate-800 border border-slate-700 p-1">
-                        <a href="{{ route('interactive.events.show', ['event' => $event->slug ?? $event->id]) }}" class="px-3 py-1.5 text-xs font-semibold rounded-full bg-fuchsia-600 text-white shadow">
-                        Vue Utilisateur
+                
+                <div class="flex items-center gap-4">
+                    <!-- Enhanced Admin Toggle -->
+                    <div class="admin-toggle">
+                        <a href="{{ route('interactive.events.show', ['event' => $event->slug ?? $event->id]) }}" class="toggle-option active">
+                            Vue Utilisateur
                         </a>
                         @can('update', $event)
-                            <a href="{{ route('events.interactive.manage', $event) }}" class="px-3 py-1.5 text-xs font-semibold rounded-full text-slate-300 hover:text-white hover:bg-slate-700">
+                            <a href="{{ route('events.interactive.manage', $event) }}" class="toggle-option">
                                 Vue Admin
                             </a>
-                            <a href="{{ route('events.community', $event) }}"
-                               class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-semibold rounded-xl hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                                </svg>
-                                Ouvrir la communauté
-                            </a>
-                        @else
-                            <a href="{{ route('events.community', $event) }}"
-                                class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-semibold rounded-xl hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                                </svg>
-                                Ouvrir la communauté
-                            </a>
-                            {{-- <span class="px-3 py-1.5 text-xs font-semibold rounded-full text-slate-500">Admin</span> --}}
                         @endcan
-                    </span>
+                    </div>
+
+                    <!-- Enhanced Community Button -->
+                    <a href="{{ route('events.community', $event) }}" class="community-button">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                        </svg>
+                        Ouvrir la communauté
+                    </a>
                 </div>
             </div>
 
-            <div class="mt-6 rounded-2xl overflow-hidden border border-slate-700" style="background-image: url('{{ $event->cover_image_url }}'); background-size: cover; background-position: center;">
-                <div class="bg-slate-900/70">
-                    <div class="px-6 sm:px-10 py-16 sm:py-24 text-center">
-                        <h1 class="text-4xl sm:text-5xl font-extrabold text-white drop-shadow">{{ $event->title }}</h1>
-                        @if($event->description)
-                            <p class="mt-4 max-w-3xl mx-auto text-slate-200 text-lg">
-                                {{ \Illuminate\Support\Str::limit(strip_tags($event->description), 220) }}
-                            </p>
-                        @endif
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-8 space-y-8">
-                <!-- Event Details -->
-                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6">
-                    <h2 class="text-2xl font-semibold text-pink-400 mb-4">Details Evènement</h2>
-                    <div class="rounded-xl bg-slate-900/50 p-3">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            @if($event->youtube_url)
-                                <div class="space-y-3">
-                                    <div class="font-semibold text-slate-200">YouTube</div>
-                                    <div class="aspect-video bg-black rounded-xl overflow-hidden shadow-lg">
-                                        <iframe class="w-full h-full"
-                                                src="https://www.youtube.com/embed/{{ \Illuminate\Support\Str::afterLast($event->youtube_url, 'v=') }}"
-                                                title="YouTube video"
-                                                frameborder="0"
-                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                allowfullscreen>
-                                        </iframe>
-                                    </div>
-                                </div>
-                            @endif
-                            @if($event->tiktok_url)
-                                <div class="space-y-3">
-                                    <div class="font-semibold text-slate-200">TikTok</div>
-                                    <div class="aspect-[9/16] bg-black rounded-xl overflow-hidden shadow-lg">
-                                        <iframe class="w-full h-full"
-                                                src="{{ $event->tiktok_url }}"
-                                                title="TikTok"
-                                                frameborder="0"
-                                                allowfullscreen>
-                                        </iframe>
-                                    </div>
-                                </div>
-                            @endif
-                            @unless($event->youtube_url || $event->tiktok_url)
-                                <div class="col-span-2 text-center py-10 text-slate-400">Aucune vidéo disponible</div>
-                            @endunless
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Participants (Voting) -->
-                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6">
-                    <h2 class="text-2xl font-semibold text-pink-400 mb-6">Rencontrez les Participants</h2>
-                    @if($event->isInteractiveActive() && ($event->interactive_public || auth()->check()))
-                        <livewire:interactive.voting-panel :event="$event" />
-                    @else
-                        <div class="text-slate-300 text-sm">Les votes ne sont pas accessibles pour le moment.</div>
-                    @endif
-                </div>
-
-                <!-- Leaderboard -->
-                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6">
-                    <h2 class="text-2xl font-semibold text-pink-400 mb-6">Classement en Direct</h2>
-                    @if($event->isInteractiveActive())
-                        <livewire:interactive.leaderboard :event="$event" />
-                    @else
-                        <div class="text-slate-300 text-sm">Le classement sera disponible lorsque l'expérience interactive sera active.</div>
+            <!-- Enhanced Hero Section -->
+            <div class="hero-section">
+                <div class="hero-background" style="background-image: url('{{ $event->cover_image_url }}');"></div>
+                <div class="hero-overlay"></div>
+                <div class="hero-content">
+                    <h1 class="event-title">{{ $event->title }}</h1>
+                    @if($event->description)
+                        <p class="event-description">
+                            {{ \Illuminate\Support\Str::limit(strip_tags($event->description), 220) }}
+                        </p>
                     @endif
                 </div>
             </div>
         </div>
 
-        <!-- Carte principale (legacy, masquée) -->
-        <div class="form-card rounded-2xl border p-8 hidden">
-            <!-- En-tête de l'événement -->
-            <div class="flex items-center gap-6 mb-8">
-                <div class="w-16 h-16 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white flex items-center justify-center text-2xl font-bold shadow-lg">
-                    {{ mb_strtoupper(mb_substr($event->title, 0, 1, 'UTF-8'), 'UTF-8') }}
+        <!-- Enhanced Event Content -->
+        <div class="space-y-8">
+            <!-- Enhanced Event Details Card -->
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h2 class="card-title">Détails de l'Événement</h2>
                 </div>
-                <div class="flex-1">
-                    <h1 class="text-3xl font-bold bg-gradient-to-r from-[#1E3A8A] to-[#4F46E5] bg-clip-text text-transparent mb-2">
-                        {{ $event->title }}
-                    </h1>
-                    <div class="flex items-center gap-4 text-sm text-[#6B7280]">
-                        <span class="flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                            </svg>
-                            Expérience interactive
-                        </span>
-                        @if($event->isInteractiveActive())
-                            <span class="flex items-center gap-2 text-green-600">
-                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                En cours
-                            </span>
-                        @else
-                            <span class="flex items-center gap-2 text-amber-600">
-                                <div class="w-2 h-2 bg-amber-500 rounded-full"></div>
-                                Inactive
-                            </span>
+                
+                <div class="rounded-2xl bg-slate-900/50 p-4">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        @if($event->youtube_url)
+                            <div class="space-y-4">
+                                <h3 class="font-bold text-slate-200 text-lg">YouTube</h3>
+                                <div class="video-container aspect-video">
+                                    <div class="video-label">YouTube Live</div>
+                                    <iframe class="w-full h-full"
+                                            src="https://www.youtube.com/embed/{{ \Illuminate\Support\Str::afterLast($event->youtube_url, 'v=') }}"
+                                            title="YouTube video"
+                                            frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowfullscreen>
+                                    </iframe>
+                                </div>
+                            </div>
                         @endif
+                        @if($event->tiktok_url)
+                            <div class="space-y-4">
+                                <h3 class="font-bold text-slate-200 text-lg">TikTok</h3>
+                                <div class="video-container aspect-[9/16]">
+                                    <div class="video-label">TikTok Live</div>
+                                    <iframe class="w-full h-full"
+                                            src="{{ $event->tiktok_url }}"
+                                            title="TikTok"
+                                            frameborder="0"
+                                            allowfullscreen>
+                                    </iframe>
+                                </div>
+                            </div>
+                        @endif
+                        @unless($event->youtube_url || $event->tiktok_url)
+                            <div class="col-span-2">
+                                <div class="empty-state">
+                                    <div class="empty-icon">
+                                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                        </svg>
+                                    </div>
+                                    <h3 class="empty-title">Aucune vidéo disponible</h3>
+                                    <p class="empty-description">Les streams seront bientôt disponibles</p>
+                                </div>
+                            </div>
+                        @endunless
                     </div>
                 </div>
             </div>
 
-            <!-- Alertes statut -->
-            @if(!$event->isInteractiveActive())
-                <div class="mb-6 rounded-2xl bg-amber-50 border border-amber-200 p-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+            <!-- Enhanced Participants Voting Card -->
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </div>
+                    <h2 class="card-title">Rencontrez les Participants</h2>
+                </div>
+                
+                @if($event->isInteractiveActive() && ($event->interactive_public || auth()->check()))
+                    <div class="voting-panel">
+                        <livewire:interactive.voting-panel :event="$event" />
+                    </div>
+                @else
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                         </div>
-                        <div>
-                            <h4 class="font-semibold text-amber-900">Expérience inactive</h4>
-                            <p class="text-amber-700 text-sm mt-1">L'expérience interactive n'est pas active pour cet événement pour le moment.</p>
-                        </div>
+                        <h3 class="empty-title">Votes non disponibles</h3>
+                        <p class="empty-description">Les votes ne sont pas accessibles pour le moment</p>
                     </div>
+                @endif
+            </div>
+
+            <!-- Additional Interactive Features -->
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                    </div>
+                    <h2 class="card-title">Fonctionnalités Interactives</h2>
                 </div>
-            @elseif(!$event->interactive_public && !auth()->check())
-                <div class="mb-6 rounded-2xl bg-blue-50 border border-blue-200 p-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                            </svg>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Challenge Feature -->
+                    <div class="text-center p-6 rounded-2xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 hover:from-purple-500/20 hover:to-pink-500/20 transition-all duration-300 hover:scale-105">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-2xl font-bold">
+                            🏆
                         </div>
-                        <div>
-                            <h4 class="font-semibold text-blue-900">Connexion requise</h4>
-                            <p class="text-blue-700 text-sm mt-1">Connectez-vous pour accéder à l'expérience interactive complète.</p>
+                        <h3 class="text-white font-bold text-lg mb-2">Défis</h3>
+                        <p class="text-slate-300 text-sm">Participez aux défis de l'événement</p>
+                    </div>
+                    
+                    <!-- Donation Feature -->
+                    <div class="text-center p-6 rounded-2xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20 hover:from-green-500/20 hover:to-emerald-500/20 transition-all duration-300 hover:scale-105">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white text-2xl font-bold">
+                            💝
                         </div>
+                        <h3 class="text-white font-bold text-lg mb-2">Dons</h3>
+                        <p class="text-slate-300 text-sm">Soutenez les participants</p>
                     </div>
-                </div>
-            @endif
-
-            <!-- Navigation par onglets -->
-            <div x-data="tabState()" class="mt-8">
-                <!-- Barre d'onglets -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6">
-                    <div class="flex space-x-1 p-2">
-                        <button @click="setTab('details')"
-                                :class="tab === 'details' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-transparent'"
-                                class="flex-1 py-3 px-4 text-sm font-medium rounded-xl border transition-all duration-200">
-                            <div class="flex items-center justify-center space-x-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                <span>Détails</span>
-                            </div>
-                        </button>
-                        <button @click="setTab('videos')"
-                                :class="tab === 'videos' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-transparent'"
-                                class="flex-1 py-3 px-4 text-sm font-medium rounded-xl border transition-all duration-200">
-                            <div class="flex items-center justify-center space-x-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                                </svg>
-                                <span>Vidéos</span>
-                            </div>
-                        </button>
-                        <button @click="setTab('votes')"
-                                :class="tab === 'votes' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-transparent'"
-                                class="flex-1 py-3 px-4 text-sm font-medium rounded-xl border transition-all duration-200">
-                            <div class="flex items-center justify-center space-x-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
-                                </svg>
-                                <span>Votes</span>
-                            </div>
-                        </button>
-                        <button @click="setTab('community')"
-                                :class="tab === 'community' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-transparent'"
-                                class="flex-1 py-3 px-4 text-sm font-medium rounded-xl border transition-all duration-200">
-                            <div class="flex items-center justify-center space-x-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                                </svg>
-                                <span>Communauté</span>
-                            </div>
-                        </button>
-                        <button @click="setTab('leaderboard')"
-                                :class="tab === 'leaderboard' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 border-transparent'"
-                                class="flex-1 py-3 px-4 text-sm font-medium rounded-xl border transition-all duration-200">
-                            <div class="flex items-center justify-center space-x-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                                </svg>
-                                <span>Classement</span>
-                            </div>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Contenu des onglets -->
-                <div class="mt-6">
-                    <!-- Détails -->
-                    <div x-show="tab === 'details'" x-transition:enter="transition ease-out duration-300"
-                         x-transition:enter-start="opacity-0 transform translate-y-4"
-                         x-transition:enter-end="opacity-100 transform translate-y-0">
-                        <div class="bg-white rounded-2xl border border-gray-200 p-6">
-                            <h3 class="text-xl font-semibold text-[#1E3A8A] mb-4">À propos de l'événement</h3>
-                            <div class="prose max-w-none text-gray-700 leading-relaxed">
-                                {!! nl2br(e($event->description)) !!}
-                            </div>
+                    
+                    <!-- Wallet Feature -->
+                    <div class="text-center p-6 rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20 hover:from-blue-500/20 hover:to-cyan-500/20 transition-all duration-300 hover:scale-105">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white text-2xl font-bold">
+                            💰
                         </div>
-                    </div>
-
-                    <!-- Vidéos -->
-                    <div x-show="tab === 'videos'" x-transition:enter="transition ease-out duration-300"
-                         x-transition:enter-start="opacity-0 transform translate-y-4"
-                         x-transition:enter-end="opacity-100 transform translate-y-0"
-                         style="display: none;">
-                        <div class="bg-white rounded-2xl border border-gray-200 p-6">
-                            <h3 class="text-xl font-semibold text-[#1E3A8A] mb-6">Contenu vidéo</h3>
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                @if($event->youtube_url)
-                                    <div class="space-y-3">
-                                        <h4 class="font-semibold text-gray-900 flex items-center gap-2">
-                                            <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 24 24">
-                                                <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
-                                            </svg>
-                                            YouTube
-                                        </h4>
-                                        <div class="aspect-video bg-black rounded-xl overflow-hidden shadow-lg">
-                                            <iframe class="w-full h-full"
-                                                    src="https://www.youtube.com/embed/{{ \Illuminate\Support\Str::afterLast($event->youtube_url, 'v=') }}"
-                                                    title="YouTube video"
-                                                    frameborder="0"
-                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                    allowfullscreen>
-                                            </iframe>
-                                        </div>
-                                    </div>
-                                @endif
-                                @if($event->tiktok_url)
-                                    <div class="space-y-3">
-                                        <h4 class="font-semibold text-gray-900 flex items-center gap-2">
-                                            <svg class="w-5 h-5 text-gray-900" fill="currentColor" viewBox="0 0 24 24">
-                                                <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
-                                            </svg>
-                                            TikTok
-                                        </h4>
-                                        <div class="aspect-[9/16] bg-black rounded-xl overflow-hidden shadow-lg">
-                                            <iframe class="w-full h-full"
-                                                    src="{{ $event->tiktok_url }}"
-                                                    title="TikTok"
-                                                    frameborder="0"
-                                                    allowfullscreen>
-                                            </iframe>
-                                        </div>
-                                    </div>
-                                @endif
-                                @unless($event->youtube_url || $event->tiktok_url)
-                                    <div class="col-span-2 text-center py-12">
-                                        <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                                            </svg>
-                                        </div>
-                                        <h4 class="text-lg font-semibold text-gray-900 mb-2">Aucune vidéo disponible</h4>
-                                        <p class="text-gray-500 text-sm">Le contenu vidéo sera bientôt ajouté.</p>
-                                    </div>
-                                @endunless
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Votes -->
-                    <div x-show="tab === 'votes'" x-transition:enter="transition ease-out duration-300"
-                         x-transition:enter-start="opacity-0 transform translate-y-4"
-                         x-transition:enter-end="opacity-100 transform translate-y-0"
-                         style="display: block;">
-                        @if($event->isInteractiveActive() && ($event->interactive_public || auth()->check()))
-                            <livewire:interactive.voting-panel :event="$event" />
-                        @else
-                            <div class="bg-white rounded-2xl border border-gray-200 p-8 text-center">
-                                {{-- <livewire:interactive.voting-panel :event="$event" /> --}}
-                                <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                </div>
-                                <h4 class="text-lg font-semibold text-gray-900 mb-2">Votes indisponibles</h4>
-                                <p class="text-gray-500 text-sm">Les votes ne sont pas accessibles pour le moment.</p>
-                            </div>
-                        @endif
-                    </div>
-
-                    <!-- Communauté -->
-                    <div x-show="tab === 'community'" x-transition:enter="transition ease-out duration-300"
-                         x-transition:enter-start="opacity-0 transform translate-y-4"
-                         x-transition:enter-end="opacity-100 transform translate-y-0"
-                         style="display: none;">
-                        <div class="bg-white rounded-2xl border border-gray-200 p-8 text-center">
-                            <div class="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                                </svg>
-                            </div>
-                            <h4 class="text-xl font-semibold text-gray-900 mb-4">Rejoignez la communauté</h4>
-                            <p class="text-gray-600 mb-6 max-w-md mx-auto">
-                                Participez aux discussions en direct, échangez avec les autres participants et vivez l'événement ensemble.
-                            </p>
-                            <a href="{{ route('events.community', $event) }}"
-                               class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-semibold rounded-xl hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                                </svg>
-                                Ouvrir la communauté
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Classement -->
-                    <div x-show="tab === 'leaderboard'" x-transition:enter="transition ease-out duration-300"
-                         x-transition:enter-start="opacity-0 transform translate-y-4"
-                         x-transition:enter-end="opacity-100 transform translate-y-0"
-                         style="display: none;">
-                        @if($event->isInteractiveActive())
-                            <livewire:interactive.leaderboard :event="$event" />
-                        @else
-                            <div class="bg-white rounded-2xl border border-gray-200 p-8 text-center">
-                                <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                                    </svg>
-                                </div>
-                                <h4 class="text-lg font-semibold text-gray-900 mb-2">Classement indisponible</h4>
-                                <p class="text-gray-500 text-sm">Le classement sera disponible lorsque l'expérience interactive sera active.</p>
-                            </div>
-                        @endif
+                        <h3 class="text-white font-bold text-lg mb-2">Portefeuille</h3>
+                        <p class="text-slate-300 text-sm">Gérez vos crédits</p>
                     </div>
                 </div>
             </div>
@@ -379,39 +1048,170 @@
     </div>
 </div>
 
-@push('styles')
-<style>
-    .form-gradient {
-        background: linear-gradient(135deg, #F9FAFB 0%, #FFFFFF 50%, #E0E7FF 100%);
-    }
-
-    .form-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(20px);
-        box-shadow:
-            0 20px 40px rgba(79, 70, 229, 0.08),
-            inset 0 1px 0 rgba(255, 255, 255, 0.6);
-    }
-
-    [x-cloak] {
-        display: none !important;
-    }
-</style>
-@endpush
-
 <script>
-window.tabState = function() {
-    const params = new URLSearchParams(window.location.search);
-    const initial = params.get('tab') || 'details';
-    return {
-        tab: initial,
-        setTab(t) {
-            this.tab = t;
-            const p = new URLSearchParams(window.location.search);
-            p.set('tab', t);
-            const url = window.location.pathname + '?' + p.toString();
-            window.history.replaceState({}, '', url);
+document.addEventListener('DOMContentLoaded', function() {
+    // Enhanced interactive mouse effects
+    let mouseX = 0;
+    let mouseY = 0;
+    
+    document.addEventListener('mousemove', function(e) {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        
+        // Create interactive glow trail
+        const glow = document.createElement('div');
+        glow.style.position = 'fixed';
+        glow.style.left = mouseX + 'px';
+        glow.style.top = mouseY + 'px';
+        glow.style.width = '20px';
+        glow.style.height = '20px';
+        glow.style.background = 'radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%)';
+        glow.style.borderRadius = '50%';
+        glow.style.pointerEvents = 'none';
+        glow.style.transform = 'translate(-50%, -50%)';
+        glow.style.transition = 'all 2s ease-out';
+        glow.style.zIndex = '9998';
+        
+        document.body.appendChild(glow);
+        
+        setTimeout(() => {
+            glow.style.width = '100px';
+            glow.style.height = '100px';
+            glow.style.opacity = '0';
+        }, 10);
+        
+        setTimeout(() => {
+            glow.remove();
+        }, 2000);
+    });
+
+    // Enhanced card hover effects
+    const cards = document.querySelectorAll('.content-card');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-12px) scale(1.03) rotateX(5deg)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1) rotateX(0deg)';
+        });
+    });
+
+    // Enhanced participant card interactions
+    const participantCards = document.querySelectorAll('.participant-card');
+    participantCards.forEach(card => {
+        card.addEventListener('click', function() {
+            // Add click ripple effect
+            const ripple = document.createElement('div');
+            ripple.style.position = 'absolute';
+            ripple.style.top = '50%';
+            ripple.style.left = '50%';
+            ripple.style.width = '0';
+            ripple.style.height = '0';
+            ripple.style.background = 'radial-gradient(circle, rgba(79, 70, 229, 0.4) 0%, transparent 70%)';
+            ripple.style.borderRadius = '50%';
+            ripple.style.transform = 'translate(-50%, -50%)';
+            ripple.style.transition = 'all 0.8s ease';
+            
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.style.width = '200px';
+                ripple.style.height = '200px';
+                ripple.style.opacity = '0';
+            }, 10);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 800);
+        });
+    });
+
+    // Enhanced vote button interactions
+    const voteButtons = document.querySelectorAll('.vote-button');
+    voteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Toggle voted state
+            this.classList.toggle('voted');
+            
+            // Add success animation
+            this.style.animation = 'voteSuccess 0.6s ease-out';
+            setTimeout(() => {
+                this.style.animation = '';
+            }, 600);
+        });
+    });
+
+    // Enhanced community button interactions
+    const communityButton = document.querySelector('.community-button');
+    if (communityButton) {
+        communityButton.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px) scale(1.08) rotateX(5deg)';
+        });
+        
+        communityButton.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1) rotateX(0deg)';
+        });
+    }
+
+    // Enhanced hero section parallax
+    const heroSection = document.querySelector('.hero-section');
+    const heroBackground = document.querySelector('.hero-background');
+    
+    if (heroSection && heroBackground) {
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const parallax = scrolled * 0.5;
+            
+            heroBackground.style.transform = `translateY(${parallax}px) scale(1.1)`;
+        });
+    }
+
+    // Add entrance animations to elements
+    const elementsToAnimate = document.querySelectorAll('.content-card, .admin-toggle, .community-button');
+    elementsToAnimate.forEach((element, index) => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(40px)';
+        element.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+        
+        setTimeout(() => {
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+        }, 200 + (index * 150));
+    });
+
+    // Enhanced video container interactions
+    const videoContainers = document.querySelectorAll('.video-container');
+    videoContainers.forEach(container => {
+        container.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.03) rotateY(5deg)';
+            this.style.boxShadow = '0 25px 50px rgba(0, 0, 0, 0.6)';
+        });
+        
+        container.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1) rotateY(0deg)';
+            this.style.boxShadow = '0 16px 32px rgba(0, 0, 0, 0.4)';
+        });
+    });
+});
+
+// Add vote success animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes voteSuccess {
+        0% {
+            transform: scale(1);
         }
-    };
-}
+        50% {
+            transform: scale(1.2);
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.8);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+`;
+document.head.appendChild(style);
 </script>
