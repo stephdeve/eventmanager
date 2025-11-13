@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const container = document.getElementById('toast-container') || document.body;
       const toast = document.createElement('a');
       toast.href = e.url || '#';
-      toast.className = 'block mb-2 max-w-sm bg-indigo-600 text-white px-4 py-3 rounded shadow hover:bg-indigo-700 transition';
+      toast.className = 'block mb-2 z-60 max-w-sm bg-indigo-600 text-white px-4 py-3 rounded shadow hover:bg-indigo-700 transition';
       toast.innerHTML = `<div class="text-sm"><span class="font-semibold">${e.author_name || 'Participant'}</span> a écrit dans <span class="underline">${e.event_title || 'un événement'}</span></div><div class="text-xs opacity-90 mt-1">${(e.snippet || '').toString().slice(0, 120)}</div>`;
       container.appendChild(toast);
       setTimeout(() => { toast.remove(); }, 6000);
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const container = document.getElementById('toast-container') || document.body;
       const toast = document.createElement('a');
       toast.href = e.url || '#';
-      toast.className = 'block mb-2 max-w-sm bg-emerald-600 text-white px-4 py-3 rounded shadow hover:bg-emerald-700 transition';
+      toast.className = 'block mb-2 z-60 max-w-sm bg-emerald-600 text-white px-4 py-3 rounded shadow hover:bg-emerald-700 transition';
       toast.innerHTML = `<div class="text-sm"><span class="font-semibold">Nouveau vote</span> pour <span class="underline">${(e.participant_name || '').toString()}</span> dans <span class="underline">${(e.event_title || 'événement')}</span></div><div class="text-xs opacity-90 mt-1">Total: ${(e.total_votes || 0)} votes</div>`;
       container.appendChild(toast);
       setTimeout(() => { toast.remove(); }, 6000);

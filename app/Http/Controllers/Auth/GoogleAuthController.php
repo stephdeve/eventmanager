@@ -15,6 +15,11 @@ class GoogleAuthController extends Controller
     public function redirect(Request $request)
     {
         session()->put('url.intended', url()->previous());
+        $role = $request->query('role');
+        if (!in_array($role, ['user', 'organizer'], true)) {
+            $role = 'user';
+        }
+        session(['oauth.role' => $role]);
         return Socialite::driver('google')->redirect();
     }
 
@@ -46,11 +51,13 @@ class GoogleAuthController extends Controller
             $user = User::where('email', $email)->first();
         }
 
+        $preferredRole = session('oauth.role', 'user');
         if ($user) {
             $updates = [];
             if (empty($user->google_id)) { $updates['google_id'] = $googleId; }
             if (!empty($avatar) && $user->avatar_url !== $avatar) { $updates['avatar_url'] = $avatar; }
             if (empty($user->email_verified_at)) { $updates['email_verified_at'] = now(); }
+            if (empty($user->role) || $user->role === 'student') { $updates['role'] = $preferredRole; }
             if (!empty($updates)) {
                 $user->fill($updates)->save();
             }
@@ -59,7 +66,7 @@ class GoogleAuthController extends Controller
                 'name' => $name,
                 'email' => $email,
                 'password' => Str::random(40),
-                'role' => 'student',
+                'role' => $preferredRole,
                 'google_id' => $googleId,
                 'avatar_url' => $avatar ?: null,
                 'email_verified_at' => now(),
@@ -67,6 +74,7 @@ class GoogleAuthController extends Controller
         }
 
         Auth::login($user, true);
+        session()->forget('oauth.role');
 
         session()->flash('toast', 'Connexion réussie via Google ✅');
 
