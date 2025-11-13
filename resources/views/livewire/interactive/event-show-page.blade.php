@@ -173,16 +173,16 @@
 /* Enhanced Event Container */
 .event-container {
     background: 
-        linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%),
-        rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(30px) saturate(200%);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+        linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%),
+        rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 32px;
     overflow: hidden;
     box-shadow: 
         0 40px 80px rgba(0, 0, 0, 0.4),
         0 20px 40px rgba(79, 70, 229, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     animation: eventEntrance 1.5s ease-out;
@@ -252,8 +252,8 @@
     width: 100%;
     height: 100%;
     background: 
-        linear-gradient(135deg, rgba(79, 70, 229, 0.8) 0%, rgba(139, 92, 246, 0.6) 50%, rgba(236, 72, 153, 0.4) 100%);
-    backdrop-filter: blur(5px);
+        linear-gradient(135deg, rgba(79, 70, 229, 0.7) 0%, rgba(139, 92, 246, 0.5) 50%, rgba(236, 72, 153, 0.3) 100%);
+    backdrop-filter: blur(3px);
     animation: heroOverlayPulse 4s ease-in-out infinite;
 }
 
@@ -354,10 +354,10 @@
 /* Enhanced Content Cards */
 .content-card {
     background: 
-        linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.08) 100%),
-        rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+        linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.12) 100%),
+        rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
     border-radius: 24px;
     padding: 2rem;
     margin-bottom: 2rem;
@@ -481,26 +481,19 @@
 /* Enhanced Voting Panel */
 .voting-panel {
     background: 
-        linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(34, 197, 94, 0.05) 100%);
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(34, 197, 94, 0.3);
+        linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.08) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(34, 197, 94, 0.35);
     border-radius: 20px;
     padding: 1.5rem;
     margin-top: 1rem;
 }
 
-.participant-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1.5rem;
-    margin-top: 1.5rem;
-}
-
 .participant-card {
     background: 
-        linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+        linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
     border-radius: 16px;
     padding: 1.5rem;
     text-align: center;

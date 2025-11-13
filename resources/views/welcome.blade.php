@@ -296,10 +296,42 @@
                 margin: 0.25rem;
             }
         }
+        /* Dynamic enhancements */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+            filter: blur(2px);
+            transition: opacity .8s cubic-bezier(0.4,0,0.2,1), transform .8s cubic-bezier(0.4,0,0.2,1), filter .8s;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
+        }
+        .tilt-zone { will-change: transform; transform-style: preserve-3d; }
+        .tilt-zone:hover { transition: transform .2s ease; }
+        .pointer-none { pointer-events: none; }
+        .nav-hide { transform: translateY(-110%); }
+        #scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            width: 0;
+            background: linear-gradient(90deg, #8B5CF6, #22D3EE);
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.6);
+            z-index: 60;
+            transition: width .1s linear;
+        }
+        #hero-keyword { transition: opacity .25s ease; }
+        @media (prefers-reduced-motion: reduce) {
+            * { animation: none !important; transition: none !important; }
+        }
     </style>
 </head>
 
 <body class="min-h-full bg-black overflow-x-hidden">
+    <div id="scroll-progress"></div>
     <!-- Navigation Cohérente -->
     <nav class="fixed top-0 w-full z-50 transition-all duration-300" x-data="{ 
         scrolled: false,
@@ -421,7 +453,7 @@
         <div class="absolute inset-0 bg-gradient-to-br from-black via-purple-900/20 to-black">
             <div class="absolute inset-0 bg-gradient-to-r from-violet-900/20 via-blue-900/20 to-indigo-900/20"></div>
             <img src="https://images.unsplash.com/photo-1472653431158-636457a7753f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80" 
-                 alt="" 
+                 alt="" loading="lazy" decoding="async" fetchpriority="low"
                  class="absolute inset-0 w-full h-full object-cover opacity-25"
                  onerror="this.style.display='none'">
             <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
@@ -461,7 +493,7 @@
             <!-- Main Heading -->
             <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
                 Organisez des événements
-                <span class="block bg-gradient-to-r from-white to-indigo-100 bg-clip-text text-transparent">mémorables</span>
+                <span id="hero-keyword" class="block bg-gradient-to-r from-white to-indigo-100 bg-clip-text text-transparent">mémorables</span>
             </h1>
 
             <!-- Subtitle -->
@@ -498,23 +530,23 @@
                 </a>
             </div>
 
-            <!-- Stats -->
+            <!-- Stats (dynamic) -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-2xl mx-auto">
                 <div class="group text-center bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
-                    <div class="text-3xl font-bold text-white group-hover:scale-110 transition-transform duration-300">50K+</div>
+                    <div class="text-3xl font-bold text-white group-hover:scale-110 transition-transform duration-300">{{ number_format($stats['events'] ?? 0, 0, ',', ' ') }}</div>
                     <div class="text-indigo-200 text-sm mt-1">Événements</div>
                 </div>
                 <div class="group text-center bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
-                    <div class="text-3xl font-bold text-white group-hover:scale-110 transition-transform duration-300">2M+</div>
+                    <div class="text-3xl font-bold text-white group-hover:scale-110 transition-transform duration-300">{{ number_format($stats['upcoming'] ?? 0, 0, ',', ' ') }}</div>
+                    <div class="text-indigo-200 text-sm mt-1">À venir</div>
+                </div>
+                <div class="group text-center bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
+                    <div class="text-3xl font-bold text-white group-hover:scale-110 transition-transform duration-300">{{ number_format($stats['participants'] ?? 0, 0, ',', ' ') }}</div>
                     <div class="text-indigo-200 text-sm mt-1">Participants</div>
                 </div>
                 <div class="group text-center bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
-                    <div class="text-3xl font-bold text-white group-hover:scale-110 transition-transform duration-300">98%</div>
-                    <div class="text-indigo-200 text-sm mt-1">Satisfaction</div>
-                </div>
-                <div class="group text-center bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
-                    <div class="text-3xl font-bold text-white group-hover:scale-110 transition-transform duration-300">24/7</div>
-                    <div class="text-indigo-200 text-sm mt-1">Support</div>
+                    <div class="text-3xl font-bold text-white group-hover:scale-110 transition-transform duration-300">{{ number_format($stats['tickets_sold'] ?? 0, 0, ',', ' ') }}</div>
+                    <div class="text-indigo-200 text-sm mt-1">Billets vendus</div>
                 </div>
             </div>
         </div>
@@ -546,19 +578,19 @@
                     </p>
                     <ul class="space-y-3">
                         <li class="flex items-center text-gray-300">
-                            <svg class="h-5 w-5 text-indigo-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg class="h-4 w-4 text-indigo-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                             </svg>
                             Éditeur visuel drag & drop
                         </li>
                         <li class="flex items-center text-gray-300">
-                            <svg class="h-5 w-5 text-indigo-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg class="h-4 w-4 text-indigo-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                             </svg>
                             Modèles personnalisables
                         </li>
                         <li class="flex items-center text-gray-300">
-                            <svg class="h-5 w-5 text-indigo-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg class="h-4 w-4 text-indigo-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                             </svg>
                             Intégration de paiement
@@ -636,6 +668,45 @@
         </div>
     </section>
 
+    @if($highlightedEvents->isNotEmpty())
+    <section id="highlights" class="py-20 bg-black">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-end justify-between mb-8">
+                <div>
+                    <h2 class="text-3xl sm:text-4xl font-bold text-white">Événements à venir</h2>
+                    <p class="mt-2 text-gray-300">Découvrez les prochains rendez-vous</p>
+                </div>
+                <a href="{{ route('events.index') }}" class="hidden md:inline-flex cta-button cta-button-secondary">Tous les événements</a>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @foreach($highlightedEvents as $ev)
+                    <a href="{{ route('events.show', $ev) }}" class="group block bg-white/10 backdrop-blur-md rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-all card-hover">
+                        <div class="aspect-video relative overflow-hidden">
+                            <img src="{{ $ev->cover_image_url }}" alt="{{ $ev->title }}" loading="lazy" decoding="async" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                            <div class="absolute bottom-3 left-3 right-3 text-white text-xs sm:text-sm flex flex-wrap items-center gap-2">
+                                <span class="px-2 py-1 rounded bg-white/10 backdrop-blur-sm">{{ $ev->category ?? 'Événement' }}</span>
+                                <span class="px-2 py-1 rounded bg-white/10 backdrop-blur-sm">{{ optional($ev->start_date)->format('d/m/Y H:i') }}</span>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="text-white font-semibold mb-1 truncate">{{ $ev->title }}</h3>
+                            <div class="text-gray-300 text-sm mb-3">{{ \Illuminate\Support\Str::limit(strip_tags($ev->description ?? ''), 90) }}</div>
+                            <div class="flex items-center justify-between text-sm text-indigo-100">
+                                <span class="font-medium">{{ $ev->price_for_display ?? 'Gratuit' }}</span>
+                                <span class="opacity-80 truncate max-w-[50%]">{{ $ev->location ?? '' }}</span>
+                            </div>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+            <div class="mt-8 text-center md:hidden">
+                <a href="{{ route('events.index') }}" class="cta-button cta-button-secondary">Tous les événements</a>
+            </div>
+        </div>
+    </section>
+    @endif
+
     <!-- Pricing Section -->
     <section id="pricing" class="py-20 bg-gray-900">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -710,9 +781,9 @@
                     </ul>
 
                     <div class="mt-6 pt-6 border-t border-gray-700">
-                        <button type="button" class="w-full bg-gray-700 text-white py-2 px-4 rounded-lg font-medium hover:bg-gray-600 transition-colors">
+                        <a href="{{ route('subscriptions.plans', ['plan' => 'basic']) }}" class="w-full inline-flex items-center justify-center bg-gray-700 text-white py-2 px-4 rounded-lg font-medium hover:bg-gray-600 transition-colors">
                             Choisir ce plan
-                        </button>
+                        </a>
                     </div>
                 </div>
 
@@ -769,9 +840,9 @@
                     </ul>
 
                     <div class="mt-6 pt-6 border-t border-gray-700">
-                        <button type="button" class="w-full bg-violet-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-violet-700 transition-colors">
+                        <a href="{{ route('subscriptions.plans', ['plan' => 'premium']) }}" class="w-full inline-flex items-center justify-center bg-violet-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-violet-700 transition-colors">
                             Choisir ce plan
-                        </button>
+                        </a>
                     </div>
                 </div>
 
@@ -834,9 +905,9 @@
                     </ul>
 
                     <div class="mt-6 pt-6 border-t border-gray-700">
-                        <button type="button" class="w-full bg-gray-700 text-white py-2 px-4 rounded-lg font-medium hover:bg-gray-600 transition-colors">
+                        <a href="{{ route('subscriptions.plans', ['plan' => 'pro']) }}" class="w-full inline-flex items-center justify-center bg-gray-700 text-white py-2 px-4 rounded-lg font-medium hover:bg-gray-600 transition-colors">
                             Contactez-nous
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -853,62 +924,64 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Testimonial 1 -->
-                <div class="testimonial-card rounded-xl p-6 border border-gray-200 card-hover">
-                    <div class="flex items-center mb-4">
-                        <div class="text-lg">⭐️⭐️⭐️⭐️⭐️</div>
-                    </div>
-                    <p class="text-gray-300 text-sm mb-4 italic">
-                        "EventManager a révolutionné notre façon d'organiser des conférences. Simple, efficace et professionnel."
-                    </p>
-                    <div class="flex items-center">
-                        <div class="h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center text-violet-400 font-medium mr-3">
-                            MS
+                @if(isset($testimonials) && $testimonials->isNotEmpty())
+                    @foreach($testimonials->take(3) as $review)
+                        <div class="testimonial-card rounded-xl p-6 border border-gray-200 card-hover">
+                            <div class="flex items-center mb-4">
+                                <div class="text-lg">
+                                    @php $stars = max(1, min(5, (int) ($review->rating ?? 5))); @endphp
+                                    {!! str_repeat('⭐️', $stars) !!}
+                                </div>
+                            </div>
+                            <p class="text-gray-300 text-sm mb-4 italic">
+                                "{{ \Illuminate\Support\Str::limit(strip_tags($review->comment ?? ''), 160) }}"
+                            </p>
+                            <div class="flex items-center">
+                                @if($review->user && $review->user->avatar_url)
+                                    <img src="{{ $review->user->avatar_url }}" alt="{{ $review->user->name }}" class="h-10 w-10 rounded-full mr-3 object-cover">
+                                @else
+                                    <div class="h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center text-violet-400 font-medium mr-3">
+                                        {{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($review->user->name ?? '??', 0, 2)) }}
+                                    </div>
+                                @endif
+                                <div>
+                                    <div class="font-medium text-white">{{ $review->user->name ?? 'Utilisateur' }}</div>
+                                    <div class="text-xs text-gray-500">{{ $review->event->title ?? 'Événement' }}</div>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <div class="font-medium text-white">Marie Simon</div>
-                            <div class="text-xs text-gray-500">Organisatrice d'événements</div>
+                    @endforeach
+                @else
+                    <div class="testimonial-card rounded-xl p-6 border border-gray-200 card-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="text-lg">⭐️⭐️⭐️⭐️⭐️</div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Testimonial 2 -->
-                <div class="testimonial-card rounded-xl p-6 border border-gray-200 card-hover">
-                    <div class="flex items-center mb-4">
-                        <div class="text-lg">⭐️⭐️⭐️⭐️⭐️</div>
-                    </div>
-                    <p class="text-gray-300 text-sm mb-4 italic">
-                        "La gestion des billets et des participants est incroyablement fluide. Un gain de temps considérable !"
-                    </p>
-                    <div class="flex items-center">
-                        <div class="h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center text-violet-400 font-medium mr-3">
-                            TP
-                        </div>
-                        <div>
-                            <div class="font-medium text-white">Thomas Petit</div>
-                            <div class="text-xs text-gray-500">Responsable événements</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Testimonial 3 -->
-                <div class="testimonial-card rounded-xl p-6 border border-gray-200 card-hover">
-                    <div class="flex items-center mb-4">
-                        <div class="text-lg">⭐️⭐️⭐️⭐️⭐️</div>
-                    </div>
-                    <p class="text-gray-300 text-sm mb-4 italic">
-                        "Le support client est exceptionnel. Ils nous accompagnent à chaque étape de nos événements."
-                    </p>
-                    <div class="flex items-center">
-                        <div class="h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center text-violet-400 font-medium mr-3">
-                            LC
-                        </div>
-                        <div>
-                            <div class="font-medium text-white">Laura Chen</div>
-                            <div class="text-xs text-gray-500">CEO, Startup Week</div>
+                        <p class="text-gray-300 text-sm mb-4 italic">"EventManager a révolutionné notre façon d'organiser des conférences. Simple, efficace et professionnel."</p>
+                        <div class="flex items-center">
+                            <div class="h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center text-violet-400 font-medium mr-3">MS</div>
+                            <div>
+                                <div class="font-medium text-white">Marie Simon</div>
+                                <div class="text-xs text-gray-500">Organisatrice d'événements</div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                    <div class="testimonial-card rounded-xl p-6 border border-gray-200 card-hover">
+                        <div class="flex items-center mb-4"><div class="text-lg">⭐️⭐️⭐️⭐️⭐️</div></div>
+                        <p class="text-gray-300 text-sm mb-4 italic">"La gestion des billets et des participants est incroyablement fluide. Un gain de temps considérable !"</p>
+                        <div class="flex items-center">
+                            <div class="h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center text-violet-400 font-medium mr-3">TP</div>
+                            <div><div class="font-medium text-white">Thomas Petit</div><div class="text-xs text-gray-500">Responsable événements</div></div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card rounded-xl p-6 border border-gray-200 card-hover">
+                        <div class="flex items-center mb-4"><div class="text-lg">⭐️⭐️⭐️⭐️⭐️</div></div>
+                        <p class="text-gray-300 text-sm mb-4 italic">"Le support client est exceptionnel. Ils nous accompagnent à chaque étape de nos événements."</p>
+                        <div class="flex items-center">
+                            <div class="h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center text-violet-400 font-medium mr-3">LC</div>
+                            <div><div class="font-medium text-white">Laura Chen</div><div class="text-xs text-gray-500">CEO, Startup Week</div></div>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </section>
@@ -1026,75 +1099,65 @@
                     <span class="text-white font-medium">🔥 Événement spécial</span>
                 </div>
                 <h2 class="text-5xl sm:text-6xl font-bold text-white mb-6">
-                    Le Grand Défi <span class="bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">2025</span>
+                    {{ $featuredEvent->title ?? 'Bientôt un grand événement' }}
                 </h2>
-                <p class="text-2xl text-gray-300 font-medium mb-4">
-                    Innovation & Culture
-                </p>
-                <p class="text-lg text-gray-400 max-w-3xl mx-auto">
-                    Le plus grand concours interdisciplinaire de l'année. 
-                    Technologues, artistes, créateurs : unissez vos talents pour réinventer demain.
-                </p>
+                @if($featuredEvent)
+                    <p class="text-2xl text-gray-300 font-medium mb-4">
+                        {{ optional($featuredEvent->start_date)->format('d/m/Y H:i') }} @if($featuredEvent->location) • {{ $featuredEvent->location }} @endif
+                    </p>
+                    <p class="text-lg text-gray-400 max-w-3xl mx-auto">
+                        {{ \Illuminate\Support\Str::limit(strip_tags($featuredEvent->description ?? ''), 200) }}
+                    </p>
+                @else
+                    <p class="text-lg text-gray-400 max-w-3xl mx-auto">Aucun événement n'est encore programmé. Consultez la liste pour découvrir les prochaines dates.</p>
+                @endif
             </div>
 
             <!-- Countdown Timer -->
+            @if($featuredEvent)
             <div class="glass-card p-8 mb-12" x-data="{ 
-                days: 45, 
-                hours: 12, 
-                minutes: 30, 
-                seconds: 45,
+                days: 0, hours: 0, minutes: 0, seconds: 0,
+                eventTime: new Date('{{ optional($featuredEvent->start_date)->format('c') }}'),
                 init() {
-                    setInterval(() => {
-                        this.seconds--;
-                        if (this.seconds < 0) {
-                            this.seconds = 59;
-                            this.minutes--;
-                            if (this.minutes < 0) {
-                                this.minutes = 59;
-                                this.hours--;
-                                if (this.hours < 0) {
-                                    this.hours = 23;
-                                    this.days--;
-                                }
-                            }
-                        }
-                    }, 1000);
+                    const update = () => {
+                        const now = new Date();
+                        let diff = Math.max(0, Math.floor((this.eventTime - now) / 1000));
+                        this.days = Math.floor(diff / 86400); diff %= 86400;
+                        this.hours = Math.floor(diff / 3600); diff %= 3600;
+                        this.minutes = Math.floor(diff / 60);
+                        this.seconds = diff % 60;
+                    };
+                    update();
+                    setInterval(update, 1000);
                 }
             }">
                 <div class="text-center mb-6">
                     <h3 class="text-2xl font-bold text-white mb-2">L'événement commence dans</h3>
                     <div class="flex items-center justify-center space-x-2">
-                        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                        <span class="text-gray-300">En direct prochainement</span>
-                        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div class="text-center">
                         <div class="text-4xl md:text-5xl font-bold text-white mb-2" x-text="days"></div>
                         <div class="text-sm text-gray-400 uppercase tracking-wider">Jours</div>
                     </div>
-                    <div class="text-center">
+                    <div class="flex items-center justify-center space-x-2">
                         <div class="text-4xl md:text-5xl font-bold text-white mb-2" x-text="String(hours).padStart(2, '0')"></div>
                         <div class="text-sm text-gray-400 uppercase tracking-wider">Heures</div>
                     </div>
-                    <div class="text-center">
+                    <div class="flex items-center justify-center space-x-2">
                         <div class="text-4xl md:text-5xl font-bold text-white mb-2" x-text="String(minutes).padStart(2, '0')"></div>
                         <div class="text-sm text-gray-400 uppercase tracking-wider">Minutes</div>
                     </div>
-                    <div class="text-center">
+                    <div class="flex items-center justify-center space-x-2">
                         <div class="text-4xl md:text-5xl font-bold text-white mb-2" x-text="String(seconds).padStart(2, '0')"></div>
                         <div class="text-sm text-gray-400 uppercase tracking-wider">Secondes</div>
                     </div>
                 </div>
             </div>
+            @endif
 
             <!-- Event Visual -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-12">
                 <div class="relative">
                     <div class="aspect-video rounded-2xl overflow-hidden bg-gradient-to-br from-red-600 to-orange-600">
-                        <img src="{{ asset('images/grand-defi-2025.jpg') }}" alt="Le Grand Défi 2025" class="w-full h-full object-cover">
+                        <img src="{{ ($featuredEvent->cover_image_url ?? null) ?: asset('images/event-default.jpg') }}" alt="{{ $featuredEvent->title ?? 'Événement' }}" class="w-full h-full object-cover">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                         <div class="absolute bottom-6 left-6 right-6">
                             <div class="flex items-center space-x-4">
@@ -1104,48 +1167,61 @@
                                     <div class="w-8 h-8 rounded-full bg-emerald-500 border-2 border-white"></div>
                                     <div class="w-8 h-8 rounded-full bg-amber-500 border-2 border-white"></div>
                                 </div>
-                                <span class="text-white text-sm font-medium">+2,500 participants déjà inscrits</span>
+                                @if($featuredEvent)
+                                    <span class="text-white text-sm font-medium">{{ number_format($featuredEvent->registrations()->sum('quantity') ?? 0, 0, ',', ' ') }} participants déjà inscrits</span>
+                                @endif
                             </div>
                         </div>
                     </div>
                 </div>
                 
                 <div>
-                    <h3 class="text-3xl font-bold text-white mb-6">Rejoins la compétition de l'année</h3>
+                    <h3 class="text-3xl font-bold text-white mb-6">@if($featuredEvent) Rejoins {{ \Illuminate\Support\Str::limit($featuredEvent->title, 60) }} @else Rejoins la compétition de l'année @endif</h3>
                     <ul class="space-y-4 mb-8">
                         <li class="flex items-start text-gray-300">
                             <svg class="w-6 h-6 text-orange-400 mr-3 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <span><strong>Prix total :</strong> 10 millions FCFA à gagner</span>
+                            <span>@if($featuredEvent && $featuredEvent->price) <strong>Prix :</strong> {{ $featuredEvent->price_for_display }} @else <strong>Prix :</strong> Gratuit ou à préciser @endif</span>
                         </li>
                         <li class="flex items-start text-gray-300">
                             <svg class="w-6 h-6 text-orange-400 mr-3 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <span><strong>Catégories :</strong> Tech, Art, Musique, Design, Innovation</span>
+                            <span><strong>Catégorie :</strong> {{ $featuredEvent->category ?? 'À définir' }}</span>
                         </li>
                         <li class="flex items-start text-gray-300">
                             <svg class="w-6 h-6 text-orange-400 mr-3 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <span><strong>Jury international :</strong> Experts de renommée mondiale</span>
+                            <span><strong>Lieu :</strong> {{ $featuredEvent->location ?? 'À préciser' }}</span>
+                            @if($featuredEvent && ($featuredEvent->google_maps_url || $featuredEvent->location))
+                                @php
+                                    $mapsUrl = $featuredEvent->google_maps_url ?: ('https://www.google.com/maps/search/?api=1&query=' . urlencode($featuredEvent->location));
+                                @endphp
+                                <a href="{{ $mapsUrl }}" target="_blank" rel="noopener" class="ml-3 inline-flex items-center text-violet-300 hover:text-white text-sm">
+                                    <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11a3 3 0 100-6 3 3 0 000 6zm0 0c-4.418 0-8 2.239-8 5v2h16v-2c0-2.761-3.582-5-8-5z" />
+                                    </svg>
+                                    Ouvrir dans Google Maps
+                                </a>
+                            @endif
                         </li>
                         <li class="flex items-start text-gray-300">
                             <svg class="w-6 h-6 text-orange-400 mr-3 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <span><strong>Visibilité :</strong> Diffusion en direct sur 3 continents</span>
+                            <span><strong>Date :</strong> {{ optional($featuredEvent?->start_date)->format('d/m/Y H:i') }}</span>
                         </li>
                     </ul>
                     
                     <div class="flex flex-col sm:flex-row gap-4">
                         @auth
-                            <a href="{{ route('events.create') }}" class="cta-button cta-button-primary">
+                            <a href="{{ $featuredEvent ? route('events.show', $featuredEvent) : route('events.create') }}" class="cta-button cta-button-primary">
                                 🔥 Participer maintenant
                             </a>
                         @else
-                            <a href="{{ route('register') }}" class="cta-button cta-button-primary">
+                            <a href="{{ $featuredEvent ? route('events.show', $featuredEvent) : route('register') }}" class="cta-button cta-button-primary">
                                 🔥 Participer maintenant
                             </a>
                         @endauth
@@ -1171,32 +1247,8 @@
             </div>
 
             <!-- Stories Carousel -->
-            <div class="relative mb-16" x-data="{ currentStory: 0, stories: [
-                {
-                    name: 'Amina Diallo',
-                    role: 'Gagnante Hackathon 2024',
-                    location: 'Dakar, Sénégal',
-                    image: 'amina',
-                    quote: "EventManager m'a permis de connecter avec des développeurs de toute l'Afrique. J'ai non seulement gagné le concours, mais je'ai décroché un contrat avec une startup européenne.",
-                    achievement: '🏆 1M FCFA + Contrat pro'
-                },
-                {
-                    name: 'Lucas Chen',
-                    role: 'Artiste Digital',
-                    location: 'Paris, France',
-                    image: 'lucas',
-                    quote: "La plateforme a transformé ma carrière. J'ai exposé mes œuvres à des milliers de personnes et collaboré avec des brands internationaux.",
-                    achievement: '🎨 50K+ vues'
-                },
-                {
-                    name: 'Zara Mbeki',
-                    role: 'Musicienne & Performeuse',
-                    location: 'Johannesburg, Afrique du Sud',
-                    image: 'zara',
-                    quote: "Grâce aux votes de la communauté, j'ai pu produire mon premier clip. L'énergie et le soutien sont incroyables!",
-                    achievement: '🎵 Premier clip produit'
-                }
-            ] }">
+            @if(!empty($stories) && count($stories) > 0)
+            <div class="relative mb-16" x-data="{ currentStory: 0, stories: @json($stories ?? []) }">
                 
                 <!-- Story Display -->
                 <div class="glass-card p-8 mb-8">
@@ -1204,7 +1256,7 @@
                         <!-- Story Visual -->
                         <div class="relative">
                             <div class="aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-violet-600 to-blue-600">
-                                <img :src="`/images/stories/${stories[currentStory].image}.jpg`" 
+                                <img loading="lazy" decoding="async" :src="stories[currentStory].image_url" 
                                      :alt="stories[currentStory].name" 
                                      class="w-full h-full object-cover">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
@@ -1259,42 +1311,64 @@
                     </div>
                 </div>
             </div>
+            @else
+            <div class="glass-card p-8 mb-16 text-center text-gray-300">
+                Aucune story pour le moment.
+            </div>
+            @endif
 
             <!-- Additional Testimonials Grid -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="glass-card p-6 text-center">
-                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
-                        <span class="text-white font-bold text-xl">KD</span>
+                @if(isset($testimonials) && $testimonials->count() > 3)
+                    @foreach($testimonials->skip(3)->take(3) as $review)
+                        <div class="glass-card p-6 text-center">
+                            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center overflow-hidden">
+                                @if($review->user && $review->user->avatar_url)
+                                    <img src="{{ $review->user->avatar_url }}" alt="{{ $review->user->name }}" class="w-16 h-16 rounded-full object-cover">
+                                @else
+                                    <span class="text-white font-bold text-xl">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($review->user->name ?? '??', 0, 2)) }}</span>
+                                @endif
+                            </div>
+                            <p class="text-gray-300 mb-4 italic">"{{ \Illuminate\Support\Str::limit(strip_tags($review->comment ?? ''), 140) }}"</p>
+                            <div class="text-sm">
+                                <div class="font-medium text-white">{{ $review->user->name ?? 'Utilisateur' }}</div>
+                                <div class="text-gray-400">{{ $review->event->title ?? '' }}</div>
+                            </div>
+                        </div>
+                    @endforeach
+                @else
+                    <div class="glass-card p-6 text-center">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+                            <span class="text-white font-bold text-xl">KD</span>
+                        </div>
+                        <p class="text-gray-300 mb-4 italic">"Une plateforme qui change vraiment la vie des jeunes talents africains."</p>
+                        <div class="text-sm">
+                            <div class="font-medium text-white">Koffi Dosso</div>
+                            <div class="text-gray-400">Entrepreneur, Abidjan</div>
+                        </div>
                     </div>
-                    <p class="text-gray-300 mb-4 italic">"Une plateforme qui change vraiment la vie des jeunes talents africains."</p>
-                    <div class="text-sm">
-                        <div class="font-medium text-white">Koffi Dosso</div>
-                        <div class="text-gray-400">Entrepreneur, Abidjan</div>
+                    <div class="glass-card p-6 text-center">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center">
+                            <span class="text-white font-bold text-xl">SM</span>
+                        </div>
+                        <p class="text-gray-300 mb-4 italic">"J'ai trouvé des collaborateurs incroyables et lancé mon projet rêvé."</p>
+                        <div class="text-sm">
+                            <div class="font-medium text-white">Sophie Martin</div>
+                            <div class="text-gray-400">Designer, Lyon</div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="glass-card p-6 text-center">
-                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center">
-                        <span class="text-white font-bold text-xl">SM</span>
+                    <div class="glass-card p-6 text-center">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                            <span class="text-white font-bold text-xl">YN</span>
+                        </div>
+                        <p class="text-gray-300 mb-4 italic">"L'innovation et la créativité se rencontrent ici. Magique!"</p>
+                        <div class="text-sm">
+                            <div class="font-medium text-white">Youssef Ndiaye</div>
+                            <div class="text-gray-400">Développeur, Tunis</div>
+                        </div>
                     </div>
-                    <p class="text-gray-300 mb-4 italic">"J'ai trouvé des collaborateurs incroyables et lancé mon projet rêvé."</p>
-                    <div class="text-sm">
-                        <div class="font-medium text-white">Sophie Martin</div>
-                        <div class="text-gray-400">Designer, Lyon</div>
-                    </div>
-                </div>
-                
-                <div class="glass-card p-6 text-center">
-                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-                        <span class="text-white font-bold text-xl">YN</span>
-                    </div>
-                    <p class="text-gray-300 mb-4 italic">"L'innovation et la créativité se rencontrent ici. Magique!"</p>
-                    <div class="text-sm">
-                        <div class="font-medium text-white">Youssef Ndiaye</div>
-                        <div class="text-gray-400">Développeur, Tunis</div>
-        </section>
-
-<!-- Professional Footer -->
+                @endif
+            </div>
 <footer class="bg-gray-900 border-t border-gray-800">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <!-- Main Content -->
@@ -1327,12 +1401,17 @@
                     </a>
                     <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center text-gray-400 hover:bg-violet-600 hover:text-white transition-colors">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1112.324 0 6.162 6.162 0 01-12.324 0zM12 16a4 4 0 110-8 4 4 0 010 8zm4.965-10.405a1.44 1.44 0 112.881.001 1.44 1.44 0 01-2.881-.001z"/>
+                            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
                         </svg>
                     </a>
                     <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center text-gray-400 hover:bg-violet-600 hover:text-white transition-colors">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center text-gray-400 hover:bg-violet-600 hover:text-white transition-colors">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </a>
                 </div>
@@ -1417,5 +1496,140 @@
         </div>
     </div>
 </footer>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // Reveal on scroll for key sections/cards/buttons
+  const revealTargets = document.querySelectorAll('.card-hover, .glass-card, .glass-card-gold, .pricing-card, .testimonial-card, section[id], .feature-icon, .cta-button');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.2 });
+  revealTargets.forEach((el) => { el.classList.add('reveal'); io.observe(el); });
+
+  // Animated numbers for hero stats (only values with + or % to avoid prices)
+  const statEls = Array.from(document.querySelectorAll('.text-3xl.font-bold'))
+    .filter(el => /[+%]/.test(el.textContent));
+  function animateNumber(el, target, duration = 1500, suffix = '') {
+    const start = 0; const startTime = performance.now();
+    function tick(now) {
+      const p = Math.min((now - startTime) / duration, 1);
+      const val = Math.floor(start + p * (target - start));
+      el.textContent = val.toLocaleString('fr-FR') + suffix;
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  statEls.forEach((el) => {
+    const txt = el.textContent.trim();
+    let suffix = txt.includes('%') ? '%' : (txt.endsWith('+') ? '+' : '');
+    let mult = txt.includes('M') ? 1_000_000 : (txt.includes('K') ? 1_000 : 1);
+    const num = parseFloat(txt.replace(/[^\d.]/g, ''));
+    const target = isNaN(num) ? 0 : Math.round(num * mult);
+    const obs = new IntersectionObserver((ents, o) => {
+      ents.forEach(ent => { if (ent.isIntersecting) { animateNumber(el, target, 1600, suffix); o.unobserve(el); } });
+    }, { threshold: 0.7 });
+    obs.observe(el);
+  });
+
+  // Pricing toggle: monthly/yearly switch
+  const toggles = document.querySelectorAll('.billing-toggle');
+  toggles.forEach(btn => {
+    btn.addEventListener('click', () => {
+      toggles.forEach(b => {
+        b.classList.toggle('text-white', b === btn);
+        b.classList.toggle('text-gray-300', b !== btn);
+        b.classList.toggle('active', b === btn);
+      });
+      const yearly = btn.dataset.billing === 'yearly';
+      document.querySelectorAll('.monthly-price').forEach(el => el.classList.toggle('hidden', yearly));
+      document.querySelectorAll('.yearly-price').forEach(el => el.classList.toggle('hidden', !yearly));
+    });
+  });
+
+  // Card tilt effect for interactive feel
+  const tiltEls = document.querySelectorAll('.card-hover, .glass-card, .glass-card-gold, .pricing-card, .testimonial-card');
+  tiltEls.forEach((card) => {
+    card.classList.add('tilt-zone');
+    card.addEventListener('mousemove', (e) => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      card.style.transform = `rotateY(${x * 6}deg) rotateX(${ -y * 6}deg)`;
+    });
+    card.addEventListener('mouseleave', () => { card.style.transform = 'rotateY(0deg) rotateX(0deg)'; });
+  });
+
+  // CTA ripple effect
+  document.querySelectorAll('.cta-button').forEach((btn) => {
+    btn.style.position = 'relative';
+    btn.style.overflow = 'hidden';
+    btn.addEventListener('click', function (e) {
+      const ripple = document.createElement('span');
+      const size = Math.max(this.clientWidth, this.clientHeight);
+      Object.assign(ripple.style, {
+        position: 'absolute', width: size + 'px', height: size + 'px',
+        left: e.offsetX - size / 2 + 'px', top: e.offsetY - size / 2 + 'px',
+        background: 'radial-gradient(circle, rgba(255,255,255,.35) 0%, transparent 60%)',
+        borderRadius: '50%', transform: 'scale(0)', transition: 'transform .6s ease, opacity .8s ease',
+        pointerEvents: 'none'
+      });
+      this.appendChild(ripple);
+      requestAnimationFrame(() => { ripple.style.transform = 'scale(1)'; ripple.style.opacity = '0'; });
+      setTimeout(() => ripple.remove(), 800);
+    });
+  });
+
+  // Smooth scroll for internal anchors
+  document.querySelectorAll('a[href^="#"]').forEach((a) => {
+    a.addEventListener('click', (e) => {
+      const id = a.getAttribute('href').slice(1);
+      const target = document.getElementById(id);
+      if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+  });
+
+  // Stories autoplay (Alpine carousel): click the next arrow every 6s
+  const storyRoot = document.querySelector('[x-data*="currentStory"]');
+  const nextArrow = storyRoot?.querySelector('button.w-10.h-10:last-of-type');
+  if (storyRoot && nextArrow) { setInterval(() => nextArrow.click(), 6000); }
+  const progress = document.getElementById('scroll-progress');
+  const updateProgress = () => {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    const v = (window.scrollY / (max || 1)) * 100;
+    if (progress) progress.style.width = v + '%';
+  };
+  updateProgress();
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  window.addEventListener('resize', updateProgress);
+  const nav = document.querySelector('nav.fixed.top-0');
+  let lastY = window.scrollY;
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    const down = y > lastY + 2;
+    if (nav) {
+      if (y > 80 && down) nav.classList.add('nav-hide'); else nav.classList.remove('nav-hide');
+    }
+    lastY = y;
+  }, { passive: true });
+  const heroKeyword = document.getElementById('hero-keyword');
+  const words = ['mémorables','immersifs','interactifs','vibrants','inoubliables'];
+  let wordIndex = 0;
+  if (heroKeyword) {
+    setInterval(() => {
+      heroKeyword.style.opacity = '0';
+      setTimeout(() => {
+        wordIndex = (wordIndex + 1) % words.length;
+        heroKeyword.textContent = words[wordIndex];
+        heroKeyword.style.opacity = '1';
+      }, 250);
+    }, 3000);
+  }
+});
+</script>
 </body>
 </html>

@@ -12,6 +12,8 @@ use App\Http\Middleware\EnsureActiveSubscription;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Models\Event;
+use App\Models\Registration;
+use App\Models\EventReview;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,8 +34,38 @@ Route::get('/', function () {
         ->take(8)
         ->get();
 
+    $featuredEvent = $highlightedEvents->first();
+
+    $stats = [
+        'events' => Event::count(),
+        'upcoming' => Event::upcoming()->count(),
+        'participants' => Registration::query()->sum('quantity'),
+        'tickets_sold' => Event::query()->sum('total_tickets_sold'),
+    ];
+
+    $testimonials = EventReview::with(['user:id,name,avatar_url,role', 'event:id,title,location,cover_image'])
+        ->where('approved', true)
+        ->latest()
+        ->take(6)
+        ->get();
+
+    $stories = $testimonials->take(3)->map(function ($r) {
+        return [
+            'name' => (string) ($r->user->name ?? 'Membre Anonyme'),
+            'role' => ucfirst((string) ($r->user->role ?? 'membre')),
+            'location' => (string) ($r->event->location ?? ''),
+            'image_url' => (string) ($r->event->cover_image_url ?? asset('images/event-default.jpg')),
+            'quote' => (string) ($r->comment ?? ''),
+            'achievement' => '',
+        ];
+    })->values();
+
     return view('welcome', [
         'highlightedEvents' => $highlightedEvents,
+        'featuredEvent' => $featuredEvent,
+        'stats' => $stats,
+        'testimonials' => $testimonials,
+        'stories' => $stories,
     ]);
 })->name('home');
 

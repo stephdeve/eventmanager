@@ -174,16 +174,16 @@
 /* Enhanced Chat Container */
 .chat-container {
     background: 
-        linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%),
-        rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(30px) saturate(200%);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+        linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%),
+        rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 32px;
     overflow: hidden;
     box-shadow: 
         0 40px 80px rgba(0, 0, 0, 0.4),
         0 20px 40px rgba(79, 70, 229, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     animation: chatEntrance 1.2s ease-out;
@@ -220,7 +220,7 @@
 .chat-header {
     background: 
         linear-gradient(135deg, rgba(79, 70, 229, 0.95) 0%, rgba(99, 102, 241, 0.9) 50%, rgba(139, 92, 246, 0.85) 100%);
-    backdrop-filter: blur(20px);
+    backdrop-filter: blur(8px);
     padding: 1.5rem;
     position: relative;
     overflow: hidden;
@@ -352,7 +352,7 @@
     overflow-y: auto;
     padding: 1.5rem;
     background: 
-        linear-gradient(180deg, rgba(10, 10, 15, 0.8) 0%, rgba(26, 26, 46, 0.8) 100%);
+        linear-gradient(180deg, rgba(10, 10, 15, 0.9) 0%, rgba(26, 26, 46, 0.9) 100%);
     position: relative;
 }
 
@@ -521,10 +521,10 @@
 .input-area {
     padding: 1.5rem;
     background: 
-        linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%),
-        rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
+        linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.08) 100%),
+        rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .typing-indicator {
@@ -543,10 +543,10 @@
 
 .input-wrapper {
     background: 
-        linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.08) 100%),
-        rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(15px);
-    border: 2px solid rgba(255, 255, 255, 0.2);
+        linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.12) 100%),
+        rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 18px;
     padding: 0.75rem;
     display: flex;
@@ -575,8 +575,8 @@
 .input-wrapper:focus-within {
     border-color: rgba(79, 70, 229, 0.6);
     background: 
-        linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%),
-        rgba(255, 255, 255, 0.08);
+        linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.15) 100%),
+        rgba(255, 255, 255, 0.1);
     box-shadow: 
         0 0 0 4px rgba(79, 70, 229, 0.2),
         0 8px 32px rgba(79, 70, 229, 0.15);
