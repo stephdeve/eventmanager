@@ -3,29 +3,26 @@
     currency: '{{ strtoupper(config('app.currency', 'XOF')) }}'
 })" class="w-full">
 
-    <!-- En-tête avec solde et actions (dark) -->
-    <div
-        class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 p-6 bg-gradient-to-r from-slate-800 to-slate-700 rounded-2xl border border-slate-700 text-slate-200">
-        <div class="flex items-center gap-4">
-            <div
-                class="w-12 h-12 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-xl flex items-center justify-center shadow-lg">
+    <!-- En-tête avec solde et actions -->
+    <div class="coins-header">
+        <div class="coins-balance-section">
+            <div class="coins-icon">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
             </div>
-            <div>
-                <div class="text-sm font-medium text-slate-300">Votre solde de coins</div>
-                <div class="text-2xl font-bold text-white" id="wallet-balance">{{ $walletBalance ?? 0 }}</div>
-                <div class="text-xs text-slate-400 mt-1">1 coin = 100 F CFA</div>
+            <div class="coins-info">
+                <h3>Votre solde de coins</h3>
+                <div class="balance" id="wallet-balance">{{ $walletBalance ?? 0 }} COINS</div>
+                <div class="rate">1 coin = 100 F CFA</div>
             </div>
         </div>
 
-        <div class="flex flex-wrap gap-3">
+        <div class="coins-actions">
             @auth
                 @if (config('services.kkiapay.public_key'))
-                    <button type="button" @click="openBuy = true"
-                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-green-600 text-white text-sm font-semibold rounded-xl hover:from-emerald-700 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 shadow-sm hover:shadow-md">
+                    <button type="button" @click="openBuy = true" class="btn-primary">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -33,8 +30,7 @@
                         Acheter des coins
                     </button>
                 @else
-                    <button type="button" disabled
-                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-300 text-gray-600 text-sm font-semibold rounded-xl cursor-not-allowed">
+                    <button type="button" disabled class="btn-disabled">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -43,8 +39,7 @@
                     </button>
                 @endif
             @else
-                <a href="{{ route('login') }}"
-                    class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-green-600 text-white text-sm font-semibold rounded-xl hover:from-emerald-700 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200 shadow-sm hover:shadow-md">
+                <a href="{{ route('login') }}" class="btn-primary">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -53,8 +48,7 @@
                 </a>
             @endauth
 
-            <button type="button" wire:click="$refresh"
-                class="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-900 border border-slate-600 text-slate-300 text-sm font-semibold rounded-xl hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-all duration-200">
+            <button type="button" wire:click="$refresh" class="btn-secondary">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -64,34 +58,32 @@
         </div>
     </div>
 
-    <!-- Liste des participants (dark cards) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+    <!-- Liste des participants -->
+    <div class="participants-grid">
         @foreach ($event->participants as $participant)
-            <div
-                class="bg-slate-900 rounded-2xl border border-slate-700 p-6 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-1">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex-1 min-w-0">
-                        <h4 class="font-semibold text-slate-100 text-sm truncate">{{ $participant->name }}</h4>
+            <div class="participant-card-dark">
+                <div class="participant-header">
+                    <div class="participant-info">
+                        <h4 class="participant-name">{{ $participant->name }}</h4>
                         @if ($participant->country)
-                            <div class="flex items-center gap-1 mt-1">
-                                <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                            <div class="participant-country">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <span class="text-xs text-slate-400">{{ $participant->country }}</span>
+                                <span>{{ $participant->country }}</span>
                             </div>
                         @endif
                     </div>
-                    <div class="text-right">
-                        <div class="text-xs text-slate-400 mb-1">Score total</div>
-                        <div class="text-lg font-bold text-slate-100">{{ $participant->score_total }}</div>
+                    <div class="participant-score">
+                        <div class="score-label">Score total</div>
+                        <div class="score-value">{{ $participant->score_total }}</div>
                     </div>
                 </div>
 
-                <div class="flex gap-2">
-                    <button wire:click="freeVote({{ $participant->id }})"
-                        class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-fuchsia-600 to-violet-600 text-white text-xs font-medium rounded-lg hover:from-fuchsia-700 hover:to-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-fuchsia-500 transition-all duration-200">
+                <div class="vote-buttons">
+                    <button wire:click="freeVote({{ $participant->id }})" class="btn-vote">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
@@ -99,8 +91,7 @@
                         Vote gratuit
                     </button>
 
-                    <button wire:click="premiumVote({{ $participant->id }})"
-                        class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-fuchsia-600 to-violet-600 text-white text-xs font-medium rounded-lg hover:from-fuchsia-700 hover:to-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-fuchsia-500 transition-all duration-200">
+                    <button wire:click="premiumVote({{ $participant->id }})" class="btn-vote">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -113,72 +104,60 @@
     </div>
 
     <!-- Modal d'achat de coins -->
-    <div x-show="openBuy" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="fixed inset-0 bg-black/50 transition-opacity" @click="openBuy = false"></div>
-
-        <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md transform transition-all">
-            <!-- En-tête du modal -->
-            <div class="px-6 py-4 border-b border-gray-200">
-                <div class="flex items-center gap-3">
-                    <div
-                        class="w-10 h-10 bg-gradient-to-r from-emerald-500 to-green-500 rounded-xl flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-900">Acheter des coins</h3>
-                        <p class="text-sm text-gray-600">Rechargez votre portefeuille virtuel</p>
-                    </div>
+    <div x-show="openBuy" x-cloak class="modal-overlay" @click="openBuy = false">
+        <div class="modal-content" @click.stop>
+            <div class="modal-header">
+                <div class="modal-icon">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="modal-title">Acheter des coins</h3>
+                    <p class="modal-subtitle">Rechargez votre portefeuille virtuel</p>
                 </div>
             </div>
 
-            <!-- Contenu du modal -->
-            <div class="p-6 space-y-6">
-                <!-- Quantité -->
+            <div class="modal-body">
                 <div class="form-group">
                     <label class="form-label">
                         Quantité de coins *
-                        <span class="text-[#6B7280] text-sm font-normal">(minimum 10 coins)</span>
+                        <span class="text-gray-500 text-sm font-normal">(minimum 10 coins)</span>
                     </label>
                     <input type="number" min="10" step="1" x-model.number="qty"
-                        class="form-input @error('qty') error @enderror" placeholder="Entrez le nombre de coins">
+                        class="form-input" placeholder="Entrez le nombre de coins">
                 </div>
 
-                <!-- Boutons rapides -->
-                <div class="flex gap-2">
+                <div class="quick-amounts">
                     <template x-for="amount in [10, 50, 100]">
                         <button type="button" @click="qty = Math.max(min, (qty||0)+amount)"
-                            class="flex-1 px-3 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                            class="quick-amount-btn">
                             +<span x-text="amount"></span>
                         </button>
                     </template>
                 </div>
 
-                <!-- Résumé du prix -->
-                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="text-gray-600">Coût total :</span>
-                        <span class="text-lg font-bold text-blue-700"
+                <div class="price-summary">
+                    <div class="price-row">
+                        <span class="price-label">Coût total :</span>
+                        <span class="price-value"
                             x-text="(qty && qty>=min ? (qty*unit).toLocaleString('fr-FR') : '0') + ' ' + currency"></span>
                     </div>
-                    <div class="text-xs text-gray-500 mt-1">
+                    <div class="price-details">
                         <span x-text="qty || 0"></span> coins × <span
                             x-text="unit.toLocaleString('fr-FR')"></span> <span x-text="currency"></span> par coin
                     </div>
                 </div>
             </div>
 
-            <!-- Actions du modal -->
-            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
-                <div class="flex justify-end gap-3">
-                    <button type="button" @click="openBuy = false"
-                        class="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+            <div class="modal-footer">
+                <div class="footer-actions">
+                    <button type="button" @click="openBuy = false" class="btn-cancel">
                         Annuler
                     </button>
                     <button type="button" @click="buy()" :disabled="!(qty && qty >= min)"
-                        class="px-4 py-2 bg-gradient-to-r from-emerald-600 to-green-600 text-white text-sm font-medium rounded-lg hover:from-emerald-700 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
+                        class="btn-confirm">
                         Procéder au paiement
                     </button>
                 </div>
@@ -192,10 +171,10 @@
                 const container = document.getElementById('toast-container') || document.body;
                 const toast = document.createElement('div');
                 toast.className =
-                    'fixed z-60 top-4 right-4 max-w-sm px-4 z-60 py-3 rounded-xl shadow-lg text-white transform transition-all duration-300 ' +
-                    (e.detail.type === 'success' ? 'bg-gradient-to-r from-emerald-600 to-green-600' :
-                        e.detail.type === 'warning' ? 'bg-gradient-to-r from-amber-600 to-orange-600' :
-                        'bg-gradient-to-r from-gray-800 to-gray-700');
+                    'toast transform transition-all duration-300 ' +
+                    (e.detail.type === 'success' ? 'toast-success' :
+                        e.detail.type === 'warning' ? 'toast-warning' :
+                        'toast-error');
                 toast.textContent = e.detail.message || '';
                 container.appendChild(toast);
 
@@ -390,43 +369,471 @@
 </div>
 
 @push('styles')
-    <style>
-        .form-group {
-            position: relative;
+<style>
+    .coins-header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #4F46E5 0%, #6366f1 100%);
+        border-radius: 16px;
+        color: white;
+    }
+
+    .coins-balance-section {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+    }
+
+    .coins-icon {
+        width: 3rem;
+        height: 3rem;
+        background: linear-gradient(135deg, #F59E0B 0%, #fbbf24 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 6px 15px rgba(245, 158, 11, 0.3);
+    }
+
+    .coins-info h3 {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 0.25rem;
+    }
+
+    .coins-info .balance {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: white;
+    }
+
+    .coins-info .rate {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin-top: 0.25rem;
+    }
+
+    .coins-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: flex-end;
+    }
+
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1rem;
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        color: white;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        text-decoration: none;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        background: linear-gradient(135deg, #059669 0%, #16A34A 100%);
+    }
+
+    .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .btn-disabled {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1rem;
+        background: #9ca3af;
+        color: #6b7280;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 12px;
+        border: none;
+        cursor: not-allowed;
+    }
+
+    /* Version mobile */
+    @media (max-width: 768px) {
+        .coins-header {
+            flex-direction: column;
+            align-items: stretch;
+            text-align: center;
         }
 
-        .form-label {
-            display: block;
-            font-weight: 600;
-            color: #1E3A8A;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
+        .coins-balance-section {
+            justify-content: center;
+            margin-bottom: 1rem;
         }
 
-        .form-input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 2px solid #E5E7EB;
-            border-radius: 12px;
-            background: white;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
+        .coins-actions {
+            justify-content: center;
         }
+    }
 
-        .form-input:focus {
-            outline: none;
-            border-color: #4F46E5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-            transform: translateY(-1px);
-        }
+    /* Le reste de votre CSS existant */
+    .participants-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
 
-        .form-input.error {
-            border-color: #EF4444;
-            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-        }
+    .participant-card-dark {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
 
-        [x-cloak] {
-            display: none !important;
-        }
-    </style>
+.participant-card-dark:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+    border-color: #4F46E5;
+}
+
+.participant-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.participant-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.participant-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+}
+
+.participant-country {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.participant-score {
+    text-align: right;
+}
+
+.score-label {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-bottom: 0.25rem;
+}
+
+.score-value {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.vote-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-vote {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    background: linear-gradient(135deg, #4F46E5 0%, #6366f1 100%);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-vote:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    background: linear-gradient(135deg, #4338CA 0%, #6366f1 100%);
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 50;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    width: 100%;
+    max-width: 28rem;
+    position: relative;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.modal-subtitle {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #4F46E5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.quick-amounts {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.quick-amount-btn {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    background: #f3f4f6;
+    color: #374151;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.quick-amount-btn:hover {
+    background: #e5e7eb;
+}
+
+.price-summary {
+    background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
+    border: 1px solid #dbeafe;
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+}
+
+.price-label {
+    color: #4b5563;
+}
+
+.price-value {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #4F46E5;
+}
+
+.price-details {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+}
+
+.modal-footer {
+    padding: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+    border-radius: 0 0 16px 16px;
+}
+
+.footer-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.btn-cancel {
+    padding: 0.5rem 1rem;
+    background: white;
+    color: #374151;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-cancel:hover {
+    background: #f9fafb;
+}
+
+.btn-confirm {
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-confirm:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-confirm:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.toast-container {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 60;
+}
+
+.toast {
+    max-width: 20rem;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    color: white;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    transform: translateX(0);
+    transition: all 0.3s ease;
+    margin-bottom: 0.5rem;
+}
+
+.toast-success {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+}
+
+.toast-warning {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+}
+
+.toast-error {
+    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+}
+
+@media (max-width: 768px) {
+    .coins-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .coins-actions {
+        justify-content: center;
+    }
+
+    .participants-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .vote-buttons {
+        flex-direction: column;
+    }
+
+    .footer-actions {
+        flex-direction: column;
+    }
+}
+
+[x-cloak] {
+    display: none !important;
+}
+</style>
 @endpush
