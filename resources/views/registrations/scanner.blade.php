@@ -47,7 +47,7 @@
 
                             <!-- Contrôles du scanner -->
                             <div
-                                class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent dark:from-neutral-900/80">
+                                class="absolute bottom-5 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent dark:from-neutral-900/80">
                                 <div class="flex flex-col sm:flex-row justify-center gap-3">
                                     <button type="button" id="start-scanner"
                                         class="w-full sm:w-auto flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
