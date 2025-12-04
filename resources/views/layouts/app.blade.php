@@ -145,7 +145,7 @@
                 window.CURRENT_USER_NAME = @json(optional(auth()->user())->name ?? 'Utilisateur');
             </script>
         @endauth
-        <div id="toast-container" class="fixed bottom-0 z-60 right-0 m-4"></div>
+        <div id="toast-container" class="fixed top-4 right-4 z-60"></div>
         @if (session('toast'))
             <script>
                 (function() {

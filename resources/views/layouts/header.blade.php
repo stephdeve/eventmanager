@@ -1,4 +1,4 @@
-<header class="bg-white border-b border-gray-200  sticky top-0 dark:bg-neutral-900 dark:border-neutral-800">
+<header class="bg-white border-b border-gray-200  sticky top-0 z-40 dark:bg-neutral-900 dark:border-neutral-800">
     <div class="flex items-center justify-between px-4 py-2 lg:px-6">
         <!-- Left side: Mobile menu and page title -->
         <div class="flex items-center space-x-3 lg:space-x-4">

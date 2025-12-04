@@ -49,20 +49,155 @@
   .dark .bg-gray-50 { @apply bg-neutral-950; }
   .dark .bg-gray-100 { @apply bg-neutral-900; }
   .dark .bg-gray-200 { @apply bg-neutral-900; }
+  .dark .bg-slate-50 { @apply bg-neutral-900; }
+  .dark .bg-slate-100 { @apply bg-neutral-900; }
+  .dark .bg-slate-200 { @apply bg-neutral-900; }
   .dark .border-gray-100 { @apply border-neutral-800; }
   .dark .border-gray-200 { @apply border-neutral-800; }
   .dark .border-gray-300 { @apply border-neutral-700; }
+  .dark .border-slate-100 { @apply border-neutral-800; }
+  .dark .border-slate-200 { @apply border-neutral-800; }
+  .dark .border-slate-300 { @apply border-neutral-700; }
+  .dark .border-amber-200 { @apply border-neutral-800; }
+  .dark .border-blue-200 { @apply border-neutral-800; }
+  .dark .border-purple-200 { @apply border-neutral-800; }
+  .dark .border-indigo-200 { @apply border-neutral-800; }
+  .dark .border-emerald-200 { @apply border-neutral-800; }
+  .dark .border-cyan-200 { @apply border-neutral-800; }
+  .dark .border-rose-200 { @apply border-neutral-800; }
+  .dark .border-red-200 { @apply border-neutral-800; }
+  .dark .divide-slate-100 { @apply divide-neutral-800; }
+  .dark .divide-slate-200 { @apply divide-neutral-800; }
+  .dark .divide-gray-200 { @apply divide-neutral-800; }
   .dark .text-gray-900 { @apply text-neutral-100; }
   .dark .text-gray-800 { @apply text-neutral-200; }
   .dark .text-gray-700 { @apply text-neutral-300; }
   .dark .text-gray-600 { @apply text-neutral-400; }
   .dark .text-gray-500 { @apply text-neutral-400; }
   .dark .text-gray-400 { @apply text-neutral-500; }
+  .dark .text-slate-900 { @apply text-neutral-100; }
+  .dark .text-slate-800 { @apply text-neutral-200; }
+  .dark .text-slate-700 { @apply text-neutral-300; }
+  .dark .text-slate-600 { @apply text-neutral-400; }
+  .dark .text-slate-500 { @apply text-neutral-400; }
+  .dark .text-slate-400 { @apply text-neutral-500; }
+  /* Brand text remaps for contrast on dark */
+  .dark .text-blue-700 { @apply text-blue-300; }
+  .dark .text-blue-800 { @apply text-blue-300; }
+  .dark .text-blue-600 { @apply text-blue-400; }
+  .dark .text-indigo-700 { @apply text-indigo-300; }
+  .dark .text-indigo-800 { @apply text-indigo-300; }
+  .dark .text-indigo-600 { @apply text-indigo-400; }
+  .dark .text-indigo-900 { @apply text-indigo-200; }
+  .dark .text-purple-700 { @apply text-purple-300; }
+  .dark .text-purple-800 { @apply text-purple-300; }
+  .dark .text-purple-600 { @apply text-purple-400; }
+  .dark .text-purple-900 { @apply text-purple-200; }
+  .dark .text-emerald-700 { @apply text-emerald-300; }
+  .dark .text-emerald-800 { @apply text-emerald-300; }
+  .dark .text-emerald-600 { @apply text-emerald-400; }
+  .dark .text-emerald-900 { @apply text-emerald-200; }
+  .dark .text-green-700 { @apply text-green-300; }
+  .dark .text-green-800 { @apply text-green-300; }
+  .dark .text-green-600 { @apply text-green-400; }
+  .dark .text-green-900 { @apply text-green-200; }
+  .dark .text-amber-700 { @apply text-amber-300; }
+  .dark .text-amber-800 { @apply text-amber-300; }
+  .dark .text-amber-600 { @apply text-amber-400; }
+  .dark .text-amber-900 { @apply text-amber-200; }
+  .dark .text-red-700 { @apply text-red-300; }
+  .dark .text-red-800 { @apply text-red-300; }
+  .dark .text-red-600 { @apply text-red-400; }
+  .dark .text-red-900 { @apply text-red-200; }
+  .dark .text-rose-700 { @apply text-rose-300; }
+  .dark .text-rose-800 { @apply text-rose-300; }
+  .dark .text-rose-600 { @apply text-rose-400; }
+  .dark .text-rose-900 { @apply text-rose-200; }
+  .dark .text-cyan-700 { @apply text-cyan-300; }
+  .dark .text-cyan-800 { @apply text-cyan-300; }
+  .dark .text-cyan-600 { @apply text-cyan-400; }
+  .dark .text-cyan-900 { @apply text-cyan-200; }
+  /* Map bracket-hex utility classes to neutral in dark */
+  .dark .text-\[\#6B7280\] { @apply text-neutral-400; }
+  .dark .text-\[\#1E3A8A\] { @apply text-neutral-200; }
+  .dark .text-\[\#4F46E5\] { @apply text-indigo-400; }
+  .dark .border-\[\#E0E7FF\] { @apply border-neutral-700; }
   .dark .hover\:bg-gray-50:hover { @apply bg-neutral-800; }
   .dark .hover\:bg-gray-100:hover { @apply bg-neutral-800; }
   .dark .hover\:bg-gray-200:hover { @apply bg-neutral-800; }
+  .dark .hover\:bg-slate-50:hover { @apply bg-neutral-800; }
+  .dark .hover\:bg-slate-100:hover { @apply bg-neutral-800; }
+  .dark .hover\:bg-slate-200:hover { @apply bg-neutral-800; }
+  .dark .hover\:bg-indigo-100:hover, .dark .hover\:bg-blue-100:hover, .dark .hover\:bg-emerald-100:hover, .dark .hover\:bg-green-100:hover, .dark .hover\:bg-amber-100:hover, .dark .hover\:bg-orange-100:hover, .dark .hover\:bg-purple-100:hover, .dark .hover\:bg-pink-100:hover, .dark .hover\:bg-red-100:hover, .dark .hover\:bg-rose-100:hover, .dark .hover\:bg-cyan-100:hover { @apply bg-neutral-800; }
   /* Desaturate brand-tint backgrounds to neutral for dark */
-  .dark .bg-indigo-50, .dark .bg-blue-50, .dark .bg-emerald-50, .dark .bg-amber-50, .dark .bg-purple-50, .dark .bg-red-50 { @apply bg-neutral-800; }
-  .dark .bg-indigo-100, .dark .bg-blue-100, .dark .bg-emerald-100, .dark .bg-amber-100, .dark .bg-purple-100, .dark .bg-red-100 { @apply bg-neutral-800; }
+  .dark .bg-indigo-50, .dark .bg-blue-50, .dark .bg-emerald-50, .dark .bg-green-50, .dark .bg-amber-50, .dark .bg-orange-50, .dark .bg-purple-50, .dark .bg-pink-50, .dark .bg-red-50, .dark .bg-rose-50, .dark .bg-cyan-50 { @apply bg-neutral-800; }
+  .dark .bg-indigo-100, .dark .bg-blue-100, .dark .bg-emerald-100, .dark .bg-green-100, .dark .bg-amber-100, .dark .bg-orange-100, .dark .bg-purple-100, .dark .bg-pink-100, .dark .bg-red-100, .dark .bg-rose-100, .dark .bg-cyan-100 { @apply bg-neutral-800; }
   .dark .focus\:ring-offset-2:focus { @apply ring-offset-neutral-950; }
+
+  /* Map white alpha backgrounds to neutral alpha in dark */
+  .dark .bg-white\/5  { @apply bg-neutral-900/5; }
+  .dark .bg-white\/10 { @apply bg-neutral-900/10; }
+  .dark .bg-white\/20 { @apply bg-neutral-900/20; }
+  .dark .bg-white\/25 { @apply bg-neutral-900/25; }
+  .dark .bg-white\/30 { @apply bg-neutral-900/30; }
+  .dark .bg-white\/40 { @apply bg-neutral-900/40; }
+  .dark .bg-white\/50 { @apply bg-neutral-900/50; }
+  .dark .bg-white\/60 { @apply bg-neutral-900/60; }
+  .dark .bg-white\/70 { @apply bg-neutral-900/70; }
+  .dark .bg-white\/80 { @apply bg-neutral-900/80; }
+  .dark .bg-white\/90 { @apply bg-neutral-900/90; }
+  .dark .bg-white\/95 { @apply bg-neutral-900/95; }
+
+  /* Occasional gray 50 alpha overlays */
+  .dark .bg-gray-50\/50 { @apply bg-neutral-900/50; }
+  .dark .bg-gray-50\/30 { @apply bg-neutral-900/30; }
+  .dark .bg-gray-50\/80 { @apply bg-neutral-900/80; }
+  /* Slate alpha overlays */
+  .dark .bg-slate-50\/30 { @apply bg-neutral-900/30; }
+  .dark .bg-slate-50\/50 { @apply bg-neutral-900/50; }
+  .dark .bg-slate-50\/80 { @apply bg-neutral-900/80; }
+
+  /* White alpha borders on dark glass UIs */
+  .dark .border-white\/5  { @apply border-neutral-700/50; }
+  .dark .border-white\/10 { @apply border-neutral-700/50; }
+  .dark .border-white\/20 { @apply border-neutral-700/60; }
+  .dark .border-white\/30 { @apply border-neutral-700/60; }
+
+  /* Gradient color stops used in pages */
+  .dark .from-slate-50 { @apply from-neutral-950; }
+  .dark .from-blue-50 { @apply from-neutral-950; }
+  .dark .from-indigo-50 { @apply from-neutral-950; }
+  .dark .from-purple-50 { @apply from-neutral-950; }
+  .dark .from-amber-50 { @apply from-neutral-950; }
+  .dark .from-orange-50 { @apply from-neutral-950; }
+  .dark .via-white { @apply via-neutral-950; }
+  .dark .to-indigo-50\/30 { @apply to-neutral-900/30; }
+  .dark .to-blue-50\/30 { @apply to-neutral-900/30; }
+  .dark .to-pink-50 { @apply to-neutral-900; }
+  .dark .to-orange-50 { @apply to-neutral-900; }
+
+  /* Events Create (custom classes) */
+  .dark .form-gradient { background: linear-gradient(135deg, #0a0a0a 0%, #171717 50%, #0a0a0a 100%); }
+  .dark .form-card { background: rgba(23,23,23,0.92); border: 1px solid #262626; box-shadow: 0 20px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.04); }
+  .dark .form-label { color: #e5e7eb; }
+  .dark .form-input { background: #0a0a0a; border-color: #404040; color: #e5e7eb; }
+  .dark .form-input::placeholder { color: #9ca3af; }
+  .dark .file-upload { background: #0a0a0a; border-color: #404040; color: #e5e7eb; }
+  .dark .file-upload:hover, .dark .file-upload.dragover { background: #171717; border-color: #6366f1; }
+  .dark .checkbox-card { border-color: #262626; background: #0a0a0a; color: #e5e7eb; }
+  .dark .checkbox-card.checked { border-color: #6366f1; background: #171717; }
+
+  /* Community Chat (creative/dancing) */
+  .dark .creative-light-bg { background: linear-gradient(135deg, #0a0a0a 0%, #171717 50%, #0a0a0a 100%); }
+  .dark .creative-chat-container { background: #0a0a0a; border: 1px solid #262626; box-shadow: 0 25px 50px rgba(0,0,0,0.25); }
+  .dark .creative-header { background: linear-gradient(135deg, #1f1f1f 0%, #171717 100%); }
+  .dark .dancing-messages { background: linear-gradient(180deg, rgba(10,10,10,0.95) 0%, rgba(23,23,23,0.95) 100%); }
+  .dark .dancing-bubble-other { background: #0a0a0a; color: #e5e7eb; border: 1px solid #262626; box-shadow: 0 8px 24px rgba(0,0,0,0.25), 0 4px 12px rgba(0,0,0,0.15); }
+  .dark .creative-input { background: #0a0a0a; border-top: 1px solid #262626; }
+  .dark .creative-input-wrapper { background: #0a0a0a; border-color: #404040; }
+  .dark .creative-chat-input { color: #e5e7eb; }
+  .dark .creative-chat-input::placeholder { color: #9ca3af; }
+  .dark .creative-back { background: #0a0a0a; color: #e5e7eb; border-color: #262626; }
+  .dark .dancing-online { background: #0a0a0a; border-color: #262626; color: #86efac; }
+  .dark .creative-empty-icon { background: #0a0a0a; border: 1px solid #262626; color: #9ca3af; }
 }

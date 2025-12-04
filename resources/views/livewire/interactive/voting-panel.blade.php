@@ -125,8 +125,8 @@
                         Quantité de coins *
                         <span class="text-gray-500 text-sm font-normal">(minimum 10 coins)</span>
                     </label>
-                    <input type="number" min="10" step="1" x-model.number="qty"
-                        class="form-input" placeholder="Entrez le nombre de coins">
+                    <input type="number" min="10" step="1" x-model.number="qty" class="form-input"
+                        placeholder="Entrez le nombre de coins">
                 </div>
 
                 <div class="quick-amounts">
@@ -145,8 +145,8 @@
                             x-text="(qty && qty>=min ? (qty*unit).toLocaleString('fr-FR') : '0') + ' ' + currency"></span>
                     </div>
                     <div class="price-details">
-                        <span x-text="qty || 0"></span> coins × <span
-                            x-text="unit.toLocaleString('fr-FR')"></span> <span x-text="currency"></span> par coin
+                        <span x-text="qty || 0"></span> coins × <span x-text="unit.toLocaleString('fr-FR')"></span>
+                        <span x-text="currency"></span> par coin
                     </div>
                 </div>
             </div>
@@ -156,8 +156,7 @@
                     <button type="button" @click="openBuy = false" class="btn-cancel">
                         Annuler
                     </button>
-                    <button type="button" @click="buy()" :disabled="!(qty && qty >= min)"
-                        class="btn-confirm">
+                    <button type="button" @click="buy()" :disabled="!(qty && qty >= min)" class="btn-confirm">
                         Procéder au paiement
                     </button>
                 </div>
@@ -369,471 +368,549 @@
 </div>
 
 @push('styles')
-<style>
-    .coins-header {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        margin-bottom: 2rem;
-        padding: 1.5rem;
-        background: linear-gradient(135deg, #4F46E5 0%, #6366f1 100%);
-        border-radius: 16px;
-        color: white;
-    }
-
-    .coins-balance-section {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        flex: 1;
-    }
-
-    .coins-icon {
-        width: 3rem;
-        height: 3rem;
-        background: linear-gradient(135deg, #F59E0B 0%, #fbbf24 100%);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 6px 15px rgba(245, 158, 11, 0.3);
-    }
-
-    .coins-info h3 {
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: rgba(255, 255, 255, 0.9);
-        margin-bottom: 0.25rem;
-    }
-
-    .coins-info .balance {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: white;
-    }
-
-    .coins-info .rate {
-        font-size: 0.75rem;
-        color: rgba(255, 255, 255, 0.7);
-        margin-top: 0.25rem;
-    }
-
-    .coins-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-        justify-content: flex-end;
-    }
-
-    .btn-primary {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.625rem 1rem;
-        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-        color: white;
-        font-size: 0.875rem;
-        font-weight: 600;
-        border-radius: 12px;
-        border: none;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-        text-decoration: none;
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-        background: linear-gradient(135deg, #059669 0%, #16A34A 100%);
-    }
-
-    .btn-secondary {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.625rem 1rem;
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-        font-size: 0.875rem;
-        font-weight: 600;
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.15);
-        transform: translateY(-2px);
-    }
-
-    .btn-disabled {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.625rem 1rem;
-        background: #9ca3af;
-        color: #6b7280;
-        font-size: 0.875rem;
-        font-weight: 600;
-        border-radius: 12px;
-        border: none;
-        cursor: not-allowed;
-    }
-
-    /* Version mobile */
-    @media (max-width: 768px) {
+    <style>
         .coins-header {
-            flex-direction: column;
-            align-items: stretch;
-            text-align: center;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #4F46E5 0%, #6366f1 100%);
+            border-radius: 16px;
+            color: white;
         }
 
         .coins-balance-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .coins-icon {
+            width: 3rem;
+            height: 3rem;
+            background: linear-gradient(135deg, #F59E0B 0%, #fbbf24 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
             justify-content: center;
-            margin-bottom: 1rem;
+            box-shadow: 0 6px 15px rgba(245, 158, 11, 0.3);
+        }
+
+        .coins-info h3 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 0.25rem;
+        }
+
+        .coins-info .balance {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: white;
+        }
+
+        .coins-info .rate {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 0.25rem;
         }
 
         .coins-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            justify-content: flex-end;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1rem;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+            background: linear-gradient(135deg, #059669 0%, #16A34A 100%);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .btn-disabled {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1rem;
+            background: #9ca3af;
+            color: #6b7280;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: 12px;
+            border: none;
+            cursor: not-allowed;
+        }
+
+        /* Version mobile */
+        @media (max-width: 768px) {
+            .coins-header {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+
+            .coins-balance-section {
+                justify-content: center;
+                margin-bottom: 1rem;
+            }
+
+            .coins-actions {
+                justify-content: center;
+            }
+        }
+
+        /* Le reste de votre CSS existant */
+        .participants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .participant-card-dark {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .participant-card-dark:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            border-color: #4F46E5;
+        }
+
+        .participant-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .participant-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .participant-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+
+        .participant-country {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .participant-score {
+            text-align: right;
+        }
+
+        .score-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 0.25rem;
+        }
+
+        .score-value {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .vote-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-vote {
+            flex: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            background: linear-gradient(135deg, #4F46E5 0%, #6366f1 100%);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-vote:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+            background: linear-gradient(135deg, #4338CA 0%, #6366f1 100%);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            z-index: 70;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            width: 100%;
+            max-width: 28rem;
+            position: relative;
+        }
+
+        .dark .modal-content {
+            background: #0b1220;
+            border: 1px solid #1f2937;
+            color: #e5e7eb;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .modal-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
             justify-content: center;
         }
-    }
 
-    /* Le reste de votre CSS existant */
-    .participants-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1.5rem;
-    }
+        .modal-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
 
-    .participant-card-dark {
-        background: white;
-        border: 1px solid #e2e8f0;
-        border-radius: 16px;
-        padding: 1.5rem;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    }
+        .modal-subtitle {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
 
-.participant-card-dark:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-    border-color: #4F46E5;
-}
+        .modal-body {
+            padding: 1.5rem;
+        }
 
-.participant-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-}
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
 
-.participant-info {
-    flex: 1;
-    min-width: 0;
-}
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
 
-.participant-name {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #1e293b;
-    margin-bottom: 0.25rem;
-}
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-.participant-country {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.75rem;
-    color: #64748b;
-}
+        .form-input:focus {
+            outline: none;
+            border-color: #4F46E5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
 
-.participant-score {
-    text-align: right;
-}
+        .quick-amounts {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
 
-.score-label {
-    font-size: 0.75rem;
-    color: #64748b;
-    margin-bottom: 0.25rem;
-}
+        .quick-amount-btn {
+            flex: 1;
+            padding: 0.5rem 0.75rem;
+            background: #f3f4f6;
+            color: #374151;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
 
-.score-value {
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: #1e293b;
-}
+        .quick-amount-btn:hover {
+            background: #e5e7eb;
+        }
 
-.vote-buttons {
-    display: flex;
-    gap: 0.5rem;
-}
+        .price-summary {
+            background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
+            border: 1px solid #dbeafe;
+            border-radius: 12px;
+            padding: 1rem;
+        }
 
-.btn-vote {
-    flex: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.375rem;
-    padding: 0.5rem 0.75rem;
-    background: linear-gradient(135deg, #4F46E5 0%, #6366f1 100%);
-    color: white;
-    font-size: 0.75rem;
-    font-weight: 500;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+        }
 
-.btn-vote:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-    background: linear-gradient(135deg, #4338CA 0%, #6366f1 100%);
-}
+        .price-label {
+            color: #4b5563;
+        }
 
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    z-index: 50;
-}
+        .price-value {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #4F46E5;
+        }
 
-.modal-content {
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    width: 100%;
-    max-width: 28rem;
-    position: relative;
-}
+        .price-details {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
 
-.modal-header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-}
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+            background: #f9fafb;
+            border-radius: 0 0 16px 16px;
+        }
 
-.modal-icon {
-    width: 2.5rem;
-    height: 2.5rem;
-    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+        .footer-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
 
-.modal-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #1f2937;
-}
+        .btn-cancel {
+            padding: 0.5rem 1rem;
+            background: white;
+            color: #374151;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
 
-.modal-subtitle {
-    font-size: 0.875rem;
-    color: #6b7280;
-}
+        .btn-cancel:hover {
+            background: #f9fafb;
+        }
 
-.modal-body {
-    padding: 1.5rem;
-}
+        .btn-confirm {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-.form-group {
-    margin-bottom: 1.5rem;
-}
+        .btn-confirm:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
 
-.form-label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 0.5rem;
-}
+        .btn-confirm:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
 
-.form-input {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 2px solid #e5e7eb;
-    border-radius: 8px;
-    font-size: 0.875rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+        .toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 60;
+        }
 
-.form-input:focus {
-    outline: none;
-    border-color: #4F46E5;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-}
+        .toast {
+            max-width: 20rem;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            color: white;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            transform: translateX(0);
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+        }
 
-.quick-amounts {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-}
+        .toast-success {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
 
-.quick-amount-btn {
-    flex: 1;
-    padding: 0.5rem 0.75rem;
-    background: #f3f4f6;
-    color: #374151;
-    font-size: 0.75rem;
-    font-weight: 500;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
+        .toast-warning {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        }
 
-.quick-amount-btn:hover {
-    background: #e5e7eb;
-}
+        .toast-error {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+        }
 
-.price-summary {
-    background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
-    border: 1px solid #dbeafe;
-    border-radius: 12px;
-    padding: 1rem;
-}
+        @media (max-width: 768px) {
+            .coins-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
 
-.price-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.875rem;
-}
+            .coins-actions {
+                justify-content: center;
+            }
 
-.price-label {
-    color: #4b5563;
-}
+            .participants-grid {
+                grid-template-columns: 1fr;
+            }
 
-.price-value {
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: #4F46E5;
-}
+            .vote-buttons {
+                flex-direction: column;
+            }
 
-.price-details {
-    font-size: 0.75rem;
-    color: #6b7280;
-    margin-top: 0.25rem;
-}
+            .footer-actions {
+                flex-direction: column;
+            }
+        }
 
-.modal-footer {
-    padding: 1.5rem;
-    border-top: 1px solid #e5e7eb;
-    background: #f9fafb;
-    border-radius: 0 0 16px 16px;
-}
+        [x-cloak] {
+            display: none !important;
+        }
 
-.footer-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.75rem;
-}
+        /* Dark neutral overrides */
+        .dark .participant-card-dark {
+            background: #0a0a0a;
+            border-color: #262626;
+        }
 
-.btn-cancel {
-    padding: 0.5rem 1rem;
-    background: white;
-    color: #374151;
-    font-size: 0.875rem;
-    font-weight: 500;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
+        .dark .participant-name {
+            color: #e5e5e5;
+        }
 
-.btn-cancel:hover {
-    background: #f9fafb;
-}
+        .dark .participant-country {
+            color: #a3a3a3;
+        }
 
-.btn-confirm {
-    padding: 0.5rem 1rem;
-    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-    color: white;
-    font-size: 0.875rem;
-    font-weight: 500;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+        .dark .score-label {
+            color: #a3a3a3;
+        }
 
-.btn-confirm:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-}
+        .dark .score-value {
+            color: #e5e5e5;
+        }
 
-.btn-confirm:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
+        .dark .quick-amount-btn {
+            background: #171717;
+            color: #e5e5e5;
+            border: 1px solid #262626;
+        }
 
-.toast-container {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    z-index: 60;
-}
+        .dark .quick-amount-btn:hover {
+            background: #262626;
+        }
 
-.toast {
-    max-width: 20rem;
-    padding: 0.75rem 1rem;
-    border-radius: 12px;
-    color: white;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-    transform: translateX(0);
-    transition: all 0.3s ease;
-    margin-bottom: 0.5rem;
-}
+        .dark .form-label {
+            color: #d4d4d4;
+        }
 
-.toast-success {
-    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-}
+        .dark .form-input {
+            background: #0a0a0a;
+            border-color: #262626;
+            color: #e5e5e5;
+        }
 
-.toast-warning {
-    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-}
+        .dark .price-summary {
+            background: #0a0a0a;
+            border-color: #262626;
+        }
 
-.toast-error {
-    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
-}
+        .dark .price-label {
+            color: #a3a3a3;
+        }
 
-@media (max-width: 768px) {
-    .coins-header {
-        flex-direction: column;
-        align-items: stretch;
-    }
+        .dark .modal-content {
+            background: #0a0a0a;
+            border: 1px solid #262626;
+            color: #e5e5e5;
+        }
 
-    .coins-actions {
-        justify-content: center;
-    }
+        .dark .modal-footer {
+            background: #0a0a0a;
+            border-top: 1px solid #262626;
+        }
 
-    .participants-grid {
-        grid-template-columns: 1fr;
-    }
+        .dark .btn-cancel {
+            background: #0a0a0a;
+            color: #d4d4d4;
+            border: 1px solid #262626;
+        }
 
-    .vote-buttons {
-        flex-direction: column;
-    }
-
-    .footer-actions {
-        flex-direction: column;
-    }
-}
-
-[x-cloak] {
-    display: none !important;
-}
-</style>
+        .dark .btn-cancel:hover {
+            background: #171717;
+        }
+    </style>
 @endpush
