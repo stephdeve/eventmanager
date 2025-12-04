@@ -53,6 +53,54 @@
                 opacity: 0.5;
             }
         }
+
+        /* Dark neutral overrides */
+        .dark .dashboard-card.bg-white {
+            background: #0a0a0a;
+            border-color: #262626;
+        }
+
+        .dark .dashboard-card .bg-white {
+            background: #0a0a0a;
+        }
+
+        .dark .dashboard-card .border-slate-100,
+        .dark .dashboard-card .border-gray-100,
+        .dark .dashboard-card .border-gray-200,
+        .dark .border-amber-200 {
+            border-color: #262626;
+        }
+
+        .dark .dashboard-card thead {
+            background: #0f0f0f;
+        }
+
+        .dark .dashboard-card tbody tr:hover {
+            background: #171717;
+        }
+
+        .dark .dashboard-card .text-slate-900,
+        .dark .dashboard-card .text-slate-800,
+        .dark .dashboard-card .text-gray-900 {
+            color: #e5e5e5;
+        }
+
+        .dark .dashboard-card .text-slate-700 {
+            color: #d4d4d4;
+        }
+
+        .dark .dashboard-card .text-slate-600,
+        .dark .dashboard-card .text-gray-500 {
+            color: #a3a3a3;
+        }
+
+        .dark .text-amber-900 {
+            color: #e5e5e5;
+        }
+
+        .dark .text-amber-800 {
+            color: #a3a3a3;
+        }
     </style>
 @endpush
 
@@ -679,7 +727,7 @@
                 <div class="space-y-8">
                     <!-- Alertes capacité -->
                     <div
-                        class="dashboard-card bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-6 shadow-lg border border-orange-100">
+                        class="dashboard-card bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-6 shadow-lg border border-slate-100">
                         <div class="flex items-center justify-between mb-6">
                             <div>
                                 <h3 class="text-xl font-bold text-slate-900 mb-1">Alertes capacité</h3>

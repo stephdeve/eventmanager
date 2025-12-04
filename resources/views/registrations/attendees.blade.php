@@ -121,7 +121,7 @@
                                         class="block text-sm font-medium text-slate-700 mb-2 dark:text-neutral-300">Statut
                                         paiement</label>
                                     <select name="status"
-                                        class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm">
+                                        class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm dark:bg-neutral-900 dark:border-neutral-800 dark:text-neutral-100">
                                         <option value="">Tous</option>
                                         @foreach (['paid' => 'Payé', 'unpaid' => 'Non payé', 'pending' => 'En attente', 'failed' => 'Échec'] as $val => $label)
                                             <option value="{{ $val }}" @selected(($filters['status'] ?? '') === $val)>
@@ -133,7 +133,7 @@
                                     <label
                                         class="block text-sm font-medium text-slate-700 mb-2 dark:text-neutral-300">Méthode</label>
                                     <select name="method"
-                                        class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm">
+                                        class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm dark:bg-neutral-900 dark:border-neutral-800 dark:text-neutral-100">
                                         <option value="">Toutes</option>
                                         @foreach (['physical' => 'Physique', 'numeric' => 'En ligne', 'free' => 'Gratuit'] as $val => $label)
                                             <option value="{{ $val }}" @selected(($filters['method'] ?? '') === $val)>
@@ -145,13 +145,14 @@
                                     <label
                                         class="block text-sm font-medium text-slate-700 mb-2 dark:text-neutral-300">Du</label>
                                     <input type="date" name="from" value="{{ $filters['from'] ?? '' }}"
-                                        class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" />
+                                        class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm dark:bg-neutral-900 dark:border-neutral-800 dark:text-neutral-100" />
+
                                 </div>
                                 <div>
                                     <label
                                         class="block text-sm font-medium text-slate-700 mb-2 dark:text-neutral-300">Au</label>
                                     <input type="date" name="to" value="{{ $filters['to'] ?? '' }}"
-                                        class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm" />
+                                        class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm dark:bg-neutral-900 dark:border-neutral-800 dark:text-neutral-100" />
                                 </div>
                                 <div class="flex gap-3">
                                     <button type="submit"

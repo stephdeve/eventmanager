@@ -1,6 +1,9 @@
+@import url(https://fonts.bunny.net/css?family=sora:100,200,300,400,500,600,700,800);
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 
 @layer base {
   [x-cloak] { display: none !important; }
@@ -9,6 +12,7 @@
 
   body {
     @apply min-h-screen bg-white text-neutral-800 antialiased dark:bg-neutral-950 dark:text-neutral-200;
+    font-family: 'Sora', sans-serif;
   }
 
   hr { @apply border-neutral-200 dark:border-neutral-800; }

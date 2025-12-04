@@ -432,29 +432,28 @@
         overflow: hidden;
     }
 
-    .creative-input-wrapper:focus-within {
-        border-color: #4F46E5;
-        background: white;
-        box-shadow:
-            0 0 0 4px rgba(79, 70, 229, 0.1),
-            0 12px 32px rgba(79, 70, 229, 0.15);
-        transform: translateY(-2px);
-    }
-
+ 
     .creative-chat-input {
         flex: 1;
-        background: transparent;
+        background-color: none !important;
         border: none;
         outline: none;
         color: #1e293b;
         font-size: 1rem;
         font-weight: 500;
-        padding: 0.5rem 0;
-        font-family: 'Inter', sans-serif;
+        padding: 1rem 1rem;
+        font-family: inherit;
+        border-radius: 16px;
+
     }
 
     .creative-chat-input::placeholder {
         color: #94a3b8;
+    }
+
+    .creative-chat-input:focus{
+        border: none !important;
+        box-shadow: none !important;
     }
 
     .dancing-send {
@@ -819,36 +818,33 @@
     }
 </style>
 
-<div class="creative-light-bg">
-    <!-- Floating Bubbles -->
-    <div class="floating-bubbles" id="floatingBubbles"></div>
+<div class="">
+    <div id="floatingBubbles" class="hidden"></div>
 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-8">
-        <!-- Creative Header Section -->
-        <div class="mb-8">
-            <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-6">
-                    <div class="dancing-avatar">
+        <!-- Header -->
+        <div class="mb-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div
+                        class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white font-bold flex items-center justify-center shadow-lg">
                         {{ mb_strtoupper(mb_substr($event->title, 0, 1, 'UTF-8'), 'UTF-8') }}
                     </div>
                     <div>
-                        <h1 class="text-3xl font-black text-slate-800 mb-2 tracking-tight">
-                            {{ $event->title }}
-                        </h1>
-                        <p class="text-slate-600 text-lg font-medium">Espace de conversation créative</p>
+                        <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{{ $event->title }}</h1>
+                        <p class="text-sm text-neutral-500 dark:text-neutral-400">Chat communautaire</p>
                     </div>
                 </div>
-
-                <div class="dancing-online">
-                    <div class="online-dot"></div>
-                    <span>En ligne: <span id="online-count" class="font-bold text-green-600">0</span></span>
+                <div
+                    class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-900/40">
+                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                    <span>En ligne: <span id="online-count" class="font-semibold">0</span></span>
                 </div>
             </div>
-
-            <div>
+            <div class="mt-3">
                 <a href="{{ route('interactive.events.show', ['event' => $event->slug ?? $event->id]) }}"
-                    class="creative-back">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 transition-colors dark:bg-neutral-900 dark:border-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-800">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
@@ -869,77 +865,93 @@
             </div>
         @endif
 
-        <!-- Creative Chat Container -->
-        <div class="creative-chat-container">
-            <!-- Creative Header -->
-            <div class="creative-header">
-                <div class="flex items-center gap-4">
-                    <div class="dancing-avatar" style="width: 64px; height: 64px; font-size: 1.75rem;">
-                        {{ mb_strtoupper(mb_substr($event->title, 0, 1, 'UTF-8'), 'UTF-8') }}
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-black text-white">{{ $event->title }}</h2>
-                        <span class="text-slate-200 font-medium">Chat en temps réel</span>
+        <!-- Chat Container -->
+        <div
+            class="bg-white border border-slate-200 rounded-2xl shadow-lg overflow-hidden dark:bg-neutral-900 dark:border-neutral-800">
+            <div class="px-4 py-3 border-b border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white font-semibold flex items-center justify-center">
+                            {{ mb_strtoupper(mb_substr($event->title, 0, 1, 'UTF-8'), 'UTF-8') }}
+                        </div>
+                        <div>
+                            <h2 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+                                {{ $event->title }}</h2>
+                            <span class="text-xs text-neutral-500 dark:text-neutral-400">Chat en temps réel</span>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Dancing Messages Area -->
-            <div id="messages" wire:poll.2s="refreshMessages" class="dancing-messages">
+            <!-- Messages -->
+            <div id="messages" wire:poll.2s="refreshMessages"
+                class="h-[60vh] overflow-y-auto p-4 bg-white dark:bg-neutral-900">
                 @forelse($this->messages as $m)
                     @php $own = auth()->check() && auth()->id() === $m->user_id; @endphp
                     @if ($own)
-                        <!-- Dancing Own Message -->
-                        <div class="dancing-message dancing-own">
-                            <div class="dancing-bubble-own">
-                                <div class="message-header">
-                                    <span class="message-author">{{ optional($m->user)->name ?? 'Vous' }}</span>
-                                    <span class="message-time">{{ $m->created_at?->translatedFormat('d/m H:i') }}</span>
+                        <!-- Own Message -->
+                        <div class="dancing-message flex justify-end mb-3">
+                            <div
+                                class="max-w-[70%] rounded-2xl px-4 py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow">
+                                <div class="flex items-center justify-between gap-3 mb-1">
+                                    <span
+                                        class="text-xs font-medium opacity-90">{{ optional($m->user)->name ?? 'Vous' }}</span>
+                                    <span
+                                        class="text-xs opacity-75">{{ $m->created_at?->translatedFormat('d/m H:i') }}</span>
                                 </div>
-                                <div class="message-content">{{ $m->message }}</div>
+                                <div class="whitespace-pre-wrap break-words">{{ $m->message }}</div>
                             </div>
                         </div>
                     @else
-                        <!-- Dancing Other Message -->
-                        <div class="dancing-message dancing-other">
-                            <div class="dancing-user-avatar">
+                        <!-- Other Message -->
+                        <div class="dancing-message flex items-start gap-3 mb-3">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white font-semibold flex items-center justify-center flex-shrink-0">
                                 {{ mb_strtoupper(mb_substr(optional($m->user)->name ?? 'U', 0, 1, 'UTF-8'), 'UTF-8') }}
                             </div>
-                            <div class="dancing-bubble-other">
-                                <div class="message-header">
-                                    <span class="message-author">{{ optional($m->user)->name ?? 'Utilisateur' }}</span>
+                            <div
+                                class="max-w-[70%] rounded-2xl px-4 py-3 bg-white border border-slate-200 text-neutral-800 shadow-sm dark:bg-neutral-900 dark:border-neutral-800 dark:text-neutral-100">
+                                <div class="flex items-center justify-between gap-3 mb-1">
                                     <span
-                                        class="message-time">{{ $m->created_at?->translatedFormat('d/m H:i') }}</span>
+                                        class="text-xs font-medium opacity-90">{{ optional($m->user)->name ?? 'Utilisateur' }}</span>
+                                    <span
+                                        class="text-xs opacity-70">{{ $m->created_at?->translatedFormat('d/m H:i') }}</span>
                                 </div>
-                                <div class="message-content">{{ $m->message }}</div>
+                                <div class="whitespace-pre-wrap break-words">{{ $m->message }}</div>
                             </div>
                         </div>
                     @endif
                 @empty
-                    <!-- Creative Empty State -->
-                    <div id="empty-state" class="creative-empty">
-                        <div class="creative-empty-icon">
-                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <!-- Empty State -->
+                    <div id="empty-state" class="text-center py-12">
+                        <div
+                            class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-white border border-slate-200 text-neutral-400 flex items-center justify-center shadow-sm dark:bg-neutral-900 dark:border-neutral-800">
+                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4-.8L3 20l.8-4A8.993 8.993 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                             </svg>
                         </div>
-                        <h3 class="creative-empty-title">Lancez la conversation !</h3>
-                        <p class="creative-empty-desc">Soyez le premier à partager un message</p>
+                        <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Lancez la conversation
+                            !</h3>
+                        <p class="text-sm text-neutral-500 dark:text-neutral-400">Soyez le premier à partager un message
+                        </p>
                     </div>
                 @endforelse
             </div>
 
-            <!-- Creative Input Area -->
-            <div class="creative-input">
-                <div class="creative-input-wrapper">
+            <!-- Input -->
+            <div class="border-t border-slate-200 p-4 bg-white dark:border-neutral-800 dark:bg-neutral-900">
+                <div
+                    class="creative-input-wrapper flex items-center gap-3 rounded-xl border border-slate-300 bg-white dark:bg-neutral-900 dark:border-neutral-800 focus-within:ring-2 focus-within:ring-indigo-500">
                     <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4-.8L3 20l.8-4A8.993 8.993 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
                     <input type="text" wire:model.defer="messageText" placeholder="Tapez votre message..."
-                        class="creative-chat-input" @if ($readOnly) disabled @endif>
-                    <button wire:click="sendMessage" class="dancing-send"
+                        class="creative-chat-input w-full bg-transparent text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500"
+                        @if ($readOnly) disabled @endif>
+                    <button wire:click="sendMessage"
+                        class="dancing-send inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-indigo-700 hover:to-purple-700 transition-colors"
                         @if ($readOnly) disabled @endif>
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -949,7 +961,7 @@
                     </button>
                 </div>
                 @if ($readOnly)
-                    <p class="mt-3 text-sm text-slate-500 text-center font-medium">
+                    <p class="mt-3 text-sm text-neutral-500 text-center font-medium dark:text-neutral-400">
                         <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -988,7 +1000,7 @@
                 if (mutation.type === 'childList') {
                     mutation.addedNodes.forEach(function(node) {
                         if (node.classList && node.classList.contains(
-                            'dancing-message')) {
+                                'dancing-message')) {
                             // Add extra dance on new messages
                             setTimeout(() => {
                                 node.style.animation =

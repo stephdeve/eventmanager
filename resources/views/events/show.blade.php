@@ -351,7 +351,7 @@
                         <div class="space-y-6">
                             <!-- Actions administrateur -->
                             @if (auth()->check() && (auth()->user()->can('update', $event) || auth()->user()->can('delete', $event)))
-                                <div class="bg-white border border-gray-200 rounded-xl p-6 lg:w-96">
+                                <div class="bg-white border border-gray-200 rounded-xl p-6 w-fit">
                                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Gestion de l'événement</h3>
                                     <div class="space-y-3">
                                         @can('update', $event)

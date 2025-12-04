@@ -106,6 +106,7 @@ class EventController extends Controller
     public function store(Request $request)
     {
         $this->authorize('create', Event::class);
+        $wantsJson = $request->expectsJson() || $request->ajax();
 
         // Validation des données du formulaire (avec nouveaux champs)
         $validated = $request->validate([
@@ -158,6 +159,14 @@ class EventController extends Controller
 
         // Pour les événements payants, exiger au moins une méthode de paiement
         if ($validated['payment_type'] === 'paid' && !$request->boolean('allow_payment_numeric') && !$request->boolean('allow_payment_physical')) {
+            if ($wantsJson) {
+                return response()->json([
+                    'message' => 'Erreur de validation',
+                    'errors' => [
+                        'allow_payment_numeric' => ['Au moins une méthode de paiement doit être activée pour un événement payant.']
+                    ],
+                ], 422);
+            }
             return back()->withErrors(['allow_payment_numeric' => 'Au moins une méthode de paiement doit être activée pour un événement payant.'])->withInput();
         }
 
@@ -179,6 +188,14 @@ class EventController extends Controller
 
             // Capacité par événement
             if (!is_null($caps['max_capacity']) && (int) $validated['capacity'] > (int) $caps['max_capacity']) {
+                if ($wantsJson) {
+                    return response()->json([
+                        'message' => 'Erreur de validation',
+                        'errors' => [
+                            'capacity' => ["Capacité maximale autorisée pour l'offre " . ucfirst($plan) . " : " . $caps['max_capacity'] . " places par événement."]
+                        ],
+                    ], 422);
+                }
                 return back()
                     ->withErrors(['capacity' => "Capacité maximale autorisée pour l'offre " . ucfirst($plan) . " : " . $caps['max_capacity'] . " places par événement."])
                     ->withInput();
@@ -189,6 +206,12 @@ class EventController extends Controller
                 ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
                 ->count();
             if ((int) $createdThisMonth >= (int) $caps['max_events_per_month']) {
+                if ($wantsJson) {
+                    return response()->json([
+                        'message' => "Vous avez atteint la limite mensuelle d'événements pour l'offre " . ucfirst($plan) . " (" . $caps['max_events_per_month'] . " événements par mois).",
+                        'errors' => [ 'limit' => ["Limite atteinte"] ],
+                    ], 422);
+                }
                 return back()
                     ->with('error', "Vous avez atteint la limite mensuelle d'événements pour l'offre " . ucfirst($plan) . " (" . $caps['max_events_per_month'] . " événements par mois).")
                     ->withInput();
@@ -200,7 +223,7 @@ class EventController extends Controller
             $path = $request->file('cover_image')->store('events/cover_images', 'public');
             $validated['cover_image'] = $path;
         }
-        
+
         // Génération du slug unique et du lien partageable
         $slugBase = Str::slug($validated['title']);
         $slug = $slugBase;
@@ -258,9 +281,16 @@ class EventController extends Controller
 
         $event->save();
 
-        return redirect()
-            ->route('dashboard')
-            ->with('success', 'Événement créé avec succès!');
+        if ($wantsJson) {
+            return response()->json([
+                'message' => 'Événement créé avec succès!',
+                'event_id' => $event->id,
+                'event_slug' => $event->slug,
+                'dashboard_url' => route('dashboard'),
+            ], 201);
+        }
+
+        return redirect()->route('dashboard')->with('success', 'Événement créé avec succès!');
     }
 
     /**
@@ -276,7 +306,7 @@ class EventController extends Controller
             $registration = $event->registrations()
                 ->where('user_id', auth()->id())
                 ->first();
-            
+
             $isRegistered = !is_null($registration);
         }
 

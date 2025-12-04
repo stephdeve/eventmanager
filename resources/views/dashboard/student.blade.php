@@ -53,6 +53,34 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
+
+        /* Dark neutral overrides */
+        .dark .dashboard-card.bg-white {
+            background: #0a0a0a;
+            border-color: #262626;
+        }
+
+        .dark .dashboard-card .border-slate-100,
+        .dark .dashboard-card .border-blue-100 {
+            border-color: #262626;
+        }
+
+        .dark .dashboard-card .text-slate-900 {
+            color: #e5e5e5;
+        }
+
+        .dark .dashboard-card .text-slate-700 {
+            color: #d4d4d4;
+        }
+
+        .dark .dashboard-card .text-slate-600,
+        .dark .dashboard-card .text-slate-400 {
+            color: #a3a3a3;
+        }
+
+        .dark .dashboard-card .bg-slate-100 {
+            background: #171717;
+        }
     </style>
 @endpush
 

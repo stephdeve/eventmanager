@@ -15,7 +15,7 @@
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=sora:400,500,600,700&display=swap" rel="stylesheet" />
 
     <script>
         (function() {
@@ -62,19 +62,19 @@
     <div x-data="{
         sidebarOpen: false,
         sidebarCollapsed: localStorage.getItem('sidebarCollapsed') === 'true',
-    
+
         init() {
             // Synchroniser l'état initial
             this.$watch('sidebarCollapsed', (value) => {
                 localStorage.setItem('sidebarCollapsed', value);
             });
-    
+
             // Réinitialiser l'état collapse quand on navigue (optionnel)
             // Si vous voulez que le sidebar reste toujours étendu après navigation,
             // décommentez la ligne suivante :
             // this.sidebarCollapsed = false;
         },
-    
+
         closeSidebar() {
             this.sidebarOpen = false;
         }

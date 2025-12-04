@@ -68,7 +68,10 @@
                     <!-- Période interactive -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                         <div class="form-group">
-                            <label class="form-label">Début de l'expérience interactive</label>
+                            <label class="form-label">Début de l'expérience interactive
+                                <span class="text-[#6B7280] text-xs font-normal block">Heure locale. Optionnel. Doit
+                                    être compris entre la date de début et la date de fin de l'événement.</span>
+                            </label>
                             <input type="datetime-local" wire:model.defer="interactive_starts_at"
                                 class="form-input @error('interactive_starts_at') error @enderror">
                             @error('interactive_starts_at')
@@ -83,7 +86,10 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Fin de l'expérience interactive</label>
+                            <label class="form-label">Fin de l'expérience interactive
+                                <span class="text-[#6B7280] text-xs font-normal block">Doit être postérieure au début de
+                                    l'expérience interactive.</span>
+                            </label>
                             <input type="datetime-local" wire:model.defer="interactive_ends_at"
                                 class="form-input @error('interactive_ends_at') error @enderror">
                             @error('interactive_ends_at')
@@ -129,7 +135,10 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="form-group">
-                            <label class="form-label">Date et heure de début *</label>
+                            <label class="form-label">Date et heure de début *
+                                <span class="text-[#6B7280] text-xs font-normal block">Heure locale du navigateur. Doit
+                                    précéder la date de fin.</span>
+                            </label>
                             <input type="datetime-local" wire:model.defer="start_date"
                                 class="form-input @error('start_date') error @enderror" required>
                             @error('start_date')
@@ -144,7 +153,10 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Date et heure de fin *</label>
+                            <label class="form-label">Date et heure de fin *
+                                <span class="text-[#6B7280] text-xs font-normal block">Doit être postérieure à la date
+                                    de début.</span>
+                            </label>
                             <input type="datetime-local" wire:model.defer="end_date"
                                 class="form-input @error('end_date') error @enderror" required>
                             @error('end_date')

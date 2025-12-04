@@ -200,7 +200,7 @@
                     <tbody
                         class="divide-y divide-slate-100 bg-white text-sm text-slate-600 dark:divide-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
                         @forelse($users as $user)
-                            <tr class="transition hover:bg-indigo-50/60">
+                            <tr class="transition hover:bg-indigo-50/60 dark:hover:bg-neutral-800/50">
                                 <td class="whitespace-nowrap px-6 py-4">
                                     <div class="flex items-center gap-3">
                                         <div
