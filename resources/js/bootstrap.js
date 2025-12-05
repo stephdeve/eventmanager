@@ -5,22 +5,26 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
+// Expose Pusher globally and enable console logs for debugging (also used by Reverb)
+window.Pusher = Pusher;
+try { window.Pusher.logToConsole = true; } catch (_) {}
 const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
 const CSRF = csrfTokenMeta ? csrfTokenMeta.getAttribute('content') : '';
 
 // Prefer Reverb if configured, otherwise fallback to Pusher
 if (import.meta.env.VITE_REVERB_APP_KEY) {
-    const reverbScheme = (import.meta.env.VITE_REVERB_SCHEME ?? 'https');
-    const isSecure = reverbScheme === 'https';
+    const host = import.meta.env.VITE_REVERB_HOST ?? (window.location.hostname || '127.0.0.1');
+    const port = Number(import.meta.env.VITE_REVERB_PORT ?? 8080);
     window.Echo = new Echo({
         broadcaster: 'reverb',
         key: import.meta.env.VITE_REVERB_APP_KEY,
-        wsHost: import.meta.env.VITE_REVERB_HOST ?? (window.location.hostname || '127.0.0.1'),
-        wsPort: Number(import.meta.env.VITE_REVERB_PORT ?? (isSecure ? 443 : 80)),
-        wssPort: Number(import.meta.env.VITE_REVERB_PORT ?? 443),
-        forceTLS: isSecure,
-        enabledTransports: isSecure ? ['wss'] : ['ws'],
-        disabledTransports: isSecure ? [] : ['wss'],
+        wsHost: host,
+        wsPort: port,
+        wssPort: port,
+        forceTLS: false,
+        encrypted: false,
+        enabledTransports: ['ws'],
+        disabledTransports: ['wss'],
         authEndpoint: '/broadcasting/auth',
         withCredentials: true,
         auth: {
