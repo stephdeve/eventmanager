@@ -828,34 +828,6 @@
 </style>
 
 <div class="min-h-screen py-8 bg-[#0B1220] text-slate-200 relative">
-    <!-- Enhanced Animated Background -->
-    <div class="community-background">
-        <div class="floating-element float-1"></div>
-        <div class="floating-element float-2"></div>
-        <div class="floating-element float-3"></div>
-        
-        <!-- Enhanced Particle System -->
-        <div class="chat-particles">
-            <div class="chat-particle" style="width: 8px; height: 8px; left: 5%; animation-delay: 0s; animation-duration: 20s;"></div>
-            <div class="chat-particle" style="width: 6px; height: 6px; left: 15%; animation-delay: 4s; animation-duration: 25s;"></div>
-            <div class="chat-particle" style="width: 10px; height: 10px; left: 25%; animation-delay: 8s; animation-duration: 18s;"></div>
-            <div class="chat-particle" style="width: 4px; height: 4px; left: 35%; animation-delay: 12s; animation-duration: 30s;"></div>
-            <div class="chat-particle" style="width: 7px; height: 7px; left: 45%; animation-delay: 16s; animation-duration: 22s;"></div>
-            <div class="chat-particle" style="width: 9px; height: 9px; left: 55%; animation-delay: 20s; animation-duration: 19s;"></div>
-            <div class="chat-particle" style="width: 5px; height: 5px; left: 65%; animation-delay: 24s; animation-duration: 26s;"></div>
-            <div class="chat-particle" style="width: 8px; height: 8px; left: 75%; animation-delay: 28s; animation-duration: 21s;"></div>
-            <div class="chat-particle" style="width: 6px; height: 6px; left: 85%; animation-delay: 32s; animation-duration: 24s;"></div>
-            <div class="chat-particle" style="width: 7px; height: 7px; left: 95%; animation-delay: 36s; animation-duration: 23s;"></div>
-        </div>
-
-        <!-- Interactive Light Orbs -->
-        <div class="light-orb" style="left: 10%; animation-delay: 0s; animation-duration: 35s;"></div>
-        <div class="light-orb" style="left: 30%; animation-delay: 10s; animation-duration: 40s;"></div>
-        <div class="light-orb" style="left: 50%; animation-delay: 20s; animation-duration: 32s;"></div>
-        <div class="light-orb" style="left: 70%; animation-delay: 5s; animation-duration: 38s;"></div>
-        <div class="light-orb" style="left: 90%; animation-delay: 15s; animation-duration: 30s;"></div>
-    </div>
-
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <!-- Enhanced Header Section -->
         <div class="mb-8">
@@ -913,7 +885,7 @@
             </div>
 
             <!-- Enhanced Messages Area -->
-            <div id="messages" wire:poll.2s="refreshMessages" class="messages-area">
+            <div id="messages" wire:ignore class="messages-area">
                 @forelse($this->messages as $m)
                     @php $own = auth()->check() && auth()->id() === $m->user_id; @endphp
                     @if($own)
@@ -964,12 +936,12 @@
                     </svg>
                     <input
                         type="text"
-                        wire:model.defer="messageText"
+                        wire:model="messageText"
                         placeholder="Écrivez votre message..."
                         class="chat-input"
                         @if($readOnly) disabled @endif
                     >
-                    <button wire:click="sendMessage" class="send-button" @if($readOnly) disabled @endif>
+                    <button wire:click="send" class="send-button" @if($readOnly) disabled @endif>
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                         </svg>
@@ -995,36 +967,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let mouseX = 0;
     let mouseY = 0;
     
-    document.addEventListener('mousemove', function(e) {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-        
-        // Create interactive glow trail
-        const glow = document.createElement('div');
-        glow.style.position = 'fixed';
-        glow.style.left = mouseX + 'px';
-        glow.style.top = mouseY + 'px';
-        glow.style.width = '15px';
-        glow.style.height = '15px';
-        glow.style.background = 'radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%)';
-        glow.style.borderRadius = '50%';
-        glow.style.pointerEvents = 'none';
-        glow.style.transform = 'translate(-50%, -50%)';
-        glow.style.transition = 'all 1.5s ease-out';
-        glow.style.zIndex = '9998';
-        
-        document.body.appendChild(glow);
-        
-        setTimeout(() => {
-            glow.style.width = '80px';
-            glow.style.height = '80px';
-            glow.style.opacity = '0';
-        }, 10);
-        
-        setTimeout(() => {
-            glow.remove();
-        }, 1500);
-    });
+    // Mouse glow trail removed for performance
 
     // Enhanced message animations
     const observer = new MutationObserver(function(mutations) {
@@ -1140,4 +1083,141 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+</script>
+
+<script>
+// Real-time presence + message listener (Echo)
+(function() {
+    const eventId = {{ (int) $event->id }};
+    const readOnly = @json($readOnly);
+    const userId = Number(@json(Auth::id() ?? 0));
+    const userName = @json(Auth::user()->name ?? 'Participant');
+
+    function showToast(type, text) {
+        const el = document.createElement('div');
+        el.className = 'fixed right-4 bottom-4 z-50 px-4 py-3 rounded shadow text-white ' + (type === 'error' ? 'bg-red-600' : (type === 'warning' ? 'bg-amber-600' : 'bg-indigo-600'));
+        el.textContent = text;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 4000);
+    }
+
+    const online = new Set();
+    function updateOnlineCount() {
+        const el = document.getElementById('online-count');
+        if (el) el.textContent = String(online.size);
+    }
+
+    function esc(s) {
+        return (s || '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+    }
+
+    function appendMessage(payload) {
+        try {
+            const container = document.getElementById('messages');
+            if (!container) return;
+            const empty = document.getElementById('empty-state');
+            if (empty) empty.remove();
+
+            const msg = (payload && payload.message) ? String(payload.message) : '';
+            const author = (payload && payload.user && payload.user.name) ? String(payload.user.name) : 'Participant';
+            const uid = Number(payload && payload.user && payload.user.id ? payload.user.id : 0);
+            const isOwn = Number(uid) === Number(userId);
+            const createdAt = payload && payload.created_at ? new Date(payload.created_at) : new Date();
+            const timeStr = createdAt.toLocaleString();
+
+            const wrapper = document.createElement('div');
+            wrapper.className = (isOwn ? 'own-message' : 'other-message') + ' message-bubble';
+
+            if (isOwn) {
+                wrapper.innerHTML = `
+                    <div class="own-bubble">
+                        <div class="message-header">
+                            <span class="message-author">${esc(author)}</span>
+                            <span class="message-time">${esc(timeStr)}</span>
+                        </div>
+                        <div class="message-content">${esc(msg)}</div>
+                    </div>
+                `;
+            } else {
+                const initial = esc(author.charAt(0).toUpperCase());
+                wrapper.innerHTML = `
+                    <div class="user-avatar">${initial}</div>
+                    <div class="other-bubble">
+                        <div class="message-header">
+                            <span class="message-author">${esc(author)}</span>
+                            <span class="message-time">${esc(timeStr)}</span>
+                        </div>
+                        <div class="message-content">${esc(msg)}</div>
+                    </div>
+                `;
+            }
+
+            container.appendChild(wrapper);
+            container.scrollTop = container.scrollHeight;
+        } catch (e) {
+            // ignore
+        }
+    }
+
+    function setupPresence() {
+        if (typeof Echo === 'undefined') {
+            showToast('warning', 'Temps réel indisponible (Echo non initialisé).');
+            return;
+        }
+        try {
+            Echo.join(`event.${eventId}`)
+                .here((users) => {
+                    online.clear();
+                    (users || []).forEach(u => online.add(Number(u.id)));
+                    updateOnlineCount();
+                })
+                .joining((user) => {
+                    if (user && typeof user.id !== 'undefined') {
+                        online.add(Number(user.id));
+                        updateOnlineCount();
+                    }
+                })
+                .leaving((user) => {
+                    if (user && typeof user.id !== 'undefined') {
+                        online.delete(Number(user.id));
+                        updateOnlineCount();
+                    }
+                })
+                .listen('.message.sent', (e) => {
+                    appendMessage(e);
+                });
+        } catch (e) {
+            showToast('error', 'Impossible de rejoindre le canal en temps réel.');
+        }
+    }
+
+    const chatInput = document.querySelector('.chat-input');
+    const sendBtn = document.querySelector('.send-button');
+
+    // Enter to send
+    if (chatInput) {
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey && !readOnly) {
+                e.preventDefault();
+                sendBtn?.click();
+            }
+        });
+    }
+
+    // Listen to Livewire-dispatched toasts
+    window.addEventListener('toast', (e) => {
+        const d = e.detail || {};
+        if (d.message) showToast(d.type || 'info', d.message);
+    });
+
+    // Append locally when Livewire confirms save (fallback if Echo is down)
+    window.addEventListener('message-sent', (e) => {
+        try {
+            const payload = (e && e.detail) ? e.detail.message || e.detail : null;
+            if (payload) appendMessage(payload);
+        } catch (_) {}
+    });
+
+    setupPresence();
+})();
 </script>

@@ -16,7 +16,9 @@
 
             <div class="px-6 py-10 sm:px-10">
                 @php
-                    $amountMajor = (int) round(App\Support\Currency::toMajorUnits($event->price, $event->currency));
+                    $qty = max(1, (int) ($registration->quantity ?? 1));
+                    $unitMajor = (int) round(App\Support\Currency::toMajorUnits($event->price, $event->currency));
+                    $amountMajor = $unitMajor * $qty;
                     $iso = strtoupper($event->currency ?? 'XOF');
                     $supported = ['XOF','XAF','GNF'];
                     if (!in_array($iso, $supported, true)) { $iso = 'XOF'; }
@@ -35,8 +37,16 @@
                                 <dd class="flex-1">{{ $event->location }}</dd>
                             </div>
                             <div class="flex items-start">
-                                <dt class="w-32 font-medium text-gray-700">Montant</dt>
-                                <dd class="flex-1 text-gray-900 font-semibold">{{ App\Support\Currency::format($event->price, $event->currency) }}</dd>
+                                <dt class="w-32 font-medium text-gray-700">Prix unitaire</dt>
+                                <dd class="flex-1">{{ App\Support\Currency::format($event->price, $event->currency) }}</dd>
+                            </div>
+                            <div class="flex items-start">
+                                <dt class="w-32 font-medium text-gray-700">Quantité</dt>
+                                <dd class="flex-1">{{ $qty }}</dd>
+                            </div>
+                            <div class="flex items-start">
+                                <dt class="w-32 font-medium text-gray-700">Total</dt>
+                                <dd class="flex-1 text-gray-900 font-semibold">{{ App\Support\Currency::format($event->price * $qty, $event->currency) }}</dd>
                             </div>
                             <div class="flex items-start">
                                 <dt class="w-32 font-medium text-gray-700">Statut</dt>
@@ -73,7 +83,7 @@
                 <script>
                     (function() {
                         const btn = document.getElementById('kkiapay-pay');
-                        const amount = {{ $amountMajor }}; // integer major units (e.g., XOF)
+                        const amount = {{ $amountMajor }}; // integer major units (e.g., XOF) — includes quantity
                         const currency = @json($iso);
                         const sandbox = @json((bool) config('services.kkiapay.sandbox'));
                         const apiKey = @json(config('services.kkiapay.public_key'));

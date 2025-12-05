@@ -1173,7 +1173,7 @@
                 // Add system message for user leaving
                 addSystemMessage(`${user.name} a quitté la discussion`);
             })
-            .listen('MessageSent', (e) => {
+            .listen('.message.sent', (e) => {
                 console.log('New message:', e.message);
                 addMessageToChat(e.message);
             })
@@ -1279,7 +1279,7 @@
         scrollToBottom();
 
         // Send to server (implement your actual API call)
-        fetch(`/events/${eventId}/chat/send`, {
+        fetch(`/events/${eventId}/chat/messages`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

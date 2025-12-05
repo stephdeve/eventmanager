@@ -618,6 +618,7 @@ class RegistrationController extends Controller
 
         DB::transaction(function () use ($registration) {
             $event = $registration->event()->lockForUpdate()->first();
+            $qty = max(1, (int) ($registration->quantity ?? 1));
 
             $registration->forceFill([
                 'payment_status' => 'paid',
@@ -649,15 +650,15 @@ class RegistrationController extends Controller
                     'provider_reference' => $ref,
                     'method' => 'cash',
                     'status' => 'success',
-                    'amount_minor' => (int) $event->price,
+                    'amount_minor' => (int) $event->price * $qty,
                     'currency' => $event->currency ?? 'XOF',
                     'paid_at' => now(),
                     'metadata' => ['mode' => 'physical', 'recorded_by' => auth()->id()],
                 ]);
 
                 // Mettre à jour les totaux (revenus + tickets vendus)
-                $event->increment('total_revenue_minor', (int) $event->price);
-                $event->increment('total_tickets_sold', 1);
+                $event->increment('total_revenue_minor', (int) $event->price * $qty);
+                $event->increment('total_tickets_sold', $qty);
             }
         });
 

@@ -97,7 +97,10 @@ class KkiapayService
         // Normalize amount & currency
         $currency = strtoupper((string) (Arr::get($data, 'currency') ?? Arr::get($data, 'monetaryCurrency') ?? ($registration->event->currency ?? 'XOF')));
         $amountMajor = (float) (Arr::get($data, 'amount') ?? Arr::get($data, 'monetaryAmount') ?? 0);
-        $amountMinor = $amountMajor > 0 ? AppCurrency::toMinorUnits($amountMajor, $currency) : (int) $registration->event->price;
+        $ticketsCount = max(1, (int) ($registration->quantity ?? 1));
+        $amountMinor = $amountMajor > 0
+            ? AppCurrency::toMinorUnits($amountMajor, $currency)
+            : (int) $registration->event->price * $ticketsCount;
         $method = (string) (Arr::get($data, 'paymentMethod') ?? Arr::get($data, 'method') ?? Arr::get($data, 'channel') ?? 'card');
 
         DB::transaction(function () use ($registration, $transactionId, $data, $currency, $amountMinor, $method) {

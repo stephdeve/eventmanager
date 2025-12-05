@@ -42,14 +42,38 @@ class CommunityChat extends Component
         }
         RateLimiter::hit($key, 60);
 
-        $chat = ChatMessage::create([
-            'event_id' => $this->event->id,
-            'user_id' => Auth::id(),
-            'message' => mb_substr($text, 0, 1000),
-        ]);
-        $chat->load('user');
+        // 1) Toujours enregistrer le message
+        try {
+            $chat = ChatMessage::create([
+                'event_id' => $this->event->id,
+                'user_id' => Auth::id(),
+                'message' => mb_substr($text, 0, 1000),
+            ]);
+            $chat->load('user');
+        } catch (\Throwable $e) {
+            report($e);
+            $this->dispatch('toast', type: 'error', message: "Impossible d'envoyer le message. Réessaie.");
+            return;
+        }
 
-        event(new EventMessageSent($this->event, $chat));
+        // 2) Informer le front pour affichage immédiat (fallback si Echo HS)
+        $this->dispatch('message-sent', message: [
+            'id' => (int) $chat->id,
+            'user' => [
+                'id' => (int) (Auth::id() ?? 0),
+                'name' => (string) (optional(Auth::user())->name ?? 'Participant'),
+            ],
+            'message' => (string) $chat->message,
+            'created_at' => $chat->created_at?->toIso8601String(),
+        ]);
+
+        // 3) Diffuser en temps réel (avec tolérance en cas d'échec)
+        try {
+            event(new EventMessageSent($this->event, $chat));
+        } catch (\Throwable $e) {
+            report($e);
+            $this->dispatch('toast', type: 'warning', message: 'Temps réel indisponible. Message envoyé.');
+        }
 
         $this->messageText = '';
     }
