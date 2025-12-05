@@ -5,6 +5,10 @@ import Chart from 'chart.js/auto';
 // Import ApexCharts
 import ApexCharts from 'apexcharts';
 
+import Alpine from 'alpinejs';
+window.Alpine = Alpine;
+Alpine.start();
+
 // Global chat notifications (new messages) via private user channel
 document.addEventListener('DOMContentLoaded', () => {
   if (!window.Echo || typeof window.CURRENT_USER_ID === 'undefined') return;
