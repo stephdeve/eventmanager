@@ -15,7 +15,7 @@
                 {{ $editingId ? 'Modifier le défi' : 'Ajouter un nouveau défi' }}
             </h3>
 
-            <form wire:submit.prevent="save" class="space-y-6">
+            <form x-data wire:submit.prevent="save" @submit.prevent="$wire.save()" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Titre -->
                     <div class="form-group">

@@ -31,24 +31,29 @@ class ParticipantsManager extends Component
 
     public function save(): void
     {
-        $data = $this->validate([
-            'name' => ['required','string','min:2','max:150'],
-            'country' => ['nullable','string','max:100'],
-            'photo_path' => ['nullable','string','max:255'],
-            'bio' => ['nullable','string'],
-            'video_url' => ['nullable','string','max:255'],
-        ]);
+        try {
+            $data = $this->validate([
+                'name' => ['required','string','min:2','max:150'],
+                'country' => ['nullable','string','max:100'],
+                'photo_path' => ['nullable','string','max:255'],
+                'bio' => ['nullable','string'],
+                'video_url' => ['nullable','string','max:255'],
+            ]);
 
-        if ($this->editingId) {
-            $p = Participant::where('event_id', $this->event->id)->findOrFail($this->editingId);
-            $p->update($data);
-        } else {
-            $this->event->participants()->create($data);
+            if ($this->editingId) {
+                $p = Participant::where('event_id', $this->event->id)->findOrFail($this->editingId);
+                $p->update($data);
+            } else {
+                $this->event->participants()->create($data + ['event_id' => $this->event->id]);
+            }
+
+            $this->resetForm();
+            $this->event->refresh();
+            $this->dispatch('toast', type: 'success', message: 'Participant enregistré.');
+        } catch (\Throwable $e) {
+            report($e);
+            $this->dispatch('toast', type: 'error', message: 'Échec de l\'enregistrement du participant: ' . $e->getMessage());
         }
-
-        $this->resetForm();
-        $this->event->refresh();
-        $this->dispatch('toast', type: 'success', message: 'Participant enregistré.');
     }
 
     public function edit(int $id): void

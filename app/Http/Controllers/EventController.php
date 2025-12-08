@@ -67,14 +67,62 @@ class EventController extends Controller
     /**
      * Display a listing of the events.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $events = Event::upcoming()
-            ->withCount('registrations')
-            ->orderBy('start_date')
-            ->paginate(10);
+        $state = (string) $request->query('state', 'upcoming'); // upcoming|ongoing|finished|all
+        $period = (string) $request->query('period', ''); // today|this_week|next_week|this_month
+        $interactive = $request->has('interactive') ? (int) $request->query('interactive') : null; // 1|0|null
+        $q = trim((string) $request->query('q', ''));
 
-        return view('events.index', compact('events'));
+        $query = Event::query()->withCount('registrations');
+
+        // State filter
+        switch ($state) {
+            case 'ongoing':
+                $query->ongoing();
+                break;
+            case 'finished':
+                $query->finished();
+                break;
+            case 'all':
+                // no-op
+                break;
+            case 'upcoming':
+            default:
+                $query->upcoming();
+                break;
+        }
+
+        // Period filter
+        if (in_array($period, ['today','this_week','next_week','this_month'], true)) {
+            $query->inPeriod($period);
+        }
+
+        // Interactive filter
+        if (!is_null($interactive)) {
+            $query->where('is_interactive', (bool) $interactive);
+        }
+
+        // Search filter
+        if ($q !== '') {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('title', 'like', "%$q%")
+                    ->orWhere('location', 'like', "%$q%")
+                    ->orWhere('description', 'like', "%$q%");
+            });
+        }
+
+        $events = $query->orderBy('start_date')->paginate(10)->appends($request->query());
+
+        return view('events.index', [
+            'events' => $events,
+            'filters' => [
+                'state' => $state,
+                'period' => $period,
+                'interactive' => $interactive,
+                'q' => $q,
+            ],
+        ]);
     }
 
     /**
