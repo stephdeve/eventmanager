@@ -1,3 +1,4 @@
+@section('title', 'Event Show Page : ' . $event->title)
 <style>
     /* Variables de couleurs conformes à votre design */
     :root {
@@ -929,19 +930,19 @@
                     </p>
                 @endif
                 <div class="mt-6 flex gap-4 justify-center flex-wrap">
-                    @if($isStreaming)
-                    <span class="badge badge-secondary">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                        En Direct
-                    </span>
+                    @if ($isStreaming)
+                        <span class="badge badge-secondary">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            En Direct
+                        </span>
                     @endif
 
-                    @if($event->is_interactive)
+                    @if ($event->is_interactive)
                         @php($now = now())
-                        @if($event->isInteractiveActive())
+                        @if ($event->isInteractiveActive())
                             <span class="badge badge-secondary">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -972,14 +973,14 @@
                         @endif
                     @endif
 
-                    @if($isStreaming)
-                    <span class="badge badge-indigo">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                        </svg>
-                        Live
-                    </span>
+                    @if ($isStreaming)
+                        <span class="badge badge-indigo">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                            Live
+                        </span>
                     @endif
                 </div>
             </div>
@@ -1049,7 +1050,7 @@
                                                 d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                         </svg>
                                     </div>
-                                    <h3 class="empty-title">Aucune vidéo disponible pour le moment</h3>
+                                    <h3 class="empty-title dark:text-slate-50">Aucune vidéo disponible pour le moment</h3>
                                     <p class="empty-description">Les streams seront bientôt disponibles. Revenez plus tard
                                         !</p>
                                 </div>
@@ -1084,8 +1085,9 @@
                                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
-                        <h3 class="empty-title">Votes non disponibles pour le moment</h3>
-                        <p class="empty-description">La fonction de vote sera activée prochainement</p>
+                        <h3 class="empty-title dark:text-slate-50">Votes non disponibles pour le moment</h3>
+                        <p class="empty-description dark:text-slate-50">La fonction de vote sera activée prochainement
+                        </p>
                     </div>
                 @endif
             </div>

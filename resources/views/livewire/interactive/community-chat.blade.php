@@ -1,3 +1,5 @@
+
+@section('title', "Chat Interactif : " . $event->title)
 <style>
     /* Creative Light Background */
     .creative-light-bg {
@@ -432,7 +434,7 @@
         overflow: hidden;
     }
 
- 
+
     .creative-chat-input {
         flex: 1;
         background-color: none !important;
@@ -818,13 +820,16 @@
     }
 </style>
 
-<div class="min-h-screen py-8 bg-[#0B1220] text-slate-200 relative">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <!-- Enhanced Header Section -->
-        <div class="mb-8">
-            <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-6">
-                    <div class="event-avatar">
+<div class="">
+    <div id="floatingBubbles" class="hidden"></div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-8">
+        <!-- Header -->
+        <div class="mb-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div
+                        class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white font-bold flex items-center justify-center shadow-lg">
                         {{ mb_strtoupper(mb_substr($event->title, 0, 1, 'UTF-8'), 'UTF-8') }}
                     </div>
                     <div>
@@ -838,7 +843,7 @@
                     <span>En ligne: <span id="online-count" class="font-semibold">0</span></span>
                 </div>
             </div>
-            <div class="mt-3">
+            <div class="mt-5">
                 <a href="{{ route('interactive.events.show', ['event' => $event->slug ?? $event->id]) }}"
                     class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 transition-colors dark:bg-neutral-900 dark:border-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-800">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -862,23 +867,27 @@
             </div>
         @endif
 
-        <!-- Enhanced Chat Container -->
-        <div class="chat-container">
-            <!-- Enhanced Chat Header -->
-            <div class="chat-header">
-                <div class="flex items-center gap-4">
-                    <div class="event-avatar" style="width: 48px; height: 48px; font-size: 1.25rem;">
-                        {{ mb_strtoupper(mb_substr($event->title, 0, 1, 'UTF-8'), 'UTF-8') }}
-                    </div>
-                    <div>
-                        <h2 class="text-xl font-bold text-white">{{ $event->title }}</h2>
-                        <span class="text-slate-200 text-sm font-medium">Communauté de discussion en temps réel</span>
+        <!-- Chat Container -->
+        <div
+            class="bg-white border border-slate-200 rounded-2xl shadow-lg overflow-hidden dark:bg-neutral-900 dark:border-neutral-800">
+            <div class="px-4 py-3 border-b border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white font-semibold flex items-center justify-center">
+                            {{ mb_strtoupper(mb_substr($event->title, 0, 1, 'UTF-8'), 'UTF-8') }}
+                        </div>
+                        <div>
+                            <h2 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+                                {{ $event->title }}</h2>
+                            <span class="text-xs text-neutral-500 dark:text-neutral-400">Chat en temps réel</span>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Enhanced Messages Area -->
-            <div id="messages" wire:ignore class="messages-area">
+            <!-- Messages -->
+            <div id="messages" wire:poll.2s="refreshMessages"
+                class="h-[60vh] overflow-y-auto p-4 bg-white dark:bg-neutral-900">
                 @forelse($this->messages as $m)
                     @php $own = auth()->check() && auth()->id() === $m->user_id; @endphp
                     @if ($own)
@@ -940,14 +949,12 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4-.8L3 20l.8-4A8.993 8.993 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
-                    <input
-                        type="text"
-                        wire:model="messageText"
-                        placeholder="Écrivez votre message..."
-                        class="chat-input"
-                        @if($readOnly) disabled @endif
-                    >
-                    <button wire:click="send" class="send-button" @if($readOnly) disabled @endif>
+                    <input type="text" wire:model.defer="messageText" placeholder="Tapez votre message..."
+                        class="creative-chat-input w-full bg-transparent text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500"
+                        @if ($readOnly) disabled @endif>
+                    <button wire:click="sendMessage"
+                        class="dancing-send inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-indigo-700 hover:to-purple-700 transition-colors"
+                        @if ($readOnly) disabled @endif>
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -970,34 +977,53 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Enhanced interactive mouse effects
-    let mouseX = 0;
-    let mouseY = 0;
-    
-    // Mouse glow trail removed for performance
+    document.addEventListener('DOMContentLoaded', function() {
+        // Create floating bubbles
+        const floatingBubbles = document.getElementById('floatingBubbles');
+        const bubbleCount = 12;
 
-    // Enhanced message animations
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.type === 'childList') {
-                mutation.addedNodes.forEach(function(node) {
-                    if (node.classList && node.classList.contains('message-bubble')) {
-                        // Add entrance animation to new messages
-                        node.style.animation = 'messageSlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-                        
-                        // Add pulse effect to new messages
-                        setTimeout(() => {
-                            node.style.animation = 'messagePulse 0.6s ease-out';
+        for (let i = 0; i < bubbleCount; i++) {
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            const size = Math.random() * 120 + 40;
+            bubble.style.width = size + 'px';
+            bubble.style.height = size + 'px';
+            bubble.style.left = Math.random() * 100 + '%';
+            bubble.style.top = Math.random() * 100 + '%';
+            bubble.style.animationDelay = Math.random() * 8 + 's';
+            bubble.style.animationDuration = (Math.random() * 4 + 6) + 's';
+            bubble.style.opacity = Math.random() * 0.4 + 0.1;
+            floatingBubbles.appendChild(bubble);
+        }
+
+        // Dancing message effects
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.classList && node.classList.contains(
+                                'dancing-message')) {
+                            // Add extra dance on new messages
                             setTimeout(() => {
-                                node.style.animation = '';
-                            }, 600);
-                        }, 500);
-                    }
-                });
-            }
+                                node.style.animation =
+                                    'messageDanceIn 0.6s cubic-bezier(0.4, 0, 0.2, 1), messagePop 0.8s ease-out';
+                                setTimeout(() => {
+                                    node.style.animation = '';
+                                }, 800);
+                            }, 100);
+
+                            // Scroll to bottom
+                            const messagesContainer = document.getElementById(
+                                'messages');
+                            if (messagesContainer) {
+                                messagesContainer.scrollTop = messagesContainer
+                                    .scrollHeight;
+                            }
+                        }
+                    });
+                }
+            });
         });
-    });
 
         // Add pop animation
         const popStyle = document.createElement('style');
@@ -1105,171 +1131,18 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-    // Add entrance animations to elements
-    const elementsToAnimate = document.querySelectorAll('.chat-container, .back-button, .warning-banner');
-    elementsToAnimate.forEach((element, index) => {
-        element.style.opacity = '0';
-        element.style.transform = 'translateY(30px)';
-        element.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
-        
-        setTimeout(() => {
-            element.style.opacity = '1';
-            element.style.transform = 'translateY(0)';
-        }, 100 + (index * 200));
-    });
-});
+        // Initialize entrance animations
+        const creativeElements = document.querySelectorAll(
+            '.creative-chat-container, .creative-back, .dancing-online');
+        creativeElements.forEach((element, index) => {
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(20px)';
+            element.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
 
-// Add message pulse animation
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes messagePulse {
-        0% {
-            box-shadow: 0 12px 24px rgba(79, 70, 229, 0.3);
-        }
-        50% {
-            box-shadow: 0 16px 32px rgba(79, 70, 229, 0.5);
-        }
-        100% {
-            box-shadow: 0 12px 24px rgba(79, 70, 229, 0.3);
-        }
-    }
-`;
-document.head.appendChild(style);
-</script>
-
-<script>
-// Real-time presence + message listener (Echo)
-(function() {
-    const eventId = {{ (int) $event->id }};
-    const readOnly = @json($readOnly);
-    const userId = Number(@json(Auth::id() ?? 0));
-    const userName = @json(Auth::user()->name ?? 'Participant');
-
-    function showToast(type, text) {
-        const el = document.createElement('div');
-        el.className = 'fixed right-4 bottom-4 z-50 px-4 py-3 rounded shadow text-white ' + (type === 'error' ? 'bg-red-600' : (type === 'warning' ? 'bg-amber-600' : 'bg-indigo-600'));
-        el.textContent = text;
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 4000);
-    }
-
-    const online = new Set();
-    function updateOnlineCount() {
-        const el = document.getElementById('online-count');
-        if (el) el.textContent = String(online.size);
-    }
-
-    function esc(s) {
-        return (s || '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
-    }
-
-    function appendMessage(payload) {
-        try {
-            const container = document.getElementById('messages');
-            if (!container) return;
-            const empty = document.getElementById('empty-state');
-            if (empty) empty.remove();
-
-            const msg = (payload && payload.message) ? String(payload.message) : '';
-            const author = (payload && payload.user && payload.user.name) ? String(payload.user.name) : 'Participant';
-            const uid = Number(payload && payload.user && payload.user.id ? payload.user.id : 0);
-            const isOwn = Number(uid) === Number(userId);
-            const createdAt = payload && payload.created_at ? new Date(payload.created_at) : new Date();
-            const timeStr = createdAt.toLocaleString();
-
-            const wrapper = document.createElement('div');
-            wrapper.className = (isOwn ? 'own-message' : 'other-message') + ' message-bubble';
-
-            if (isOwn) {
-                wrapper.innerHTML = `
-                    <div class="own-bubble">
-                        <div class="message-header">
-                            <span class="message-author">${esc(author)}</span>
-                            <span class="message-time">${esc(timeStr)}</span>
-                        </div>
-                        <div class="message-content">${esc(msg)}</div>
-                    </div>
-                `;
-            } else {
-                const initial = esc(author.charAt(0).toUpperCase());
-                wrapper.innerHTML = `
-                    <div class="user-avatar">${initial}</div>
-                    <div class="other-bubble">
-                        <div class="message-header">
-                            <span class="message-author">${esc(author)}</span>
-                            <span class="message-time">${esc(timeStr)}</span>
-                        </div>
-                        <div class="message-content">${esc(msg)}</div>
-                    </div>
-                `;
-            }
-
-            container.appendChild(wrapper);
-            container.scrollTop = container.scrollHeight;
-        } catch (e) {
-            // ignore
-        }
-    }
-
-    function setupPresence() {
-        if (typeof Echo === 'undefined') {
-            showToast('warning', 'Temps réel indisponible (Echo non initialisé).');
-            return;
-        }
-        try {
-            Echo.join(`event.${eventId}`)
-                .here((users) => {
-                    online.clear();
-                    (users || []).forEach(u => online.add(Number(u.id)));
-                    updateOnlineCount();
-                })
-                .joining((user) => {
-                    if (user && typeof user.id !== 'undefined') {
-                        online.add(Number(user.id));
-                        updateOnlineCount();
-                    }
-                })
-                .leaving((user) => {
-                    if (user && typeof user.id !== 'undefined') {
-                        online.delete(Number(user.id));
-                        updateOnlineCount();
-                    }
-                })
-                .listen('.message.sent', (e) => {
-                    appendMessage(e);
-                });
-        } catch (e) {
-            showToast('error', 'Impossible de rejoindre le canal en temps réel.');
-        }
-    }
-
-    const chatInput = document.querySelector('.chat-input');
-    const sendBtn = document.querySelector('.send-button');
-
-    // Enter to send
-    if (chatInput) {
-        chatInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey && !readOnly) {
-                e.preventDefault();
-                sendBtn?.click();
-            }
+            setTimeout(() => {
+                element.style.opacity = '1';
+                element.style.transform = 'translateY(0)';
+            }, 200 + (index * 150));
         });
-    }
-
-    // Listen to Livewire-dispatched toasts
-    window.addEventListener('toast', (e) => {
-        const d = e.detail || {};
-        if (d.message) showToast(d.type || 'info', d.message);
     });
-
-    // Append locally when Livewire confirms save (fallback if Echo is down)
-    window.addEventListener('message-sent', (e) => {
-        try {
-            const payload = (e && e.detail) ? e.detail.message || e.detail : null;
-            if (payload) appendMessage(payload);
-        } catch (_) {}
-    });
-
-    setupPresence();
-})();
 </script>
