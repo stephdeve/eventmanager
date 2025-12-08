@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Événements à venir')
+@section('title', 'Événements à venir ')
 
 @push('styles')
     <style>
@@ -70,8 +70,9 @@
                         <div
                             class="inline-flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-2xl px-4 py-3 border border-slate-200 shadow-sm mb-4 dark:bg-neutral-900/80 dark:border-neutral-800">
                             <div class="w-2 h-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full pulse-dot"></div>
-                            <span class="text-sm font-semibold text-slate-700 dark:text-neutral-300">Événements à
-                                venir</span>
+                            <span class="text-sm font-semibold text-slate-700 dark:text-neutral-300">
+                                {{ ($filter['status'] ?? 'all') === 'running' ? 'Événements en cours' : (($filter['status'] ?? 'all') === 'finished' ? 'Événements terminés' : (($filter['status'] ?? 'all') === 'upcoming' ? 'Événements à venir' : 'Tous les événements')) }}
+                            </span>
                         </div>
                         <h1
                             class="text-4xl font-bold bg-gradient-to-r from-slate-800 to-indigo-600 bg-clip-text text-transparent mb-4 dark:from-neutral-100 dark:to-indigo-300">
@@ -97,16 +98,23 @@
             </div>
 
             <!-- Stats Cards - NOUVELLES STATISTIQUES -->
-            @if (!$events->isEmpty())
+            @php
+                $collection = isset($events)
+                    ? (method_exists($events, 'getCollection')
+                        ? $events->getCollection()
+                        : $events)
+                    : $allEvents ?? collect();
+            @endphp
+            @if ($collection->isNotEmpty())
                 @php
-                    $totalEvents = $events->count();
-                    $interactiveEvents = $events->where('is_interactive', true)->count();
-                    $upcomingEvents = $events
+                    $totalEvents = $collection->count();
+                    $interactiveEventsCount = $collection->where('is_interactive', true)->count();
+                    $upcomingEventsCount = $collection
                         ->filter(function ($event) {
                             return $event->start_date && $event->start_date->isFuture();
                         })
                         ->count();
-                    $thisWeekEvents = $events
+                    $thisWeekEventsCount = $collection
                         ->filter(function ($event) {
                             return $event->start_date && $event->start_date->between(now(), now()->addWeek());
                         })
@@ -123,7 +131,7 @@
                         <div class="relative z-10">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-sm font-medium text-blue-100 mb-1">Total des événements</p>
+                                    <p class="text-sm font-medium text-blue-100 mb-3">Total des événements</p>
                                     <p class="text-2xl font-bold">{{ $totalEvents }}</p>
                                 </div>
                                 <div class="p-3 bg-white/20 rounded-xl">
@@ -146,8 +154,8 @@
                         <div class="relative z-10">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-sm font-medium text-emerald-100 mb-1">Événements interactifs</p>
-                                    <p class="text-2xl font-bold">{{ $interactiveEvents }}</p>
+                                    <p class="text-sm font-medium text-emerald-100 mb-3">Événements interactifs</p>
+                                    <p class="text-2xl font-bold">{{ $interactiveEventsCount }}</p>
                                 </div>
                                 <div class="p-3 bg-white/20 rounded-xl">
                                     <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor"
@@ -169,8 +177,8 @@
                         <div class="relative z-10">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-sm font-medium text-amber-100 mb-1">À venir</p>
-                                    <p class="text-2xl font-bold">{{ $upcomingEvents }}</p>
+                                    <p class="text-sm font-medium text-amber-100 mb-3">À venir</p>
+                                    <p class="text-2xl font-bold">{{ $upcomingEventsCount }}</p>
                                 </div>
                                 <div class="p-3 bg-white/20 rounded-xl">
                                     <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor"
@@ -193,7 +201,7 @@
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="text-sm font-medium text-purple-100 mb-1">Cette semaine</p>
-                                    <p class="text-2xl font-bold">{{ $thisWeekEvents }}</p>
+                                    <p class="text-2xl font-bold">{{ $thisWeekEventsCount }}</p>
                                 </div>
                                 <div class="p-3 bg-white/20 rounded-xl">
                                     <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor"
@@ -208,14 +216,17 @@
                 </div>
             @endif
 
+
             <!-- Action Bar -->
             <div
                 class="dashboard-card bg-white rounded-2xl p-6 shadow-xl border border-slate-100 mb-8 dark:bg-neutral-900 dark:border-neutral-800">
                 <div class="flex flex-col lg:flex-row justify-between items-center gap-6">
-                    <div class="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+                    <form method="GET" action="{{ route('events.index') }}"
+                        class="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
                         <!-- Recherche -->
                         <div class="relative flex-1 lg:flex-none min-w-[280px]">
-                            <input type="text" placeholder="Rechercher un événement..."
+                            <input type="text" name="q" value="{{ $filter['q'] ?? '' }}"
+                                placeholder="Rechercher un événement..."
                                 class="pl-12 pr-4 py-3.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white/90 backdrop-blur-sm w-full transition-all duration-200 text-slate-700 placeholder-slate-500 text-sm font-medium dark:border-neutral-800 dark:bg-neutral-900/80 dark:text-neutral-100 dark:placeholder-neutral-500">
                             <svg class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 transform -translate-y-1/2 dark:text-neutral-500"
                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -226,21 +237,31 @@
 
                         <!-- Filtres -->
                         <div class="flex items-center gap-3">
-                            <select
+                            <select name="interactive" onchange="this.form.submit()"
                                 class="px-4 py-3.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white/90 backdrop-blur-sm text-slate-700 text-sm font-medium transition-all duration-200 min-w-40 dark:border-neutral-800 dark:bg-neutral-900/80 dark:text-neutral-100">
-                                <option>Tous les événements</option>
-                                <option>Événements interactifs</option>
-                                <option>Événements standards</option>
+                                <option value=""
+                                    {{ !isset($filter['interactive']) || $filter['interactive'] === null ? 'selected' : '' }}>
+                                    Tous les événements</option>
+                                <option value="1" {{ ($filter['interactive'] ?? null) === '1' ? 'selected' : '' }}>
+                                    Événements interactifs</option>
+                                <option value="0" {{ ($filter['interactive'] ?? null) === '0' ? 'selected' : '' }}>
+                                    Événements standards</option>
                             </select>
 
-                            <select
+                            <select name="status" onchange="this.form.submit()"
                                 class="px-4 py-3.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white/90 backdrop-blur-sm text-slate-700 text-sm font-medium transition-all duration-200 min-w-40 dark:border-neutral-800 dark:bg-neutral-900/80 dark:text-neutral-100">
-                                <option>Prochainement</option>
-                                <option>Cette semaine</option>
-                                <option>Ce mois-ci</option>
+                                @php
+                                    $s = $filter['status'] ?? 'running';
+                                @endphp
+                                <option value="all" {{ $s === 'all' ? 'selected' : '' }}>Tous les statuts</option>
+                                <option value="running" {{ $s === 'running' ? 'selected' : '' }}>En cours</option>
+                                <option value="upcoming" {{ $s === 'upcoming' ? 'selected' : '' }}>À venir</option>
+                                <option value="finished" {{ $s === 'finished' ? 'selected' : '' }}>Terminés</option>
                             </select>
                         </div>
-                    </div>
+
+                        <button type="submit" class="hidden">Filtrer</button>
+                    </form>
 
                     <!-- Boutons d'action -->
                     <div class="flex items-center gap-3">
@@ -256,7 +277,14 @@
                 </div>
             </div>
 
-            @if ($events->isEmpty())
+            @php
+                $collection = isset($events)
+                    ? (method_exists($events, 'getCollection')
+                        ? $events->getCollection()
+                        : $events)
+                    : $allEvents ?? collect();
+            @endphp
+            @if ($collection->isEmpty())
                 <!-- Empty State -->
                 <div
                     class="dashboard-card bg-white rounded-2xl p-12 text-center border border-slate-100 dark:bg-neutral-900 dark:border-neutral-800">
@@ -287,168 +315,264 @@
                     </div>
                 </div>
             @else
-                <!-- Events Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-12" id="eventsGrid">
-                    @foreach ($events as $event)
-                        @php
-                            $seats = (int) ($event->available_seats ?? 0);
-                            $isFree = (int) $event->price <= 0;
-                            $description = \Illuminate\Support\Str::limit(strip_tags($event->description), 100);
-                            $isUpcoming = $event->start_date && $event->start_date->isFuture();
-                            $isInteractive = $event->is_interactive;
-                        @endphp
+                @php
+                    $status = $filter['status'] ?? 'all';
+                @endphp
+                @if ($status !== 'all')
+                    <!-- Events Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-12" id="eventsGrid">
+                        @foreach ($events as $event)
+                            @php
+                                $seats = (int) ($event->available_seats ?? 0);
+                                $isFree = (int) $event->price <= 0;
+                                $description = \Illuminate\Support\Str::limit(strip_tags($event->description), 100);
+                                $isUpcoming = $event->start_date && $event->start_date->isFuture();
+                                $isUpFinished = $event->end_date && $event->end_date->isPast();
+                                $isUpRunning = $event->start_date && $event->start_date->isPast() && $event->end_date && $event->end_date->isFuture();
+                                $isInteractive = $event->is_interactive;
+                            @endphp
 
-                        <div class="event-card group bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden dark:bg-neutral-900 dark:border-neutral-800"
-                            data-interactive="{{ $isInteractive ? 1 : 0 }}">
-                            <!-- Image Container -->
-                            <div class="relative h-56 overflow-hidden">
-                                <img src="{{ $event->cover_image_url }}" alt="{{ $event->title }}"
-                                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                                <div
-                                    class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent">
-                                </div>
+                            <div class="event-card group bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden dark:bg-neutral-900 dark:border-neutral-800"
+                                data-interactive="{{ $isInteractive ? 1 : 0 }}">
+                                <!-- Image Container -->
+                                <div class="relative h-56 overflow-hidden">
+                                    <img src="{{ $event->cover_image_url }}" alt="{{ $event->title }}"
+                                        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent">
+                                    </div>
 
-                                <!-- Date Overlay -->
-                                @if ($event->start_date)
-                                    <div class="absolute bottom-4 left-4">
-                                        <div
-                                            class="bg-white/95 backdrop-blur-sm rounded-xl p-3 text-center shadow-xl dark:bg-neutral-900/90">
+                                    <!-- Date Overlay -->
+                                    @if ($event->start_date)
+                                        <div class="absolute bottom-4 left-4">
                                             <div
-                                                class="text-xl font-bold text-slate-900 leading-none dark:text-neutral-100">
-                                                {{ $event->start_date->format('d') }}
-                                            </div>
-                                            <div
-                                                class="text-xs font-semibold text-slate-600 uppercase mt-1 dark:text-neutral-400">
-                                                {{ $event->start_date->format('M') }}
+                                                class="bg-white/95 backdrop-blur-sm rounded-xl p-3 text-center shadow-xl dark:bg-neutral-900/90">
+                                                <div
+                                                    class="text-xl font-bold text-slate-900 leading-none dark:text-neutral-100">
+                                                    {{ $event->start_date->format('d') }}
+                                                </div>
+                                                <div
+                                                    class="text-xs font-semibold text-slate-600 uppercase mt-1 dark:text-neutral-400">
+                                                    {{ $event->start_date->format('M') }}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                @endif
-
-                                <!-- Badges -->
-                                <div class="absolute top-4 right-4 flex flex-col space-y-2">
-                                    @if ($seats > 0)
-                                        <span
-                                            class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-green-500 text-white shadow-lg">
-                                            {{ $seats }} places
-                                        </span>
-                                    @else
-                                        <span
-                                            class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-red-500 text-white shadow-lg">
-                                            Complet
-                                        </span>
                                     @endif
 
-                                    <span
-                                        class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold {{ $isFree ? 'bg-blue-500 text-white' : 'bg-purple-500 text-white' }} shadow-lg">
-                                        {{ $isFree ? 'Gratuit' : $event->price_for_display }}
-                                    </span>
-
-                                    @if ($isInteractive)
-                                        @if (!empty($event->slug))
-                                            <a href="{{ route('interactive.events.show', ['event' => $event->slug]) }}"
-                                                class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-600 text-white shadow-lg hover:bg-emerald-700 transition-colors duration-200">
-                                                @if (method_exists($event, 'isInteractiveActive') && $event->isInteractiveActive())
-                                                    <span class="w-2 h-2 bg-white rounded-full mr-1.5 pulse-dot"></span>
-                                                @endif
-                                                Interactif
-                                            </a>
+                                    <!-- Badges -->
+                                    <div class="absolute top-4 right-4 flex flex-col space-y-2">
+                                        @if ($seats > 0)
+                                            <span
+                                                class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-green-500 text-white shadow-lg">
+                                                {{ $seats }} places
+                                            </span>
                                         @else
                                             <span
-                                                class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-600 text-white shadow-lg">
-                                                Interactif
+                                                class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-red-500 text-white shadow-lg">
+                                                Complet
                                             </span>
                                         @endif
-                                    @endif
-                                </div>
-                            </div>
 
-                            <!-- Content -->
-                            <div class="p-6">
-                                <!-- Status Badge -->
-                                @if ($isUpcoming)
-                                    <div
-                                        class="inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-xs font-semibold mb-4 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-300 dark:border-blue-500/30">
-                                        <div class="w-2 h-2 bg-blue-500 rounded-full mr-2 pulse-dot dark:bg-blue-400">
-                                        </div>
-                                        À venir
-                                    </div>
-                                @endif
-
-                                <h3
-                                    class="font-bold text-xl text-slate-900 line-clamp-2 leading-tight group-hover:text-indigo-600 transition-colors duration-200 min-h-[3.5rem] mb-3 dark:text-neutral-100 dark:group-hover:text-indigo-400">
-                                    {{ $event->title }}
-                                </h3>
-
-                                <!-- Meta Info -->
-                                <div class="space-y-3 mb-4">
-                                    <div class="flex items-center text-slate-600 text-sm dark:text-neutral-400">
-                                        <svg class="w-5 h-5 mr-3 text-indigo-500 flex-shrink-0" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                        <span class="truncate font-medium">{{ $event->location }}</span>
-                                    </div>
-
-                                    <div class="flex items-center text-slate-600 text-sm dark:text-neutral-400">
-                                        <svg class="w-5 h-5 mr-3 text-purple-500 flex-shrink-0" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        <span class="font-medium">
-                                            @if ($event->start_date)
-                                                {{ $event->start_date->translatedFormat('d M Y, H:i') }}
-                                            @endif
+                                        <span
+                                            class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold {{ $isFree ? 'bg-blue-500 text-white' : 'bg-purple-500 text-white' }} shadow-lg">
+                                            {{ $isFree ? 'Gratuit' : $event->price_for_display }}
                                         </span>
+
+                                        @if ($isInteractive)
+                                            @if (!empty($event->slug))
+                                                <a href="{{ route('interactive.events.show', ['event' => $event->slug]) }}"
+                                                    class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-600 text-white shadow-lg hover:bg-emerald-700 transition-colors duration-200">
+                                                    @if (method_exists($event, 'isInteractiveActive') && $event->isInteractiveActive())
+                                                        <span
+                                                            class="w-2 h-2 bg-white rounded-full mr-1.5 pulse-dot"></span>
+                                                    @endif
+                                                    Interactif
+                                                </a>
+                                            @else
+                                                <span
+                                                    class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-600 text-white shadow-lg">
+                                                    Interactif
+                                                </span>
+                                            @endif
+                                        @endif
                                     </div>
                                 </div>
 
-                                <!-- Description -->
-                                <p
-                                    class="text-slate-600 text-sm p-4 bg-slate-50 rounded-xl mb-5 line-clamp-2 leading-relaxed border border-slate-100 dark:text-neutral-300 dark:bg-neutral-900/50 dark:border-neutral-800">
-                                    {{ $description }}
-                                </p>
+                                <!-- Content -->
+                                <div class="p-6">
+                                    <!-- Status Badge -->
+                                    @if ($isUpcoming)
+                                        <div
+                                            class="inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-xs font-semibold mb-4 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-300 dark:border-blue-500/30">
+                                            <div class="w-2 h-2 bg-blue-500 rounded-full mr-2 pulse-dot dark:bg-blue-400">
+                                            </div>
+                                            À venir
+                                        </div>
+                                    @endif
+                                    @if ($isUpFinished)
+                                        <div
+                                            class="inline-flex items-center px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-xs font-semibold mb-4 border border-green-200 dark:bg-green-500/10 dark:text-green-300 dark:border-green-500/30">
+                                            <div class="w-2 h-2 bg-green-500 rounded-full mr-2 pulse-dot dark:bg-green-400">
+                                            </div>
+                                            Terminé
+                                        </div>
+                                    @endif
+                                    @if ($isUpRunning)
+                                        <div
+                                            class="inline-flex items-center px-3 py-1.5 bg-yellow-50 text-yellow-700 rounded-full text-xs font-semibold mb-4 border border-yellow-200 dark:bg-yellow-500/10 dark:text-yellow-300 dark:border-yellow-500/30">
+                                            <div class="w-2 h-2 bg-yellow-500 rounded-full mr-2 pulse-dot dark:bg-yellow-400">
+                                            </div>
+                                            En cours
+                                        </div>
+                                    @endif
 
-                                <!-- CTA Button -->
-                                <div class="flex flex-col sm:flex-row gap-3">
-                                    <a href="{{ route('events.show', $event) }}"
-                                        class="group/btn flex-1 inline-flex items-center justify-center px-5 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 text-sm">
-                                        <span>Voir les détails</span>
-                                        <svg class="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform duration-200"
-                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M9 5l7 7-7 7" />
-                                        </svg>
-                                    </a>
-                                    @if ($isInteractive && !empty($event->slug))
-                                        <a href="{{ route('interactive.events.show', ['event' => $event->slug]) }}?tab=votes"
-                                            class="flex-1 inline-flex items-center justify-center px-5 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 text-sm">
-                                            <span>Expérience interactive</span>
-                                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
+                                    <h3
+                                        class="font-bold text-xl text-slate-900 line-clamp-2 leading-tight group-hover:text-indigo-600 transition-colors duration-200 min-h-[3.5rem] mb-3 dark:text-neutral-100 dark:group-hover:text-indigo-400">
+                                        {{ $event->title }}
+                                    </h3>
+
+                                    <!-- Meta Info -->
+                                    <div class="space-y-3 mb-4">
+                                        <div class="flex items-center text-slate-600 text-sm dark:text-neutral-400">
+                                            <svg class="w-5 h-5 mr-3 text-indigo-500 flex-shrink-0" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                            <span class="truncate font-medium">{{ $event->location }}</span>
+                                        </div>
+
+                                        <div class="flex items-center text-slate-600 text-sm dark:text-neutral-400">
+                                            <svg class="w-5 h-5 mr-3 text-purple-500 flex-shrink-0" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span class="font-medium">
+                                                @if ($event->start_date)
+                                                    {{ $event->start_date->translatedFormat('d M Y, H:i') }}
+                                                @endif
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Description -->
+                                    <p
+                                        class="text-slate-600 text-sm p-4 bg-slate-50 rounded-xl mb-5 line-clamp-2 leading-relaxed border border-slate-100 dark:text-neutral-300 dark:bg-neutral-900/50 dark:border-neutral-800">
+                                        {{ $description }}
+                                    </p>
+
+                                    <!-- CTA Button -->
+                                    <div class="flex flex-col sm:flex-row gap-3">
+                                        <a href="{{ route('events.show', $event) }}"
+                                            class="group/btn flex-1 inline-flex items-center justify-center px-5 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 text-sm">
+                                            <span>Voir les détails</span>
+                                            <svg class="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform duration-200"
+                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 5l7 7-7 7" />
                                             </svg>
                                         </a>
-                                    @endif
+                                        @if ($isInteractive && !empty($event->slug))
+                                            <a href="{{ route('interactive.events.show', ['event' => $event->slug]) }}?tab=votes"
+                                                class="flex-1 inline-flex items-center justify-center px-5 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 text-sm">
+                                                <span>Expérience interactive</span>
+                                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                                </svg>
+                                            </a>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    @endforeach
-                </div>
-
-                <!-- Pagination -->
-                @if ($events->hasPages())
-                    <div
-                        class="dashboard-card bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-slate-100 dark:bg-neutral-900/80 dark:border-neutral-800">
-                        <div class="flex justify-center">
-                            {{ $events->links('vendor.pagination.tailwind') }}
-                        </div>
+                        @endforeach
                     </div>
+
+                    <!-- Pagination -->
+                    @if ($events->hasPages())
+                        <div
+                            class="dashboard-card bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-slate-100 dark:bg-neutral-900/80 dark:border-neutral-800">
+                            <div class="flex justify-center">
+                                {{ $events->links('vendor.pagination.tailwind') }}
+                            </div>
+                        </div>
+                    @endif
+                @else
+                    @php
+                        $runningList =
+                            isset($runningEvents) && $runningEvents instanceof \Illuminate\Support\Collection
+                                ? $runningEvents
+                                : collect($runningEvents ?? []);
+                        $upcomingList =
+                            isset($upcomingEvents) && $upcomingEvents instanceof \Illuminate\Support\Collection
+                                ? $upcomingEvents
+                                : collect($upcomingEvents ?? []);
+                        $finishedList =
+                            isset($finishedEvents) && $finishedEvents instanceof \Illuminate\Support\Collection
+                                ? $finishedEvents
+                                : collect($finishedEvents ?? []);
+                    @endphp
+                    @if ($upcomingList->isNotEmpty())
+                        <h2 class="text-2xl font-bold mb-8 text-slate-800 dark:text-neutral-100">Evénements à venir</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-12">
+                            @foreach ($upcomingList as $event)
+                                @php
+                                    $seats = (int) ($event->available_seats ?? 0);
+                                    $isFree = (int) $event->price <= 0;
+                                    $description = \Illuminate\Support\Str::limit(strip_tags($event->description), 100);
+                                    $isUpcoming = $event->start_date && $event->start_date->isFuture();
+                                    $isInteractive = $event->is_interactive;
+                                @endphp
+                                <div class="event-card group bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden dark:bg-neutral-900 dark:border-neutral-800"
+                                    data-interactive="{{ $isInteractive ? 1 : 0 }}">
+                                    @include('events.partials.card')
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                    @if ($runningList->isNotEmpty())
+                        <h2 class="text-2xl font-bold mb-8 text-slate-800 dark:text-neutral-100 ">Evénements en cours</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-12">
+                            @foreach ($runningList as $event)
+                                @php
+                                    $seats = (int) ($event->available_seats ?? 0);
+                                    $isFree = (int) $event->price <= 0;
+                                    $description = \Illuminate\Support\Str::limit(strip_tags($event->description), 100);
+                                    $isUpcoming = $event->start_date && $event->start_date->isFuture();
+                                    $isInteractive = $event->is_interactive;
+                                @endphp
+                                <div class="event-card group bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden dark:bg-neutral-900 dark:border-neutral-800"
+                                    data-interactive="{{ $isInteractive ? 1 : 0 }}">
+                                    @include('events.partials.card')
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+
+
+
+                    @if ($finishedList->isNotEmpty())
+                        <h2 class="text-2xl font-bold mb-8 text-slate-800 dark:text-neutral-100">Evénements terminés</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-12">
+                            @foreach ($finishedList as $event)
+                                @php
+                                    $seats = (int) ($event->available_seats ?? 0);
+                                    $isFree = (int) $event->price <= 0;
+                                    $description = \Illuminate\Support\Str::limit(strip_tags($event->description), 100);
+                                    $isUpcoming = $event->start_date && $event->start_date->isFuture();
+                                    $isInteractive = $event->is_interactive;
+                                @endphp
+                                <div class="event-card group bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden dark:bg-neutral-900 dark:border-neutral-800"
+                                    data-interactive="{{ $isInteractive ? 1 : 0 }}">
+                                    @include('events.partials.card')
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                 @endif
             @endif
         </div>
@@ -507,7 +631,7 @@
 
                         events.forEach((event) => {
                             const title = event.querySelector('h3').textContent
-                            .toLowerCase();
+                                .toLowerCase();
                             const location = event.querySelector('.text-slate-600 span')
                                 .textContent.toLowerCase();
                             const description = event.querySelector('p').textContent
@@ -552,11 +676,11 @@
 
                 img.addEventListener('error', function() {
                     this.src = `data:image/svg+xml;base64,${btoa(`
-                    <svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="400" height="200" fill="#f8fafc"/>
-                        <text x="200" y="110" fill="#94a3b8" text-anchor="middle" font-family="Arial" font-size="14" font-weight="600">Image non disponible</text>
-                    </svg>
-                `)}`;
+                                            <svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <rect width="400" height="200" fill="#f8fafc"/>
+                                                <text x="200" y="110" fill="#94a3b8" text-anchor="middle" font-family="Arial" font-size="14" font-weight="600">Image non disponible</text>
+                                            </svg>
+                                        `)}`;
                 });
             });
 

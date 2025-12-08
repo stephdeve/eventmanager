@@ -32,13 +32,13 @@ class EventController extends Controller
     {
         $this->authorize('update', $event);
         $currentUser = Auth::user();
-        $devBypass = app()->environment(['local','development']);
+        $devBypass = app()->environment(['local', 'development']);
         $bypassUsers = collect(explode(',', (string) env('PROMO_BYPASS_USER_IDS', '')))
             ->filter(fn($v) => $v !== '')
             ->map(fn($v) => (int) trim((string) $v))
             ->all();
         $hasBypass = $currentUser && in_array((int) $currentUser->id, $bypassUsers, true);
-        if (!$currentUser || (!($currentUser->isAdmin() || in_array(($currentUser->subscription_plan ?? 'basic'), ['premium','pro'], true) || $devBypass || $hasBypass))) {
+        if (!$currentUser || (!($currentUser->isAdmin() || in_array(($currentUser->subscription_plan ?? 'basic'), ['premium', 'pro'], true) || $devBypass || $hasBypass))) {
             return back()->with('error', 'Fonctionnalité réservée aux abonnements Premium et Pro.');
         }
 
@@ -65,16 +65,70 @@ class EventController extends Controller
     }
 
     /**
-     * Display a listing of the events.
+     * Display a listing of the events with filters and grouped sections.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $events = Event::upcoming()
-            ->withCount('registrations')
-            ->orderBy('start_date')
-            ->paginate(10);
+        $status = (string) $request->query('status', 'all'); // all|upcoming|running|finished
+        $interactive = $request->query('interactive'); // '1'|'0'|null
+        $q = trim((string) $request->query('q', ''));
 
-        return view('events.index', compact('events'));
+        $base = Event::query()->withCount('registrations');
+
+        if ($interactive === '1') {
+            $base->where('is_interactive', true);
+        } elseif ($interactive === '0') {
+            $base->where('is_interactive', false);
+        }
+
+        if ($q !== '') {
+            $base->where(function ($qb) use ($q) {
+                $qb->where('title', 'like', "%{$q}%")
+                    ->orWhere('description', 'like', "%{$q}%")
+                    ->orWhere('location', 'like', "%{$q}%");
+            });
+        }
+
+        $now = Carbon::now();
+
+        $clone = function () use ($base) {
+            return clone $base;
+        };
+
+        $upcomingQuery = $clone()->where('start_date', '>', $now)->orderBy('start_date', 'asc');
+        $runningQuery = $clone()->where('start_date', '<=', $now)
+            ->where(function ($qb) use ($now) {
+                $qb->whereNull('end_date')->orWhere('end_date', '>=', $now);
+            })
+            ->orderBy('start_date', 'desc');
+        $finishedQuery = $clone()->whereNotNull('end_date')
+            ->where('end_date', '<', $now)
+            ->orderBy('end_date', 'desc');
+
+        $filter = [
+            'status' => $status,
+            'interactive' => $interactive,
+            'q' => $q,
+        ];
+
+        if ($status !== 'all') {
+            $map = [
+                'upcoming' => $upcomingQuery,
+                'running' => $runningQuery,
+                'finished' => $finishedQuery,
+            ];
+            $targetQuery = $map[$status] ?? $clone();
+            $events = $targetQuery->paginate(12)->withQueryString();
+            $allEvents = $events->getCollection();
+            return view('events.index', compact('events', 'allEvents', 'filter'));
+        }
+
+        $upcomingEvents = $upcomingQuery->get();
+        $runningEvents = $runningQuery->get();
+        $finishedEvents = $finishedQuery->get();
+        $allEvents = $upcomingEvents->concat($runningEvents)->concat($finishedEvents);
+
+        return view('events.index', compact('allEvents', 'upcomingEvents', 'runningEvents', 'finishedEvents', 'filter'));
     }
 
     /**
@@ -139,8 +193,8 @@ class EventController extends Controller
             'daily_end_time' => 'nullable|date_format:H:i',
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_capacity_unlimited' => 'nullable|boolean',
-            'capacity' => ['nullable','integer','min:1','required_unless:is_capacity_unlimited,1'],
-            'payment_type' => ['required', Rule::in(['free','paid'])],
+            'capacity' => ['nullable', 'integer', 'min:1', 'required_unless:is_capacity_unlimited,1'],
+            'payment_type' => ['required', Rule::in(['free', 'paid'])],
             'price' => 'nullable|numeric|min:0',
             'currency' => ['required', 'string', 'size:3', Rule::in(array_keys(Currency::all()))],
             'allow_payment_numeric' => 'nullable|boolean',
@@ -171,6 +225,7 @@ class EventController extends Controller
         }
 
         // Limites selon l'abonnement de l'organisateur
+        /** @var \App\Models\User|null $currentUser */
         $currentUser = Auth::user();
         $bypassUsers = collect(explode(',', (string) env('PROMO_BYPASS_USER_IDS', '')))
             ->filter(fn($v) => $v !== '')
@@ -209,7 +264,7 @@ class EventController extends Controller
                 if ($wantsJson) {
                     return response()->json([
                         'message' => "Vous avez atteint la limite mensuelle d'événements pour l'offre " . ucfirst($plan) . " (" . $caps['max_events_per_month'] . " événements par mois).",
-                        'errors' => [ 'limit' => ["Limite atteinte"] ],
+                        'errors' => ['limit' => ["Limite atteinte"]],
                     ], 422);
                 }
                 return back()
@@ -269,8 +324,8 @@ class EventController extends Controller
             'slug' => $slug,
             // Lien promo: Premium/Pro OU Admin OU environnement local/development OU bypass par ID
             'shareable_link' => (
-                ($currentUser && ($currentUser->isAdmin() || in_array(($currentUser->subscription_plan ?? 'basic'), ['premium','pro'], true)))
-                || app()->environment(['local','development'])
+                ($currentUser && ($currentUser->isAdmin() || in_array(($currentUser->subscription_plan ?? 'basic'), ['premium', 'pro'], true)))
+                || app()->environment(['local', 'development'])
                 || $hasBypass
             ) ? $shareLink : null,
             'is_interactive' => $request->boolean('is_interactive'),
@@ -286,11 +341,15 @@ class EventController extends Controller
                 'message' => 'Événement créé avec succès!',
                 'event_id' => $event->id,
                 'event_slug' => $event->slug,
+                'event_show_url' => route('events.show', $event),
+                'events_index_url' => route('events.index'),
                 'dashboard_url' => route('dashboard'),
             ], 201);
         }
 
-        return redirect()->route('dashboard')->with('success', 'Événement créé avec succès!');
+        return redirect()
+            ->route('events.show', $event)
+            ->with('success', 'Événement créé avec succès!');
     }
 
     /**
@@ -318,7 +377,9 @@ class EventController extends Controller
         $preferredCategories = [];
         if (auth()->check()) {
             $preferredCategories = Event::query()
-                ->whereHas('registrations', function ($q) { $q->where('user_id', auth()->id()); })
+                ->whereHas('registrations', function ($q) {
+                    $q->where('user_id', auth()->id());
+                })
                 ->whereNotNull('category')
                 ->distinct()
                 ->pluck('category')
@@ -398,10 +459,10 @@ class EventController extends Controller
             'daily_start_time' => 'nullable|date_format:H:i',
             'daily_end_time' => 'nullable|date_format:H:i',
             'is_capacity_unlimited' => 'nullable|boolean',
-            'capacity' => ['nullable','integer','min:1','required_unless:is_capacity_unlimited,1'],
+            'capacity' => ['nullable', 'integer', 'min:1', 'required_unless:is_capacity_unlimited,1'],
             // Rendre facultatif; s'il n'est pas transmis, conserver la valeur actuelle
             'available_seats' => ['nullable', 'integer', 'min:' . $registrationsCount, 'lte:capacity'],
-            'payment_type' => ['required', Rule::in(['free','paid'])],
+            'payment_type' => ['required', Rule::in(['free', 'paid'])],
             'price' => 'nullable|numeric|min:0',
             'currency' => ['required', 'string', 'size:3', Rule::in(array_keys(Currency::all()))],
             'allow_payment_numeric' => 'nullable|boolean',
@@ -476,7 +537,7 @@ class EventController extends Controller
         $this->authorize('delete', $event);
 
         // Supprimer les QR codes associés
-        $event->registrations->each(function($registration) {
+        $event->registrations->each(function ($registration) {
             if ($registration->qr_code_path) {
                 $this->qrCodeService->delete($registration->qr_code_path);
             }
@@ -517,7 +578,9 @@ class EventController extends Controller
 
         // Quantité demandée
         $quantity = (int) $request->input('quantity', 1);
-        if ($quantity < 1) { $quantity = 1; }
+        if ($quantity < 1) {
+            $quantity = 1;
+        }
 
         if (!$event->is_capacity_unlimited) {
             if ((int) $event->available_seats <= 0) {
@@ -537,8 +600,12 @@ class EventController extends Controller
         $paymentMethod = null;
         if (! $isFreeEvent) {
             $allowedMethods = [];
-            if ($event->allow_payment_numeric) { $allowedMethods[] = 'kkiapay'; }
-            if ($event->allow_payment_physical) { $allowedMethods[] = 'physical'; }
+            if ($event->allow_payment_numeric) {
+                $allowedMethods[] = 'kkiapay';
+            }
+            if ($event->allow_payment_physical) {
+                $allowedMethods[] = 'physical';
+            }
             if (empty($allowedMethods)) {
                 return back()->with('error', "Aucune méthode de paiement n'est activée sur cet événement.")->withInput();
             }
