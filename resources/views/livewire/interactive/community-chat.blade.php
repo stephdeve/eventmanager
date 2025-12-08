@@ -1,3 +1,5 @@
+
+@section('title', "Chat Interactif : " . $event->title)
 <style>
     /* Creative Light Background */
     .creative-light-bg {
