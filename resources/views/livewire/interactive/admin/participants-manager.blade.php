@@ -44,7 +44,7 @@
                         </label>
                         <input type="text" wire:model.defer="country"
                             class="form-input @error('country') error @enderror"
-                            placeholder="Ex: France, Belgique, Canada..." required>
+                            placeholder="Ex: France, Belgique, Canada...">
                         @error('country')
                             <p class="mt-2 text-sm text-red-600 flex items-center">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -124,7 +124,7 @@
 
                 <!-- Boutons -->
                 <div class="flex flex-col sm:flex-row justify-start space-y-4 sm:space-y-0 sm:space-x-4 pt-4">
-                    <button type="submit" class="submit-btn">
+                    <button type="button" wire:click="save" wire:loading.attr="disabled" wire:target="save" class="submit-btn">
                         <span class="flex items-center justify-center">
                             @if ($editingId)
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -481,7 +481,6 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Compteur de caractères pour la bio
             const bioTextarea = document.querySelector('textarea[wire\\:model\\.defer="bio"]');
             const bioCounter = document.getElementById('bio-counter');
 
@@ -491,7 +490,6 @@
                     bioCounter.textContent = `${length} caractères`;
                 });
 
-                // Initialiser le compteur
                 bioTextarea.dispatchEvent(new Event('input'));
             }
         });

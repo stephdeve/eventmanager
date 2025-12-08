@@ -12,24 +12,6 @@
         <!-- Carte du formulaire -->
         <div class="form-card rounded-2xl border p-8">
             <form wire:submit.prevent="save" class="space-y-8">
-                <!-- Titre -->
-                <div class="form-group">
-                    <label class="form-label">
-                        Titre de l'événement *
-                        <span class="text-[#6B7280] text-sm font-normal">(Nom de votre événement)</span>
-                    </label>
-                    <input type="text" wire:model.defer="title" class="form-input @error('title') error @enderror"
-                        placeholder="Ex: Conférence Tech Interactive 2024" required>
-                    @error('title')
-                        <p class="mt-2 text-sm text-red-600 flex items-center">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            {{ $message }}
-                        </p>
-                    @enderror
-                </div>
 
                 <!-- Section expérience interactive -->
                 <div class="border-t border-[#E0E7FF] pt-8">
@@ -105,98 +87,13 @@
                     </div>
                 </div>
 
-                <!-- Description -->
-                <div class="form-group">
-                    <label class="form-label">
-                        Description de l'événement *
-                        <span class="text-[#6B7280] text-sm font-normal">(Décrivez votre événement en détail)</span>
-                    </label>
-                    <textarea rows="5" wire:model.defer="description"
-                        class="form-input @error('description') error @enderror resize-none"
-                        placeholder="Décrivez votre événement, son objectif, et ce qui le rend spécial..." required></textarea>
-                    <div class="flex justify-between text-xs text-[#6B7280] mt-1">
-                        <span>Minimum 50 caractères</span>
-                        <span id="description-counter">{{ strlen($description ?? '') }} caractères</span>
-                    </div>
-                    @error('description')
-                        <p class="mt-2 text-sm text-red-600 flex items-center">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            {{ $message }}
-                        </p>
-                    @enderror
-                </div>
-
-                <!-- Dates de l'événement -->
-                <div class="border-t border-[#E0E7FF] pt-8">
-                    <h3 class="text-xl font-semibold text-[#1E3A8A] mb-6">Période de l'événement</h3>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="form-group">
-                            <label class="form-label">Date et heure de début *
-                                <span class="text-[#6B7280] text-xs font-normal block">Heure locale du navigateur. Doit
-                                    précéder la date de fin.</span>
-                            </label>
-                            <input type="datetime-local" wire:model.defer="start_date"
-                                class="form-input @error('start_date') error @enderror" required>
-                            @error('start_date')
-                                <p class="mt-2 text-sm text-red-600 flex items-center">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    {{ $message }}
-                                </p>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Date et heure de fin *
-                                <span class="text-[#6B7280] text-xs font-normal block">Doit être postérieure à la date
-                                    de début.</span>
-                            </label>
-                            <input type="datetime-local" wire:model.defer="end_date"
-                                class="form-input @error('end_date') error @enderror" required>
-                            @error('end_date')
-                                <p class="mt-2 text-sm text-red-600 flex items-center">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    {{ $message }}
-                                </p>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
+                
 
                 <!-- Statut et Réseaux sociaux -->
                 <div class="border-t border-[#E0E7FF] pt-8">
                     <h3 class="text-xl font-semibold text-[#1E3A8A] mb-6">Configuration avancée</h3>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- Statut -->
-                        <div class="form-group">
-                            <label class="form-label">Statut de l'événement</label>
-                            <select wire:model.defer="status" class="form-input @error('status') error @enderror">
-                                <option value="draft">Brouillon</option>
-                                <option value="published">Publié</option>
-                                <option value="running">En cours</option>
-                                <option value="finished">Terminé</option>
-                            </select>
-                            @error('status')
-                                <p class="mt-2 text-sm text-red-600 flex items-center">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    {{ $message }}
-                                </p>
-                            @enderror
-                        </div>
-
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- YouTube -->
                         <div class="form-group">
                             <label class="form-label">

@@ -47,11 +47,6 @@ class EventEditor extends Component
     public function save(): void
     {
         $data = $this->validate([
-            'title' => ['required','string','min:3','max:200'],
-            'description' => ['nullable','string'],
-            'start_date' => ['nullable','date'],
-            'end_date' => ['nullable','date','after_or_equal:start_date'],
-            'status' => ['required', Rule::in(['draft','published','running','finished'])],
             'youtube_url' => ['nullable','string','max:255'],
             'tiktok_url' => ['nullable','string','max:255'],
             'is_interactive' => ['boolean'],
@@ -61,11 +56,6 @@ class EventEditor extends Component
         ]);
 
         $this->event->fill([
-            'title' => $data['title'],
-            'description' => $data['description'] ?? null,
-            'start_date' => $data['start_date'] ? Carbon::parse($data['start_date']) : null,
-            'end_date' => $data['end_date'] ? Carbon::parse($data['end_date']) : null,
-            'status' => $data['status'],
             'youtube_url' => $data['youtube_url'] ?? null,
             'tiktok_url' => $data['tiktok_url'] ?? null,
             'is_interactive' => (bool) ($data['is_interactive'] ?? false),
@@ -74,7 +64,7 @@ class EventEditor extends Component
             'interactive_ends_at' => !empty($data['interactive_ends_at']) ? Carbon::parse($data['interactive_ends_at']) : null,
         ])->save();
 
-        $this->dispatch('toast', type: 'success', message: 'Événement mis à jour.');
+        $this->dispatch('toast', type: 'success', message: 'Paramètres interactifs mis à jour.');
     }
 
     public function render()

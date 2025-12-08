@@ -1,5 +1,4 @@
-
-@section('title', "Event Show Page : " . $event->title)
+@section('title', 'Event Show Page : ' . $event->title)
 <style>
     /* Variables de couleurs conformes à votre design */
     :root {
@@ -875,7 +874,7 @@
     }
 </style>
 
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 py-8">
+<div wire:poll.30s.keep-alive class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header revisé - design épuré sans image de fond -->
         <div class="event-header">
@@ -931,27 +930,58 @@
                     </p>
                 @endif
                 <div class="mt-6 flex gap-4 justify-center flex-wrap">
-                    <span class="badge badge-secondary">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                        En Direct
-                    </span>
-                    <span class="badge badge-accent">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
-                        </svg>
-                        Interactif
-                    </span>
-                    <span class="badge badge-indigo">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                        </svg>
-                        Live
-                    </span>
+                    @if ($isStreaming)
+                        <span class="badge badge-secondary">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            En Direct
+                        </span>
+                    @endif
+
+                    @if ($event->is_interactive)
+                        @php($now = now())
+                        @if ($event->isInteractiveActive())
+                            <span class="badge badge-secondary">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                                </svg>
+                                Interactivité en cours
+                            </span>
+                        @elseif($event->interactive_starts_at && $now->lt($event->interactive_starts_at))
+                            <span class="badge badge-indigo">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                                Interactivité à {{ $event->interactive_starts_at->translatedFormat('d/m H:i') }}
+                            </span>
+                        @elseif($event->interactive_ends_at && $now->gt($event->interactive_ends_at))
+                            <span class="badge badge-accent">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                                </svg>
+                                Interactivité terminée
+                            </span>
+                        @else
+                            <span class="badge">
+                                Interactivité inactive
+                            </span>
+                        @endif
+                    @endif
+
+                    @if ($isStreaming)
+                        <span class="badge badge-indigo">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                            Live
+                        </span>
+                    @endif
                 </div>
             </div>
         </div>
@@ -1056,7 +1086,8 @@
                             </svg>
                         </div>
                         <h3 class="empty-title dark:text-slate-50">Votes non disponibles pour le moment</h3>
-                        <p class="empty-description dark:text-slate-50">La fonction de vote sera activée prochainement</p>
+                        <p class="empty-description dark:text-slate-50">La fonction de vote sera activée prochainement
+                        </p>
                     </div>
                 @endif
             </div>
@@ -1143,20 +1174,20 @@
                     </div>
                     <div class="stats-grid">
                         <div class="stat-card">
-                            <div class="stat-value dark:text-slate-50">1.2K</div>
-                            <div class="stat-label dark:text-slate-400">Spectateurs</div>
+                            <div class="stat-value">{{ number_format($stats['viewers'] ?? 0) }}</div>
+                            <div class="stat-label">Spectateurs</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-value dark:text-slate-50">356</div>
-                            <div class="stat-label dark:text-slate-400">Votes</div>
+                            <div class="stat-value">{{ number_format($stats['votes'] ?? 0) }}</div>
+                            <div class="stat-label">Votes</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-value dark:text-slate-50">89</div>
-                            <div class="stat-label dark:text-slate-400">Participants</div>
+                            <div class="stat-value">{{ number_format($stats['participants'] ?? 0) }}</div>
+                            <div class="stat-label">Participants</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-value dark:text-slate-50">2.5K</div>
-                            <div class="stat-label dark:text-slate-400">Interactions</div>
+                            <div class="stat-value">{{ number_format($stats['interactions'] ?? 0) }}</div>
+                            <div class="stat-label">Interactions</div>
                         </div>
                     </div>
                 </div>
@@ -1175,7 +1206,7 @@
                         <h2 class="card-title">Actions Rapides</h2>
                     </div>
                     <div class="space-y-3">
-                        <a href="#" class="quick-action">
+                        <a href="{{ $replayUrl ?: '#' }}" class="quick-action">
                             <div class="action-icon" style="background: var(--primary);">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1193,7 +1224,7 @@
                             </svg>
                         </a>
 
-                        <a href="#" class="quick-action">
+                        <a href="{{ $shareUrl }}" class="quick-action">
                             <div class="action-icon" style="background: var(--secondary);">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1264,17 +1295,6 @@
             }, 200 + (index * 100));
         });
 
-        // Mise à jour en temps réel des statistiques (simulation)
-        function updateLiveStats() {
-            const stats = document.querySelectorAll('.stat-value');
-            stats.forEach(stat => {
-                const current = parseInt(stat.textContent.replace(/[^\d]/g, ''));
-                const increment = Math.floor(Math.random() * 10) + 1;
-                stat.textContent = (current + increment).toLocaleString();
-            });
-        }
-
-        // Mettre à jour les stats toutes les 30 secondes
-        setInterval(updateLiveStats, 30000);
+        // Chiffres mis à jour par Livewire via wire:poll
     });
 </script>

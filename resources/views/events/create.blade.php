@@ -855,11 +855,17 @@
                         showAlert('success', data.message || "Événement créé avec succès!");
                     } else if (resp.status === 422) {
                         const data = await resp.json().catch(() => ({}));
-                        showAlert('error', data.message ||
-                            'Veuillez corriger les erreurs de validation.');
+                        showAlert('error', data.message || 'Veuillez corriger les erreurs de validation.');
                         showFieldErrors(data.errors || {});
                     } else {
-                        showAlert('error', 'Une erreur est survenue. Veuillez réessayer.');
+                        // Afficher le message renvoyé par le serveur (ex: 401/402/403/500)
+                        let data = null;
+                        try { data = await resp.json(); } catch (e) { /* not json */ }
+                        const msg = (data && data.message) ? data.message : 'Une erreur est survenue. Veuillez réessayer.';
+                        showAlert('error', msg);
+                        if (data && data.errors) {
+                            showFieldErrors(data.errors);
+                        }
                     }
                 } catch (err) {
                     showAlert('error', 'Impossible d\'envoyer le formulaire pour le moment.');

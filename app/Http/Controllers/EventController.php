@@ -69,66 +69,60 @@ class EventController extends Controller
      */
     public function index(Request $request)
     {
-        $status = (string) $request->query('status', 'all'); // all|upcoming|running|finished
-        $interactive = $request->query('interactive'); // '1'|'0'|null
+        $state = (string) $request->query('state', 'upcoming'); // upcoming|ongoing|finished|all
+        $period = (string) $request->query('period', ''); // today|this_week|next_week|this_month
+        $interactive = $request->has('interactive') ? (int) $request->query('interactive') : null; // 1|0|null
         $q = trim((string) $request->query('q', ''));
 
-        $base = Event::query()->withCount('registrations');
+        $query = Event::query()->withCount('registrations');
 
-        if ($interactive === '1') {
-            $base->where('is_interactive', true);
-        } elseif ($interactive === '0') {
-            $base->where('is_interactive', false);
+        // State filter
+        switch ($state) {
+            case 'ongoing':
+                $query->ongoing();
+                break;
+            case 'finished':
+                $query->finished();
+                break;
+            case 'all':
+                // no-op
+                break;
+            case 'upcoming':
+            default:
+                $query->upcoming();
+                break;
         }
 
+        // Period filter
+        if (in_array($period, ['today','this_week','next_week','this_month'], true)) {
+            $query->inPeriod($period);
+        }
+
+        // Interactive filter
+        if (!is_null($interactive)) {
+            $query->where('is_interactive', (bool) $interactive);
+        }
+
+        // Search filter
         if ($q !== '') {
-            $base->where(function ($qb) use ($q) {
-                $qb->where('title', 'like', "%{$q}%")
-                    ->orWhere('description', 'like', "%{$q}%")
-                    ->orWhere('location', 'like', "%{$q}%");
+            $query->where(function ($sub) use ($q) {
+                $sub->where('title', 'like', "%$q%")
+                    ->orWhere('location', 'like', "%$q%")
+                    ->orWhere('description', 'like', "%$q%");
             });
         }
 
-        $now = Carbon::now();
+        $events = $query->orderBy('start_date')->paginate(10)->appends($request->query());
 
-        $clone = function () use ($base) {
-            return clone $base;
-        };
-
-        $upcomingQuery = $clone()->where('start_date', '>', $now)->orderBy('start_date', 'asc');
-        $runningQuery = $clone()->where('start_date', '<=', $now)
-            ->where(function ($qb) use ($now) {
-                $qb->whereNull('end_date')->orWhere('end_date', '>=', $now);
-            })
-            ->orderBy('start_date', 'desc');
-        $finishedQuery = $clone()->whereNotNull('end_date')
-            ->where('end_date', '<', $now)
-            ->orderBy('end_date', 'desc');
-
-        $filter = [
-            'status' => $status,
-            'interactive' => $interactive,
-            'q' => $q,
-        ];
-
-        if ($status !== 'all') {
-            $map = [
-                'upcoming' => $upcomingQuery,
-                'running' => $runningQuery,
-                'finished' => $finishedQuery,
-            ];
-            $targetQuery = $map[$status] ?? $clone();
-            $events = $targetQuery->paginate(12)->withQueryString();
-            $allEvents = $events->getCollection();
-            return view('events.index', compact('events', 'allEvents', 'filter'));
-        }
-
-        $upcomingEvents = $upcomingQuery->get();
-        $runningEvents = $runningQuery->get();
-        $finishedEvents = $finishedQuery->get();
-        $allEvents = $upcomingEvents->concat($runningEvents)->concat($finishedEvents);
-
-        return view('events.index', compact('allEvents', 'upcomingEvents', 'runningEvents', 'finishedEvents', 'filter'));
+        return view('events.index', [
+            'events' => $events,
+            'filters' => [
+                'state' => $state,
+                'period' => $period,
+                'interactive' => $interactive,
+                'q' => $q,
+            ],
+        ]);
     }
 
     /**

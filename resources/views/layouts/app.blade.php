@@ -51,9 +51,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    @if (class_exists(\Livewire\Livewire::class))
-        @livewireStyles
-    @endif
+    @livewireStyles
     @stack('styles')
 </head>
 
@@ -136,9 +134,7 @@
 
         @stack('scripts')
 
-        @if (class_exists(\Livewire\Livewire::class))
-            @livewireScripts
-        @endif
+        @livewireScripts
         @auth
             <script>
                 window.CURRENT_USER_ID = {{ (int) auth()->id() }};
@@ -146,6 +142,27 @@
             </script>
         @endauth
         <div id="toast-container" class="fixed top-4 right-4 z-60"></div>
+        <script>
+            window.addEventListener('toast', function(e) {
+                try {
+                    const detail = e.detail || {};
+                    const type = (detail.type || 'info').toString();
+                    const message = (detail.message || '').toString();
+                    const container = document.getElementById('toast-container') || document.body;
+                    const toast = document.createElement('div');
+                    const base = 'mb-2 max-w-sm z-60 px-4 py-3 rounded shadow text-white';
+                    let bg = 'bg-gray-800';
+                    if (type === 'success') bg = 'bg-emerald-600';
+                    else if (type === 'error') bg = 'bg-red-600';
+                    else if (type === 'warning') bg = 'bg-amber-600';
+                    else if (type === 'info') bg = 'bg-indigo-600';
+                    toast.className = `${base} ${bg}`;
+                    toast.textContent = message;
+                    container.appendChild(toast);
+                    setTimeout(() => { toast.remove(); }, 4000);
+                } catch (_) {}
+            });
+        </script>
         @if (session('toast'))
             <script>
                 (function() {

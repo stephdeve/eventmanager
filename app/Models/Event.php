@@ -139,6 +139,57 @@ class Event extends Model
     }
 
     /**
+     * Scope a query to events currently running (now between start and end).
+     */
+    public function scopeOngoing($query)
+    {
+        $now = now();
+        return $query->where(function($q) use ($now) {
+            $q->where('start_date', '<=', $now)
+              ->where(function($q2) use ($now) {
+                  $q2->whereNull('end_date')->orWhere('end_date', '>=', $now);
+              });
+        });
+    }
+
+    /**
+     * Scope a query to events finished (end_date strictly in the past).
+     */
+    public function scopeFinished($query)
+    {
+        return $query->whereNotNull('end_date')->where('end_date', '<', now());
+    }
+
+    /**
+     * Scope a query to a given period: today, this_week, next_week, this_month
+     */
+    public function scopeInPeriod($query, string $period)
+    {
+        $start = null; $end = null;
+        switch ($period) {
+            case 'today':
+                $start = now()->startOfDay();
+                $end = now()->endOfDay();
+                break;
+            case 'this_week':
+                $start = now()->startOfWeek();
+                $end = now()->endOfWeek();
+                break;
+            case 'next_week':
+                $start = now()->addWeek()->startOfWeek();
+                $end = now()->addWeek()->endOfWeek();
+                break;
+            case 'this_month':
+                $start = now()->startOfMonth();
+                $end = now()->endOfMonth();
+                break;
+            default:
+                return $query;
+        }
+        return $query->whereBetween('start_date', [$start, $end]);
+    }
+
+    /**
      * Get the organizer of the event.
      */
     public function organizer()

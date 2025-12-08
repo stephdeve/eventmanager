@@ -31,32 +31,37 @@ class ChallengesManager extends Component
 
     public function save(): void
     {
-        $data = $this->validate([
-            'title' => ['required','string','min:2','max:200'],
-            'description' => ['nullable','string'],
-            'date' => ['nullable','date'],
-            'type' => ['nullable','string','max:100'],
-            'max_points' => ['required','integer','min:0','max:100000'],
-        ]);
+        try {
+            $data = $this->validate([
+                'title' => ['required','string','min:2','max:200'],
+                'description' => ['nullable','string'],
+                'date' => ['nullable','date'],
+                'type' => ['nullable','string','max:100'],
+                'max_points' => ['required','integer','min:0','max:100000'],
+            ]);
 
-        $payload = [
-            'title' => $data['title'],
-            'description' => $data['description'] ?? null,
-            'date' => $data['date'] ? now()->parse($data['date']) : null,
-            'type' => $data['type'] ?? null,
-            'max_points' => (int) $data['max_points'],
-        ];
+            $payload = [
+                'title' => $data['title'],
+                'description' => $data['description'] ?? null,
+                'date' => $data['date'] ? now()->parse($data['date']) : null,
+                'type' => $data['type'] ?? null,
+                'max_points' => (int) $data['max_points'],
+            ];
 
-        if ($this->editingId) {
-            $c = Challenge::where('event_id', $this->event->id)->findOrFail($this->editingId);
-            $c->update($payload);
-        } else {
-            $this->event->challenges()->create($payload);
+            if ($this->editingId) {
+                $c = Challenge::where('event_id', $this->event->id)->findOrFail($this->editingId);
+                $c->update($payload);
+            } else {
+                $this->event->challenges()->create($payload + ['event_id' => $this->event->id]);
+            }
+
+            $this->resetForm();
+            $this->event->refresh();
+            $this->dispatch('toast', type: 'success', message: 'Défi enregistré.');
+        } catch (\Throwable $e) {
+            report($e);
+            $this->dispatch('toast', type: 'error', message: 'Échec de l\'enregistrement du défi: ' . $e->getMessage());
         }
-
-        $this->resetForm();
-        $this->event->refresh();
-        $this->dispatch('toast', type: 'success', message: 'Défi enregistré.');
     }
 
     public function edit(int $id): void
