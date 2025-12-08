@@ -44,7 +44,7 @@
                             <span class="text-[#6B7280] text-sm font-normal">(Catégorie)</span>
                         </label>
                         <input type="text" wire:model.defer="type" class="form-input @error('type') error @enderror"
-                            placeholder="Ex: Quiz, Vote, Création..." required>
+                            placeholder="Ex: Quiz, Vote, Création...">
                         @error('type')
                             <p class="mt-2 text-sm text-red-600 flex items-center">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -84,7 +84,7 @@
                             <span class="text-[#6B7280] text-sm font-normal">(Score maximal)</span>
                         </label>
                         <input type="number" wire:model.defer="max_points" min="1"
-                            class="form-input @error('max_points') error @enderror" placeholder="Ex: 100" required>
+                            class="form-input @error('max_points') error @enderror" placeholder="Ex: 100">
                         @error('max_points')
                             <p class="mt-2 text-sm text-red-600 flex items-center">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -123,7 +123,7 @@
 
                 <!-- Boutons -->
                 <div class="flex flex-col sm:flex-row justify-start space-y-4 sm:space-y-0 sm:space-x-4 pt-4">
-                    <button type="submit" class="submit-btn">
+                    <button type="button" wire:click="save" wire:loading.attr="disabled" wire:target="save" class="submit-btn">
                         <span class="flex items-center justify-center">
                             @if ($editingId)
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

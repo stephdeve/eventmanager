@@ -48,7 +48,8 @@ class ParticipantsManager extends Component
             }
 
             $this->resetForm();
-            $this->event->refresh();
+            $this->event->unsetRelation('participants');
+            $this->event->load('participants');
             $this->dispatch('toast', type: 'success', message: 'Participant enregistré.');
         } catch (\Throwable $e) {
             report($e);
