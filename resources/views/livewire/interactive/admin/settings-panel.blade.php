@@ -1,3 +1,5 @@
+
+@section('title', "Paramètres Interactifs : " . $event->title)
 <div class="min-h-screen py-8 ">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- En-tête -->
