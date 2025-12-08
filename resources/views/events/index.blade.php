@@ -416,26 +416,27 @@
                                 <!-- Status Badge -->
                                 @if ($isOngoing)
                                     <div
-                                        class="inline-flex items-center px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-xs font-semibold mb-4 border border-green-200 dark:bg-green-500/10 dark:text-green-300 dark:border-green-500/30">
-                                        <div class="w-2 h-2 bg-green-500 rounded-full mr-2 pulse-dot dark:bg-green-400"></div>
+                                        class="inline-flex items-center px-3 py-1.5 bg-yellow-50 text-yellow-700 rounded-full text-xs font-semibold mb-4 border border-yellow-200 dark:bg-yellow-500/10 dark:text-yellow-300 dark:border-yellow-500/30">
+                                        <div class="w-2 h-2 bg-yellow-500 rounded-full mr-2 pulse-dot dark:bg-yellow-400"></div>
                                         En cours
                                     </div>
                                 @elseif ($isFinished)
                                     <div
-                                        class="inline-flex items-center px-3 py-1.5 bg-slate-100 text-slate-600 rounded-full text-xs font-semibold mb-4 border border-slate-200 dark:bg-neutral-800 dark:text-neutral-300 dark:border-neutral-700">
-                                        Terminé
+                                        class="inline-flex items-center px-3 py-1.5 bg-red-50 text-red-700 rounded-full text-xs font-semibold mb-4 border border-red-200 dark:bg-red-500/10 dark:text-red-300 dark:border-red-500/30">
+                                        <div class="w-2 h-2 bg-red-500 rounded-full mr-2 pulse-dot dark:bg-red-400">
+                                        </div>Terminé
                                     </div>
                                 @elseif ($isUpcoming)
                                     <div
-                                        class="inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-xs font-semibold mb-4 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-300 dark:border-blue-500/30">
-                                        <div class="w-2 h-2 bg-blue-500 rounded-full mr-2 pulse-dot dark:bg-blue-400">
+                                        class="inline-flex items-center px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-xs font-semibold mb-4 border border-green-200 dark:bg-green-500/10 dark:text-green-300 dark:border-green-500/30">
+                                        <div class="w-2 h-2 bg-green-500 rounded-full mr-2 pulse-dot dark:bg-green-400">
                                         </div>
                                         À venir
                                     </div>
                                 @endif
 
                                     <h3
-                                        class="font-bold text-xl text-slate-900 line-clamp-2 leading-tight group-hover:text-indigo-600 transition-colors duration-200 min-h-[3.5rem] mb-3 dark:text-neutral-100 dark:group-hover:text-indigo-400">
+                                        class="font-bold text-xl text-slate-900 line-clamp-2 leading-tight group-hover:text-indigo-600 transition-colors duration-200 min-h-[2rem] mb-3 dark:text-neutral-100 dark:group-hover:text-indigo-400">
                                         {{ $event->title }}
                                     </h3>
 
