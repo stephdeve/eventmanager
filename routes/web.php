@@ -36,11 +36,30 @@ Route::get('/', function () {
 
     $featuredEvent = $highlightedEvents->first();
 
+    $now = now();
+    $nextEvent = Event::whereNotNull('start_date')
+        ->where('start_date', '>', $now)
+        ->orderBy('start_date')
+        ->first();
+    $recentEvents = Event::latest()->take(6)->get();
+    $topPopularEvents = Event::withCount('registrations')
+        ->orderByDesc('registrations_count')
+        ->take(6)
+        ->get();
+
+    $liveEventsCount = Event::whereNotNull('start_date')
+        ->where('start_date', '<=', $now)
+        ->where(function ($q) use ($now) {
+            $q->whereNull('end_date')->orWhere('end_date', '>=', $now);
+        })->count();
+
     $stats = [
         'events' => Event::count(),
         'upcoming' => Event::upcoming()->count(),
         'participants' => Registration::query()->sum('quantity'),
         'tickets_sold' => Event::query()->sum('total_tickets_sold'),
+        'live_events' => $liveEventsCount,
+        'interactive' => Event::where('is_interactive', true)->count(),
     ];
 
     $testimonials = EventReview::with(['user:id,name,avatar_url,role', 'event:id,title,location,cover_image'])
@@ -60,9 +79,15 @@ Route::get('/', function () {
         ];
     })->values();
 
+    $nextEventStartIso = $nextEvent?->start_date ? $nextEvent->start_date->toIso8601String() : null;
+
     return view('welcome', [
         'highlightedEvents' => $highlightedEvents,
         'featuredEvent' => $featuredEvent,
+        'nextEvent' => $nextEvent,
+        'nextEventStartIso' => $nextEventStartIso,
+        'recentEvents' => $recentEvents,
+        'topPopularEvents' => $topPopularEvents,
         'stats' => $stats,
         'testimonials' => $testimonials,
         'stories' => $stories,
@@ -70,7 +95,7 @@ Route::get('/', function () {
 })->name('home');
 
 // Routes d'authentification
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 // Authentification Google (publique)
 Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect'])->name('auth.google.redirect');
@@ -80,12 +105,12 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->
 Route::middleware(['auth', 'verified'])->group(function () {
     // Tableau de bord
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
+
     // Profil utilisateur
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
+
     // Routes pour les événements (organisateur)
     Route::resource('events', EventController::class)
         ->except(['index', 'show'])
@@ -104,7 +129,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Alias: communauté (même page que chat)
     Route::get('/events/{event}/community', \App\Livewire\Interactive\CommunityChat::class)->name('events.community');
 
-    
+
 
     // Vérification d'identité
     Route::get('/identity/verification', [\App\Http\Controllers\IdentityVerificationController::class, 'show'])
@@ -142,29 +167,29 @@ Route::middleware(['auth', 'verified'])->group(function () {
         }
     });
 
-// Événement interactif (Livewire) – accessible en lecture sans authentification
-if (class_exists(\App\Livewire\Interactive\EventShowPage::class)) {
-    Route::get('/interactive/events/{event:slug}', \App\Livewire\Interactive\EventShowPage::class)
-        ->name('interactive.events.show');
-}
+    // Événement interactif (Livewire) – accessible en lecture sans authentification
+    if (class_exists(\App\Livewire\Interactive\EventShowPage::class)) {
+        Route::get('/interactive/events/{event:slug}', \App\Livewire\Interactive\EventShowPage::class)
+            ->name('interactive.events.show');
+    }
 
-// Gestion interactive par l'organisateur (droits via policy)
-Route::middleware(['auth','verified'])->group(function () {
-    Route::middleware('can:update,event')->group(function () {
-        if (class_exists(\App\Livewire\Interactive\Admin\EventEditor::class)) {
-            Route::get('/events/{event}/interactive/manage', \App\Livewire\Interactive\Admin\EventEditor::class)
-                ->name('events.interactive.manage');
-        }
-        if (class_exists(\App\Livewire\Interactive\Admin\ParticipantsManager::class)) {
-            Route::get('/events/{event}/interactive/participants', \App\Livewire\Interactive\Admin\ParticipantsManager::class)
-                ->name('events.interactive.participants');
-        }
-        if (class_exists(\App\Livewire\Interactive\Admin\ChallengesManager::class)) {
-            Route::get('/events/{event}/interactive/challenges', \App\Livewire\Interactive\Admin\ChallengesManager::class)
-                ->name('events.interactive.challenges');
-        }
+    // Gestion interactive par l'organisateur (droits via policy)
+    Route::middleware(['auth', 'verified'])->group(function () {
+        Route::middleware('can:update,event')->group(function () {
+            if (class_exists(\App\Livewire\Interactive\Admin\EventEditor::class)) {
+                Route::get('/events/{event}/interactive/manage', \App\Livewire\Interactive\Admin\EventEditor::class)
+                    ->name('events.interactive.manage');
+            }
+            if (class_exists(\App\Livewire\Interactive\Admin\ParticipantsManager::class)) {
+                Route::get('/events/{event}/interactive/participants', \App\Livewire\Interactive\Admin\ParticipantsManager::class)
+                    ->name('events.interactive.participants');
+            }
+            if (class_exists(\App\Livewire\Interactive\Admin\ChallengesManager::class)) {
+                Route::get('/events/{event}/interactive/challenges', \App\Livewire\Interactive\Admin\ChallengesManager::class)
+                    ->name('events.interactive.challenges');
+            }
+        });
     });
-});
 
     // Inscription aux événements
     Route::post('/events/{event}/register', [EventController::class, 'register'])
@@ -175,7 +200,7 @@ Route::middleware(['auth','verified'])->group(function () {
     // Paiements
     Route::get('/payments/{registration}/pending', [PaymentController::class, 'pending'])
         ->name('payments.pending');
-    Route::match(['GET','POST'], '/payments/{registration}/confirm', [PaymentController::class, 'confirm'])
+    Route::match(['GET', 'POST'], '/payments/{registration}/confirm', [PaymentController::class, 'confirm'])
         ->name('payments.confirm');
 
     // Coins checkout (auth requise)
@@ -188,7 +213,7 @@ Route::middleware(['auth','verified'])->group(function () {
     // Abonnements organisateur
     Route::get('/subscriptions/plans', [\App\Http\Controllers\SubscriptionsController::class, 'plans'])
         ->name('subscriptions.plans');
-    Route::match(['GET','POST'], '/subscriptions/confirm', [\App\Http\Controllers\SubscriptionsController::class, 'confirm'])
+    Route::match(['GET', 'POST'], '/subscriptions/confirm', [\App\Http\Controllers\SubscriptionsController::class, 'confirm'])
         ->name('subscriptions.confirm');
 
     // Facturation / Historique paiements
@@ -255,7 +280,7 @@ Route::middleware(['auth','verified'])->group(function () {
 Route::post('payment/callback', [PaymentController::class, 'callback'])
     ->name('payments.callback');
 
- 
+
 
 // Page promo publique d'un événement (aperçu marketing)
 Route::get('/promo/{slug}', [\App\Http\Controllers\PromoController::class, 'show'])
