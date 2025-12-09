@@ -12,10 +12,10 @@
         <!-- Mobile Header -->
         <div
             class="flex items-center justify-between px-4 py-4 border-b border-gray-200 bg-white dark:bg-neutral-900 dark:border-neutral-800">
-            <a href="{{ route('dashboard') }}" class="flex items-center space-x-3">
+            <a href="{{ route('dashboard') }}" class="flex items-center space-x-2">
                 <div
                     class="w-10 h-10 bg-gradient-to-br from-indigo-600 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
-                    EM
+                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-days-icon lucide-calendar-days"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
                 </div>
                 <span
                     class="text-xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent dark:text-neutral-100 dark:bg-none">
@@ -70,15 +70,15 @@
     :class="sidebarCollapsed ? 'w-16' : 'w-64'" style="height: 100vh;">
 
     <!-- Logo Section -->
-    <div class="flex items-center justify-between px-4 py-4 border-b border-gray-200 bg-white flex-shrink-0 dark:bg-neutral-900 dark:border-neutral-800"
+    <div class="flex items-center justify-between px-4 py-[13.5px] border-b border-gray-200 bg-white flex-shrink-0 dark:bg-neutral-900 dark:border-neutral-800"
         :class="sidebarCollapsed ? 'px-3' : 'px-4'">
 
         <!-- Logo - visible when expanded -->
-        <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 transition-all duration-300"
+        <a href="{{ route('dashboard') }}" class="flex items-center space-x-2 transition-all duration-300"
             :class="sidebarCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'">
             <div
                 class="w-10 h-10 bg-gradient-to-br from-indigo-600 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0">
-                EM
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-days-icon lucide-calendar-days"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
             </div>
             <span
                 class="text-xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent whitespace-nowrap dark:text-neutral-100 dark:bg-none">
@@ -87,14 +87,15 @@
         </a>
 
         <!-- Toggle Button - always visible -->
-        <button @click="sidebarCollapsed = !sidebarCollapsed"
-            class="p-2 rounded-lg hover:bg-gray-100 transition-colors flex-shrink-0 ml-auto dark:hover:bg-neutral-800">
-            <svg class="w-4 h-4 text-gray-500 transition-transform duration-300 dark:text-neutral-300"
-                :class="sidebarCollapsed ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-            </svg>
-        </button>
+
+         <a href="{{ route('dashboard') }}" class="flex items-center justify-center mx-auto transition-all duration-300"
+            :class="sidebarCollapsed ? 'block mx-auto' : 'opacity-100 hidden'">
+            <div
+                class="w-10 h-10 bg-gradient-to-br from-indigo-600 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0 mx-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-days-icon lucide-calendar-days"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+            </div>
+        </a>
+
     </div>
 
     <!-- Navigation -->

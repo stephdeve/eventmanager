@@ -237,7 +237,7 @@
             <!-- En-tête -->
             <div class="text-start mb-8">
                 <h1
-                    class="text-3xl font-bold bg-gradient-to-r from-[#1E3A8A] to-[#4F46E5] bg-clip-text text-transparent mb-3">
+                    class="text-3xl font-bold bg-gradient-to-r from-[#1E3A8A] to-[#4F46E5] dark:from-green-500 dark:to-green-600 bg-clip-text text-transparent mb-3">
                     Créer un nouvel événement
                 </h1>
                 <p class="text-[#6B7280] text-lg">Remplissez les informations de votre événement pour commencer</p>

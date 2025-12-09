@@ -100,10 +100,10 @@
                 </div>
 
                 <div class="p-8">
-                    <!-- Grille principale -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Grille principale avec sidebar plus large -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                         <!-- Contenu principal -->
-                        <div class="lg:col-span-2 space-y-8">
+                        <div class="lg:col-span-8 space-y-8">
                             <!-- Badges -->
                             <div class="flex flex-wrap gap-3">
                                 <span
@@ -347,11 +347,11 @@
                             </div>
                         </div>
 
-                        <!-- Sidebar avec actions -->
-                        <div class="space-y-6">
+                        <!-- Sidebar avec actions (plus large) -->
+                        <div class="lg:col-span-4 space-y-6">
                             <!-- Actions administrateur -->
                             @if (auth()->check() && (auth()->user()->can('update', $event) || auth()->user()->can('delete', $event)))
-                                <div class="bg-white border border-gray-200 rounded-xl p-6 w-fit">
+                                <div class="bg-white border border-gray-200 rounded-xl p-6 w-full">
                                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Gestion de l'événement</h3>
                                     <div class="space-y-3">
                                         @can('update', $event)
@@ -390,7 +390,7 @@
                                             @if ($eligible)
                                                 @if ($event->shareable_link)
                                                     <div class="space-y-3">
-                                                        <div class="flex gap-2">
+                                                        <div class="flex flex-col gap-2">
                                                             <input type="text" readonly
                                                                 value="{{ $event->shareable_link }}"
                                                                 class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">
@@ -400,11 +400,11 @@
                                                                 Copier
                                                             </button>
                                                         </div>
-                                                        <div class="flex gap-4 text-xs text-gray-600">
+                                                        <div class="flex gap-4 mt-3 text-center text-xs text-gray-600">
                                                             <span>Clics:
-                                                                <strong>{{ (int) $event->promo_clicks }}</strong></span>
+                                                                <strong class="text-green-500">{{ (int) $event->promo_clicks }}</strong></span>
                                                             <span>Inscriptions:
-                                                                <strong>{{ (int) $event->promo_registrations }}</strong></span>
+                                                                <strong class="text-green-500">{{ (int) $event->promo_registrations }}</strong></span>
                                                         </div>
                                                     </div>
                                                 @else
@@ -486,7 +486,7 @@
                                 @if (auth()->check() && (auth()->user()->can('update', $event) || $isRegistered))
                                     <div class="mb-4">
                                         <a href="{{ route('events.chat', $event) }}"
-                                            class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-md hover:bg-indigo-700">
+                                            class="inline-flex w-full  items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-md hover:bg-indigo-700">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -498,7 +498,7 @@
                                 @endif
 
                                 @if (!empty($event->slug) && $event->isInteractiveActive())
-                                    <div class="mb-4 flex flex-wrap gap-3">
+                                    <div class="mb-4 flex flex-col gap-3">
                                         <a href="{{ route('interactive.events.show', ['event' => $event->slug]) }}"
                                             class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-md hover:bg-emerald-700">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor"
@@ -509,7 +509,7 @@
                                             Expérience interactive
                                         </a>
                                         <a href="{{ route('interactive.events.show', ['event' => $event->slug]) }}?tab=votes"
-                                            class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700">
+                                            class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-md hover:bg-red-700">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -518,7 +518,7 @@
                                             Voter maintenant
                                         </a>
                                         <a href="{{ route('interactive.events.show', ['event' => $event->slug]) }}?tab=leaderboard"
-                                            class="inline-flex items-center gap-2 px-4 py-2 bg-gray-800 text-white text-sm font-semibold rounded-md hover:bg-gray-900">
+                                            class="inline-flex items-center gap-2 px-4 py-2 bg-green-800 text-white text-sm font-semibold rounded-md hover:bg-green-900">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

@@ -1,5 +1,5 @@
 <button type="button" x-data="{ isDark: document.documentElement.classList.contains('dark') }" x-init="document.addEventListener('themechange', (e) => { isDark = e.detail === 'dark' });" @click="window.toggleTheme(); isDark = !isDark;"
-    class="p-2.5 rounded-lg border border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:focus:ring-offset-neutral-950"
+    class="p-2.5 rounded-full border border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:focus:ring-offset-neutral-950"
     :aria-pressed="isDark" aria-label="Basculer thème">
     <svg x-show="!isDark" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
         stroke="currentColor" style="display: none;">

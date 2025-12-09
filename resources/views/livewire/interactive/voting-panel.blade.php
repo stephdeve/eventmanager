@@ -106,7 +106,7 @@
     <!-- Modal d'achat de coins -->
     <div x-show="openBuy" x-cloak class="modal-overlay" @click="openBuy = false">
         <div class="modal-content" @click.stop>
-            <div class="modal-header">
+            <div class="modal-header dark:border-b-neutral-700">
                 <div class="modal-icon">
                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -114,8 +114,8 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="modal-title">Acheter des coins</h3>
-                    <p class="modal-subtitle">Rechargez votre portefeuille virtuel</p>
+                    <h3 class="modal-title dark:text-slate-50">Acheter des coins</h3>
+                    <p class="modal-subtitle dark:text-slate-300">Rechargez votre portefeuille virtuel</p>
                 </div>
             </div>
 
