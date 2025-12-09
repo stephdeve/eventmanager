@@ -1,11 +1,10 @@
 @auth
-    <!-- Tableau de bord -->
     <a href="{{ route('dashboard') }}"
         class="flex items-center px-3 py-3 rounded-xl transition-all duration-200 group relative"
         :class="[
             sidebarCollapsed ? 'lg:justify-center lg:h-10 lg:hover:bg-transparent' : 'lg:space-x-3',
             isActive ?
-            'bg-indigo-50 text-indigo-700 border border-indigo-600 dark:bg-neutral-800 dark:text-neutral-100 dark:border-neutral-700' :
+            'bg-indigo-50 text-indigo-700 dark:border border-indigo-600 dark:bg-neutral-800 dark:text-neutral-100 dark:border-neutral-700' :
             'text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-100'
         ]"
         x-data="{
@@ -13,9 +12,14 @@
         }">
 
         <div class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors flex-shrink-0"
-            :class="isActive ?
-                'bg-indigo-200 dark:bg-neutral-800 dark:ring-1 dark:ring-neutral-700 dark:group-hover:bg-neutral-700' :
-                'bg-indigo-100 group-hover:bg-indigo-200 dark:bg-neutral-800 dark:ring-1 dark:ring-neutral-700 dark:group-hover:bg-neutral-700'">
+            :class="[
+                // Contexte actif standard
+                isActive ?
+                    'bg-indigo-200 dark:bg-neutral-800' :
+                    'bg-indigo-100 group-hover:bg-indigo-200 dark:bg-neutral-800 dark:ring-1 dark:ring-neutral-700 dark:group-hover:bg-neutral-700',
+                // NOUVEAU: Indicateur actif en mode réduit (anneau autour de l'icône)
+                sidebarCollapsed && isActive ? 'lg:ring-2 lg:ring-indigo-600/70 lg:bg-indigo-200/50' : ''
+            ]">
             <svg class="w-4 h-4 transition-colors group-hover:text-indigo-700 dark:group-hover:text-indigo-300"
                 :class="isActive ? 'text-indigo-700 dark:text-indigo-400' : 'text-indigo-600 dark:text-indigo-300'"
                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -25,19 +29,11 @@
             </svg>
         </div>
 
-        <!-- Texte - toujours visible sur mobile, conditionnel sur desktop -->
         <span class="font-medium whitespace-nowrap transition-all duration-300 ml-3 lg:ml-0"
             :class="sidebarCollapsed ? 'lg:hidden' : ''">
             Tableau de bord
         </span>
 
-        <!-- Indicateur actif pour le mode collapsed -->
-        <div x-show="sidebarCollapsed && isActive"
-            class="absolute -right-1 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-indigo-600 rounded-full hidden lg:block"
-            x-cloak>
-        </div>
-
-        <!-- Tooltip for collapsed state -->
         <div x-show="sidebarCollapsed && !isActive"
             class="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50 hidden lg:block dark:bg-neutral-800 dark:text-neutral-100"
             x-cloak>
@@ -45,13 +41,13 @@
         </div>
     </a>
 
-    <!-- Interactif -->
+
     <a href="{{ route('events.index', ['interactive' => 1]) }}"
         class="flex items-center px-3 py-3 rounded-xl transition-all duration-200 group relative"
         :class="[
             sidebarCollapsed ? 'lg:justify-center lg:h-10 lg:hover:bg-transparent' : 'lg:space-x-3',
             isActive ?
-            'bg-emerald-50 text-emerald-700 border border-emerald-600 dark:bg-neutral-800 dark:text-neutral-100 dark:border-neutral-700' :
+            'bg-emerald-50 text-emerald-700 dark:border border-emerald-600 dark:bg-neutral-800 dark:text-neutral-100 dark:border-neutral-700' :
             'text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-100'
         ]"
         x-data="{
@@ -59,9 +55,14 @@
         }">
 
         <div class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors flex-shrink-0"
-            :class="isActive ?
-                'bg-emerald-200 dark:bg-neutral-800 dark:ring-1 dark:ring-neutral-700 dark:group-hover:bg-neutral-700' :
-                'bg-emerald-100 group-hover:bg-emerald-200 dark:bg-neutral-800 dark:ring-1 dark:ring-neutral-700 dark:group-hover:bg-neutral-700'">
+            :class="[
+                // Contexte actif standard
+                isActive ?
+                    'bg-emerald-200 dark:bg-neutral-800' :
+                    'bg-emerald-100 group-hover:bg-emerald-200 dark:bg-neutral-800 dark:ring-1 dark:ring-neutral-700 dark:group-hover:bg-neutral-700',
+                // NOUVEAU: Indicateur actif en mode réduit (anneau autour de l'icône)
+                sidebarCollapsed && isActive ? 'lg:ring-2 lg:ring-emerald-600/70 lg:bg-emerald-200/50' : ''
+            ]">
             <svg class="w-4 h-4 transition-colors group-hover:text-emerald-700 dark:group-hover:text-emerald-300"
                 :class="isActive ? 'text-emerald-700 dark:text-emerald-400' : 'text-emerald-600 dark:text-emerald-300'"
                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,11 +75,6 @@
             Interactif
         </span>
 
-        <div x-show="sidebarCollapsed && isActive"
-            class="absolute -right-1 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-emerald-600 rounded-full hidden lg:block"
-            x-cloak>
-        </div>
-
         <div x-show="sidebarCollapsed && !isActive"
             class="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50 hidden lg:block dark:bg-neutral-800 dark:text-neutral-100"
             x-cloak>
@@ -86,13 +82,14 @@
         </div>
     </a>
 
-    <!-- Événements -->
+
+
     <a href="{{ route('events.index') }}"
         class="flex items-center px-3 py-3 rounded-xl transition-all duration-200 group relative"
         :class="[
             sidebarCollapsed ? 'lg:justify-center lg:h-10 lg:hover:bg-transparent' : 'lg:space-x-3',
             isActive ?
-            'bg-blue-50 text-blue-700 border border-blue-600 dark:bg-neutral-800 dark:text-neutral-100 dark:border-neutral-700' :
+            'bg-blue-50 text-blue-700 dark:border border-blue-600 dark:bg-neutral-800 dark:text-neutral-100 dark:border-neutral-700' :
             'text-gray-700 hover:bg-blue-50 hover:text-blue-700 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-100'
         ]"
         x-data="{
@@ -100,9 +97,14 @@
         }">
 
         <div class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors flex-shrink-0"
-            :class="isActive ?
-                'bg-blue-200 dark:bg-neutral-800 dark:ring-1 dark:ring-neutral-700 dark:group-hover:bg-neutral-700' :
-                'bg-blue-100 group-hover:bg-blue-200 dark:bg-neutral-800 dark:ring-1 dark:ring-neutral-700 dark:group-hover:bg-neutral-700'">
+            :class="[
+                // Contexte actif standard
+                isActive ?
+                    'bg-blue-200 dark:bg-neutral-800' :
+                    'bg-blue-100 group-hover:bg-blue-200 dark:bg-neutral-800 dark:ring-1 dark:ring-neutral-700 dark:group-hover:bg-neutral-700',
+                // NOUVEAU: Indicateur actif en mode réduit (anneau autour de l'icône)
+                sidebarCollapsed && isActive ? 'lg:ring-2 lg:ring-blue-600/70 lg:bg-blue-200/50' : ''
+            ]">
             <svg class="w-4 h-4 transition-colors group-hover:text-blue-700 dark:group-hover:text-blue-300"
                 :class="isActive ? 'text-blue-700 dark:text-blue-400' : 'text-blue-600 dark:text-blue-300'" fill="none"
                 stroke="currentColor" viewBox="0 0 24 24">
@@ -116,12 +118,6 @@
             Événements
         </span>
 
-        <!-- Indicateur actif pour le mode collapsed -->
-        <div x-show="sidebarCollapsed && isActive"
-            class="absolute -right-1 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-blue-600 rounded-full hidden lg:block"
-            x-cloak>
-        </div>
-
         <div x-show="sidebarCollapsed && !isActive"
             class="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50 hidden lg:block dark:bg-neutral-800 dark:text-neutral-100"
             x-cloak>
@@ -129,14 +125,15 @@
         </div>
     </a>
 
+
+
     @if (auth()->user()->isOrganizer())
-        <!-- Créer un événement -->
         <a href="{{ route('events.create') }}"
             class="flex items-center px-3 py-3 rounded-xl transition-all duration-200 group relative"
             :class="[
                 sidebarCollapsed ? 'lg:justify-center lg:h-10 lg:hover:bg-transparent' : 'lg:space-x-3',
                 isActive ?
-                'bg-emerald-50 text-emerald-700 border border-emerald-600 dark:bg-neutral-800 dark:text-neutral-100 dark:border-neutral-700' :
+                'bg-emerald-50 text-emerald-700 dark:border border-emerald-600 dark:bg-neutral-800 dark:text-neutral-100 dark:border-neutral-700' :
                 'text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-100'
             ]"
             x-data="{
@@ -144,9 +141,14 @@
             }">
 
             <div class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors flex-shrink-0"
-                :class="isActive ?
-                    'bg-emerald-200 dark:bg-neutral-800 dark:ring-1 dark:ring-neutral-700 dark:group-hover:bg-neutral-700' :
-                    'bg-emerald-100 group-hover:bg-emerald-200 dark:bg-neutral-800 dark:ring-1 dark:ring-neutral-700 dark:group-hover:bg-neutral-700'">
+                :class="[
+                    // Contexte actif standard
+                    isActive ?
+                        'bg-emerald-200 dark:bg-neutral-800' :
+                        'bg-emerald-100 group-hover:bg-emerald-200 dark:bg-neutral-800 dark:ring-1 dark:ring-neutral-700 dark:group-hover:bg-neutral-700',
+                    // NOUVEAU: Indicateur actif en mode réduit (anneau autour de l'icône)
+                    sidebarCollapsed && isActive ? 'lg:ring-2 lg:ring-emerald-600/70 lg:bg-emerald-200/50' : ''
+                ]">
                 <svg class="w-4 h-4 transition-colors group-hover:text-emerald-700 dark:group-hover:text-emerald-300"
                     :class="isActive ? 'text-emerald-700 dark:text-emerald-400' : 'text-emerald-600 dark:text-emerald-300'"
                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -160,12 +162,6 @@
                 Créer
             </span>
 
-            <!-- Indicateur actif pour le mode collapsed -->
-            <div x-show="sidebarCollapsed && isActive"
-                class="absolute -right-1 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-emerald-600 rounded-full hidden lg:block"
-                x-cloak>
-            </div>
-
             <div x-show="sidebarCollapsed && !isActive"
                 class="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50 hidden lg:block dark:bg-neutral-800 dark:text-neutral-100"
                 x-cloak>
@@ -173,13 +169,14 @@
             </div>
         </a>
 
-        <!-- Scanner -->
+
+
         <a href="{{ route('scanner') }}"
             class="flex items-center px-3 py-3 rounded-xl transition-all duration-200 group relative"
             :class="[
                 sidebarCollapsed ? 'lg:justify-center lg:h-10 lg:hover:bg-transparent' : 'lg:space-x-3',
                 isActive ?
-                'bg-amber-50 text-amber-700 border border-amber-600 dark:bg-neutral-800 dark:text-neutral-100 dark:border-neutral-700' :
+                'bg-amber-50 text-amber-700 dark:border border-amber-600 dark:bg-neutral-800 dark:text-neutral-100 dark:border-neutral-700' :
                 'text-gray-700 hover:bg-amber-50 hover:text-amber-700 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-100'
             ]"
             x-data="{
@@ -187,9 +184,14 @@
             }">
 
             <div class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors flex-shrink-0"
-                :class="isActive ?
-                    'bg-amber-200 dark:bg-neutral-800 dark:ring-1 dark:ring-neutral-700 dark:group-hover:bg-neutral-700' :
-                    'bg-amber-100 group-hover:bg-amber-200 dark:bg-neutral-800 dark:ring-1 dark:ring-neutral-700 dark:group-hover:bg-neutral-700'">
+                :class="[
+                    // Contexte actif standard
+                    isActive ?
+                        'bg-amber-200 dark:bg-neutral-800' :
+                        'bg-amber-100 group-hover:bg-amber-200 dark:bg-neutral-800 dark:ring-1 dark:ring-neutral-700 dark:group-hover:bg-neutral-700',
+                    // NOUVEAU: Indicateur actif en mode réduit (anneau autour de l'icône)
+                    sidebarCollapsed && isActive ? 'lg:ring-2 lg:ring-amber-600/70 lg:bg-amber-200/50' : ''
+                ]">
                 <svg class="w-4 h-4 transition-colors group-hover:text-amber-700 dark:group-hover:text-amber-300"
                     :class="isActive ? 'text-amber-700 dark:text-amber-400' : 'text-amber-600 dark:text-amber-300'"
                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -204,12 +206,6 @@
                 Scanner
             </span>
 
-            <!-- Indicateur actif pour le mode collapsed -->
-            <div x-show="sidebarCollapsed && isActive"
-                class="absolute -right-1 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-amber-600 rounded-full hidden lg:block"
-                x-cloak>
-            </div>
-
             <div x-show="sidebarCollapsed && !isActive"
                 class="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50 hidden lg:block dark:bg-neutral-800 dark:text-neutral-100"
                 x-cloak>
@@ -219,21 +215,19 @@
     @endif
 
     @if (auth()->user()->isAdmin())
-        <!-- Administration Section -->
+
         <div class="pt-4 border-t border-gray-200 mt-4 dark:border-neutral-800">
-            <!-- Titre - visible seulement quand la sidebar est étendue -->
-            <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 transition-all duration-300"
+            <p class="px-3  font-semibold  uppercase tracking-wider mb-2  duration-300"
                 :class="sidebarCollapsed ? 'lg:hidden' : ''">
                 Administration
             </p>
 
-            <!-- Gestion des utilisateurs -->
             <a href="{{ route('admin.users.index') }}"
                 class="flex items-center px-3 py-3 rounded-xl transition-all duration-200 group relative"
                 :class="[
                     sidebarCollapsed ? 'lg:justify-center lg:h-10 lg:hover:bg-transparent' : 'lg:space-x-3',
                     isActive ?
-                    'bg-purple-50 text-purple-700 border border-purple-600 dark:bg-neutral-800 dark:text-neutral-100 dark:border-neutral-700' :
+                    'bg-purple-50 text-purple-700 dark:border border-purple-600 dark:bg-neutral-800 dark:text-neutral-100 dark:border-neutral-700' :
                     'text-gray-700 hover:bg-purple-50 hover:text-purple-700 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-100'
                 ]"
                 x-data="{
@@ -241,9 +235,14 @@
                 }">
 
                 <div class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors flex-shrink-0"
-                    :class="isActive ?
-                        'bg-purple-200 dark:bg-neutral-800 dark:ring-1 dark:ring-neutral-700 dark:group-hover:bg-neutral-700' :
-                        'bg-purple-100 group-hover:bg-purple-200 dark:bg-neutral-800 dark:ring-1 dark:ring-neutral-700 dark:group-hover:bg-neutral-700'">
+                    :class="[
+                        // Contexte actif standard
+                        isActive ?
+                            'bg-purple-200 dark:bg-neutral-800' :
+                            'bg-purple-100 group-hover:bg-purple-200 dark:bg-neutral-800 dark:ring-1 dark:ring-neutral-700 dark:group-hover:bg-neutral-700',
+                        // NOUVEAU: Indicateur actif en mode réduit (anneau autour de l'icône)
+                        sidebarCollapsed && isActive ? 'lg:ring-2 lg:ring-purple-600/70 lg:bg-purple-200/50' : ''
+                    ]">
                     <svg class="w-4 h-4 transition-colors group-hover:text-purple-700 dark:group-hover:text-purple-300"
                         :class="isActive ? 'text-purple-700 dark:text-purple-400' : 'text-purple-600 dark:text-purple-300'"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -257,12 +256,6 @@
                     :class="sidebarCollapsed ? 'lg:hidden' : ''">
                     Utilisateurs
                 </span>
-
-                <!-- Indicateur actif pour le mode collapsed -->
-                <div x-show="sidebarCollapsed && isActive"
-                    class="absolute -right-1 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-purple-600 rounded-full hidden lg:block"
-                    x-cloak>
-                </div>
 
                 <div x-show="sidebarCollapsed && !isActive"
                     class="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50 hidden lg:block"
