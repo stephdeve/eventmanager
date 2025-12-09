@@ -154,7 +154,7 @@
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                     <div>
                         <h1
-                            class="text-4xl font-bold bg-gradient-to-r from-slate-800 to-indigo-600 bg-clip-text text-transparent mb-2">
+                            class="text-4xl font-bold  mb-2">
                             Tableau de bord
                         </h1>
                         <p class="text-lg text-slate-600">Bienvenue, <span
@@ -219,7 +219,7 @@
                                 </svg>
                             </div>
                         </div>
-                        <div class="mt-4 pt-4 border-t border-white/20">
+                        <div class="mt-4 pt-4 border-t border-slate-50/20">
                             <div class="flex items-center text-sm text-emerald-100">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -298,7 +298,7 @@
                             </div>
                         </div>
                         <div
-                            class="mt-4 flex items-center text-indigo-100 text-sm group-hover:text-white transition-colors duration-200">
+                            class="mt-4 flex items-center text-indigo-100 text-sm group-hover:text-white transition-colors duration-200  pt-4 border-t border-slate-50/20">
                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M13 7l5 5m0 0l-5 5m5-5H6" />
