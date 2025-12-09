@@ -9,6 +9,7 @@
     <title>EventManager - Là où les passions s'affrontent</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.bunny.net/css?family=sora:400,500,600,700&family=inter:400,500,600,700&display=swap"
         rel="stylesheet" />
 
@@ -126,7 +127,7 @@
             top: 0;
             width: 100%;
             z-index: 100;
-            background: rgba(10, 10, 15, 0.9);
+
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border-light);
@@ -134,7 +135,6 @@
         }
 
         .nav-container.scrolled {
-            background: rgba(10, 10, 15, 0.95);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
         }
 
@@ -179,7 +179,7 @@
         .btn-gradient-primary {
             background: var(--primary-gradient);
             color: white;
-            padding: 16px 32px;
+            padding: 12px 24px;
             border-radius: var(--radius-md);
             font-weight: 600;
             position: relative;
@@ -211,9 +211,10 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
-            padding: 16px 32px;
+            padding: 12px 24px;
             border-radius: var(--radius-md);
             font-weight: 600;
+            text-align: center;
             transition: var(--transition);
         }
 
@@ -310,20 +311,40 @@
             z-index: 1000;
             transition: width 0.1s ease;
         }
+
+        .glass-card-gold {
+            background: linear-gradient(135deg, rgba(235, 201, 4, 0.1), rgba(251, 142, 9, 0.05));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
     </style>
 </head>
 
 <body class="min-h-full bg-black overflow-x-hidden">
     <div class="scroll-progress" id="scrollProgress"></div>
 
-    <nav class="nav-container" id="mainNav">
-        <div class="container-narrow">
+    <nav class="nav-container backdrop-blur-md bg-slate-800/50 fixed top-0 left-0 right-0 z-50" id="mainNav">
+        <div class="container-narrow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
-                <a href="{{ url('/') }}" class="flex items-center space-x-3">
+                <a href="{{ url('/') }}" class="flex items-center space-x-3 z-20">
                     <div
-                    class="w-10 h-10 bg-gradient-to-br from-indigo-600 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
-                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-days-icon lucide-calendar-days"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
-                </div>
+                        class="w-10 h-10 bg-gradient-to-br from-indigo-600 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="lucide lucide-calendar-days-icon lucide-calendar-days">
+                            <path d="M8 2v4" />
+                            <path d="M16 2v4" />
+                            <rect width="18" height="18" x="3" y="4" rx="2" />
+                            <path d="M3 10h18" />
+                            <path d="M8 14h.01" />
+                            <path d="M12 14h.01" />
+                            <path d="M16 14h.01" />
+                            <path d="M8 18h.01" />
+                            <path d="M12 18h.01" />
+                            <path d="M16 18h.01" />
+                        </svg>
+                    </div>
                     <span class="text-xl font-bold text-white">EventManager</span>
                 </a>
 
@@ -340,14 +361,14 @@
                         class="nav-link-animated text-gray-300 hover:text-white transition-colors duration-300">
                         Événements
                     </a>
-                    <a href="#testimonials"
+                    <a href="#subscription-plans"
                         class="nav-link-animated text-gray-300 hover:text-white transition-colors duration-300">
-                        Avis Clients
+                        Plans
                     </a>
 
                     @auth
                         <a href="{{ route('dashboard') }}" class="btn-glass">
-                            Tableau de bord
+                            Dashboard
                         </a>
                     @else
                         <a href="{{ route('login') }}"
@@ -360,17 +381,65 @@
                     @endauth
                 </div>
 
-                <button class="md:hidden text-gray-300 hover:text-white" id="mobileMenuBtn">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <button class="md:hidden text-gray-300 hover:text-white z-20" id="mobileMenuBtn"
+                    aria-label="Toggle Menu">
+                    <svg class="w-7 h-7 hidden" id="menuIconOpen" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
+                    <svg class="w-7 h-7" id="menuIconClose" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                 </button>
+            </div>
+
+            <div class="md:hidden absolute top-20 py-4 left-0 w-full bg-slate-800 rounded-b-3xl backdrop-blur-sm shadow-xl transition-all duration-300 ease-in-out transform -translate-y-full opacity-0"
+                id="mobileMenuContent">
+                <div class="flex flex-col space-y-4 p-6 pt-0">
+                    <a href="#features"
+                        class="text-xl text-gray-300 hover:text-white transition-colors duration-300 py-2 border-b border-gray-700"
+                        onclick="closeMobileMenu()">
+                        Fonctionnalités
+                    </a>
+                    <a href="#event-recent"
+                        class="text-xl text-gray-300 hover:text-white transition-colors duration-300 py-2 border-b border-gray-700"
+                        onclick="closeMobileMenu()">
+                        Prochain Event
+                    </a>
+                    <a href="#events"
+                        class="text-xl text-gray-300 hover:text-white transition-colors duration-300 py-2 border-b border-gray-700"
+                        onclick="closeMobileMenu()">
+                        Événements
+                    </a>
+                    <a href="#subscription-plans"
+                        class="text-xl text-gray-300 hover:text-white transition-colors duration-300 py-2 border-b border-gray-700"
+                        onclick="closeMobileMenu()">
+                        Plans
+                    </a>
+
+                    <div class="pt-4 flex flex-col space-y-4">
+                        @auth
+                            <a href="{{ route('dashboard') }}" class="btn-glass w-full text-center">
+                                Dashboard
+                            </a>
+                        @else
+                            <a href="{{ route('login') }}"
+                                class="btn-glass w-full text-center border-gray-600/50 text-gray-300 hover:bg-gray-600/30">
+                                Connexion
+                            </a>
+                            <a href="{{ route('register') }}" class="btn-gradient-primary w-full text-center">
+                                S'inscrire
+                            </a>
+                        @endauth
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
 
-    <section class="hero-section">
+    <section class="hero-section bg-gradient-to-b from-slate-900 to-slate-900/40 pb-16">
         <div class="absolute inset-0 overflow-hidden z-0">
             <div
                 class="absolute w-500 h-500 rounded-full filter blur-xl opacity-30 z-0 top-[-200px] left-[-200px] bg-gradient-to-r from-violet-600 to-transparent animate-float">
@@ -608,7 +677,7 @@
 
     <hr class="border-t border-gray-800 my-16 container-narrow" />
 
-    <section id="events" class="section-spacing bg-gradient-to-b from-transparent to-black/40 pt-0">
+    <section id="events" class="section-spacing bg-gradient-to-b from-slate-900 to-slate-800/40 pt-0">
         <div class="container-narrow">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 reveal">
                 <div>
@@ -797,9 +866,7 @@
                     <div
                         class="lg:w-1/2 relative p-8 glass-card transform hover:scale-[1.01] transition-transform duration-500 shadow-2xl">
 
-
                         [Image of Payment/QR Scanning Interface]
-
                         <div class="absolute -bottom-6 -left-6 w-20 h-20 bg-yellow-600/50 rounded-full filter blur-xl animate-pulse-slow"
                             style="animation-delay: 1s;"></div>
                     </div>
@@ -1026,6 +1093,150 @@
 
     <hr class="border-t border-gray-800 my-16 container-narrow" />
 
+
+
+
+    <section id="subscription-plans" class="section-spacing py-16 md:py-24 bg-gray-900">
+        <div class="container-narrow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">
+                    Passez au niveau <span class="text-gradient">Supérieur</span>
+                </h2>
+                <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+                    Choisissez la formule Organisateur qui vous donnera le pouvoir d'échelle que vous cherchez.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-10 lg:grid-cols-3 lg:gap-8">
+
+                <div
+                    class="glass-card p-8 reveal border-t-8 border-gray-600/50 shadow-2xl flex flex-col h-full hover:border-violet-600 transition duration-300">
+                    <div class="mb-6">
+                        <h3 class="text-3xl font-bold text-gray-300 flex items-center space-x-2">
+                            <i class="fas fa-seedling text-green-400"></i>
+                            <span>Starter (Basique)</span>
+                        </h3>
+                        <p class="mt-2 text-md text-gray-400">Idéal pour vos premiers pas</p>
+                    </div>
+
+                    <div class="flex items-baseline text-6xl font-extrabold text-white mb-6">
+                        30 000
+                        <span class="text-2xl font-medium text-gray-400 ml-2">FCFA/mois</span>
+                    </div>
+
+                    <ul role="list" class="space-y-4 text-gray-300 mb-8 flex-grow">
+                        <li class="flex items-center">
+                            <i class="fas fa-user-friends w-5 h-5 text-violet-400 flex-shrink-0 mr-3"></i>
+                            <span class="font-medium">Jusqu'à **50 places** par événement</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-calendar-week w-5 h-5 text-yellow-400 flex-shrink-0 mr-3"></i>
+                            <span class="font-medium">Jusqu'à **10 événements** par mois</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-chart-line w-5 h-5 text-green-400 flex-shrink-0 mr-3"></i>
+                            <span class="font-semibold">**Lien de promotion + Suivi détaillé** des clics</span>
+                        </li>
+                    </ul>
+
+                    <a href="{{ route('register', ['plan' => 'basic']) }}"
+                        class="btn-glass mt-auto text-center border-gray-600/50 text-gray-300 hover:bg-violet-600/20 transition duration-300">
+                        Démarrer Basique
+                    </a>
+                </div>
+
+                <div
+                    class="glass-card p-8 reveal border-t-8 border-violet-600 shadow-violet-900/50 shadow-2xl scale-105 transform transition duration-500 flex flex-col h-full relative">
+                    <span
+                        class="absolute top-0 right-0 -mt-3 mr-4 px-4 py-1 text-xs font-bold tracking-wider text-white bg-violet-600 rounded-full uppercase shadow-lg transform rotate-2">
+                        Le Plus Populaire
+                    </span>
+
+                    <div class="mb-6">
+                        <h3 class="text-3xl font-bold text-violet-300 flex items-center space-x-2">
+                            <i class="fas fa-medal text-yellow-400"></i>
+                            <span>Ascension (Premium)</span>
+                        </h3>
+                        <p class="mt-2 text-md text-violet-300">Montez en puissance et optimisez vos ventes</p>
+                    </div>
+
+                    <div class="flex items-baseline text-6xl font-extrabold text-white mb-6">
+                        60 000
+                        <span class="text-2xl font-medium text-gray-400 ml-2">FCFA/mois</span>
+                    </div>
+
+                    <ul role="list" class="space-y-4 text-gray-300 mb-8 flex-grow">
+                        <li class="flex items-center">
+                            <i class="fas fa-user-check w-5 h-5 text-violet-400 flex-shrink-0 mr-3"></i>
+                            <span class="font-semibold">Jusqu'à **150 places** par événement</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-calendar-check w-5 h-5 text-yellow-400 flex-shrink-0 mr-3"></i>
+                            <span class="font-semibold">Jusqu'à **30 événements** par mois</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-chart-line w-5 h-5 text-green-400 flex-shrink-0 mr-3"></i>
+                            <span class="font-semibold">**Lien de promotion + Suivi détaillé** des clics</span>
+                        </li>
+                    </ul>
+
+                    <a href="{{ route('register', ['plan' => 'premium']) }}"
+                        class="btn-gradient-primary mt-auto text-center shadow-lg shadow-violet-700/50">
+                        <i class="fas fa-arrow-right mr-2"></i>
+                        Choisir Ascension
+                    </a>
+                </div>
+
+                <div
+                    class="glass-card p-8 reveal border-t-8 border-violet-800 shadow-2xl flex flex-col h-full hover:border-violet-600 transition duration-300">
+                    <div class="mb-6">
+                        <h3 class="text-3xl font-bold text-violet-300 flex items-center space-x-2">
+                            <i class="fas fa-crown text-yellow-500"></i>
+                            <span>Élite (Pro)</span>
+                        </h3>
+                        <p class="mt-2 text-md text-gray-400">Pour les professionnels du secteur exigeants</p>
+                    </div>
+
+                    <div class="flex items-baseline text-6xl font-extrabold text-white mb-6">
+                        90 000
+                        <span class="text-2xl font-medium text-gray-400 ml-2">FCFA/mois</span>
+                    </div>
+
+                    <ul role="list" class="space-y-4 text-gray-300 mb-8 flex-grow">
+                        <li class="flex items-center">
+                            <i class="fas fa-infinity w-5 h-5 text-violet-400 flex-shrink-0 mr-3"></i>
+                            <span class="font-semibold">**Places ILLIMITÉES** par événement</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-grip-lines-vertical w-5 h-5 text-yellow-400 flex-shrink-0 mr-3"></i>
+                            <span class="font-semibold">Jusqu'à **100 événements** par mois</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-chart-line w-5 h-5 text-green-400 flex-shrink-0 mr-3"></i>
+                            <span class="font-semibold">Lien de promotion + Suivi détaillé des clics</span>
+                        </li>
+                    </ul>
+
+                    <a href="{{ route('register', ['plan' => 'pro']) }}"
+                        class="btn-glass mt-auto text-center border-violet-600/50 text-violet-300 hover:bg-violet-600/30 transition duration-300">
+                        Passer à Élite
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+
+
+
+
+
+    <hr class="border-t border-gray-800 my-16 container-narrow" />
+
+
     <!-- Section: Témoignages -->
     <section id="testimonials" class="section-spacing bg-gradient-to-b from-transparent to-black/50">
         <div class="container-narrow">
@@ -1127,56 +1338,185 @@
         </div>
     </section>
 
-    <!-- CTA Final -->
-    <section class="section-spacing">
-        <div class="container-narrow">
-            <div class="glass-card-gold p-12 text-center rounded-2xl reveal">
-                <h2 class="text-4xl md:text-5xl font-bold mb-6">
-                    Prêt à créer des <span class="text-gradient">expériences uniques</span> ?
+
+
+
+    <section id="faq" class="section-spacing py-16 md:py-24 bg-gradient-to-t from-gray-900 to-gray-800">
+        <div class="container-narrow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4 text-white">
+                    Expertise <span class="text-gradient">et Transparence</span>
                 </h2>
-                <p class="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
-                    Rejoignez des milliers d'organisateurs qui transforment leurs événements avec EventManager
+                <p class="text-xl text-gray-400 max-w-3xl mx-auto">
+                    Toutes les questions que vous vous posez sur les fonctionnalités, la tarification et l'utilisation
+                    de la plateforme.
                 </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    @auth
-                        <a href="{{ route('events.create') }}" class="btn-gradient-primary text-lg px-8 py-4">
-                            Créer un événement
-                        </a>
-                    @else
-                        <a href="{{ route('register') }}" class="btn-gradient-primary text-lg px-8 py-4">
-                            Commencer gratuitement
-                        </a>
-                    @endauth
-                    <a href="#features" class="btn-glass text-lg px-8 py-4">
-                        Voir la démo
-                    </a>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                <div class="glass-card p-6 reveal border-t-8 border-violet-600 shadow-xl flex flex-col h-full cursor-pointer  transition duration-300"
+                    onclick="openModal('q1')">
+                    <i class="fas fa-calendar-alt text-violet-400 text-3xl mb-4"></i>
+                    <h3 class="text-xl font-bold text-white mb-2">Comment créer un événement rapidement ?</h3>
+                    <p class="text-gray-400 text-sm flex-grow">
+                        Découvrez les étapes simples pour mettre en ligne et configurer votre premier événement en moins
+                        de 5 minutes.
+                    </p>
                 </div>
-                <p class="text-gray-400 text-sm mt-6">
-                    Aucune carte bancaire requise • Essai gratuit de 14 jours
-                </p>
+
+                <div class="glass-card p-6 reveal border-t-8 border-violet-600 shadow-xl flex flex-col h-full cursor-pointer transition duration-300"
+                    onclick="openModal('q2')">
+                    <i class="fas fa-ticket-alt text-violet-400 text-3xl mb-4"></i>
+                    <h3 class="text-xl font-bold text-white mb-2">Puis-je créer différents types de billets ?</h3>
+                    <p class="text-gray-400 text-sm flex-grow">
+                        Oui, la plateforme supporte la gestion de multiples catégories (VIP, Early Bird, Standard) et
+                        les coupons de réduction.
+                    </p>
+                </div>
+
+                <div class="glass-card p-6 reveal border-t-8 border-violet-600 shadow-xl flex flex-col h-full cursor-pointer transition duration-300"
+                    onclick="openModal('q3')">
+                    <i class="fas fa-chart-line text-violet-400 text-3xl mb-4"></i>
+                    <h3 class="text-xl font-bold text-white mb-2">Comment fonctionne le suivi de promotion ?</h3>
+                    <p class="text-gray-400 text-sm flex-grow">
+                        Le plan Premium vous donne accès à des liens uniques pour suivre l'efficacité de vos campagnes
+                        marketing (clics, inscriptions).
+                    </p>
+                </div>
+
+                <div class="glass-card p-6 reveal border-t-8 border-violet-600 shadow-xl flex flex-col h-full cursor-pointer  transition duration-300"
+                    onclick="openModal('q4')">
+                    <i class="fas fa-users text-violet-400 text-3xl mb-4"></i>
+                    <h3 class="text-xl font-bold text-white mb-2">Comment gérer l'accès le jour J ?</h3>
+                    <p class="text-gray-400 text-sm flex-grow">
+                        La billetterie est compatible avec le scan de QR codes via l'application mobile pour un contrôle
+                        d'accès rapide et fiable.
+                    </p>
+                </div>
+
+                <div class="glass-card p-6 reveal border-t-8 border-violet-600 shadow-xl flex flex-col h-full cursor-pointer transition duration-300"
+                    onclick="openModal('q5')">
+                    <i class="fas fa-comment-dots text-violet-400 text-3xl mb-4"></i>
+                    <h3 class="text-xl font-bold text-white mb-2">Les participants peuvent-ils interagir ?</h3>
+                    <p class="text-gray-400 text-sm flex-grow">
+                        Oui, les participants ont accès à un dashboard pour le chat en direct, les votes et les
+                        questions/réponses pendant l'événement.
+                    </p>
+                </div>
+
+                <div class="glass-card p-6 reveal border-t-8 border-violet-600 shadow-xl flex flex-col h-full cursor-pointer transition duration-300"
+                    onclick="openModal('q6')">
+                    <i class="fas fa-hand-holding-usd text-violet-400 text-3xl mb-4"></i>
+                    <h3 class="text-xl font-bold text-white mb-2">Y a-t-il des frais supplémentaires cachés ?</h3>
+                    <p class="text-gray-400 text-sm flex-grow">
+                        Nous garantissons une totale transparence : seuls les frais de service clairement indiqués lors
+                        de la vente sont appliqués.
+                    </p>
+                </div>
+
             </div>
         </div>
     </section>
+    <div id="faqModal"
+        class="fixed inset-0 bg-gray-900  bg-opacity-75 z-[9999] hidden items-center justify-center p-4 transition-opacity duration-300">
+        <div class="bg-gray-800 justify-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-xl max-w-2xl w-full p-6 md:p-8 shadow-2xl scale-95 transition-transform duration-300 border border-slate-700"
+            id="modalContentWrapper">
+
+            <div class="flex justify-between items-start mb-4">
+                <h3 id="modalTitle" class="text-2xl font-bold text-gradient-accent">Titre de la Question</h3>
+                <button class="text-gray-400 hover:text-white transition" onclick="closeModal()">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+
+            <div id="modalBody" class="text-gray-300 space-y-4 max-h-96 overflow-y-auto pr-2">
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-gray-700/50">
+                <a href="{{ route('home') }}" class="text-sm font-semibold text-violet-400 hover:text-violet-300">
+                    Vous avez encore des doutes ? Contactez-nous directement. <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- CTA Final -->
+    <section class="section-spacing py-16 md:py-32 ">
+        <div class="container-narrow max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="p-8 md:p-12 reveal glass-card-gold rounded-3xl text-center shadow-2xl transition">
+
+                <i class="fas fa-magic text-yellow-400 text-5xl mb-6"></i>
+
+                <h2 class="text-4xl md:text-6xl font-extrabold mb-6 text-white leading-tight">
+                    Prêt à créer des
+                    <span class="text-transparent"
+                        style="background-image: linear-gradient(to right, #FDE68A, #F59E0B); -webkit-background-clip: text; background-clip: text;">
+                        expériences d'exception
+                    </span> ?
+                </h2>
+
+                <p class="text-xl text-gray-300 mb-10 max-w-3xl mx-auto">
+                    Rejoignez les milliers d'organisateurs qui transforment leurs événements avec la puissance
+                    d'EventManager.
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+
+                    @auth
+                        <a href="{{ route('events.create') }}"
+                            class="text-xl px-10 py-4 shadow-xl transition duration-300 transform hover:scale-[1.03] font-bold rounded-lg"
+                            style="background: linear-gradient(135deg, #FDE68A 0%, #FBBF24 100%); color: #1F2937; box-shadow: 0 5px 15px rgba(252, 211, 77, 0.4);">
+                            <i class="fas fa-plus-circle mr-2"></i> Créer votre premier événement
+                        </a>
+                    @else
+                        <a href="{{ route('register') }}"
+                            class="text-xl px-10 py-4 shadow-xl transition duration-300 transform hover:scale-[1.03] font-bold rounded-lg"
+                            style="background: linear-gradient(135deg, #FDE68A 0%, #FBBF24 100%); color: #1F2937; box-shadow: 0 5px 15px rgba(252, 211, 77, 0.4);">
+                            <i class="fas fa-rocket mr-2"></i> Commencer gratuitement
+                        </a>
+                    @endauth
+
+
+                </div>
+
+                <p class="text-gray-400 text-sm mt-8">
+                    <i class="fas fa-credit-card text-gray-500 mr-1"></i> Aucune carte bancaire requise • Formule
+                    Starter disponible pour toujours
+                </p>
+            </div>
+
+        </div>
+    </section>
+
 
     <!-- Footer -->
-    <footer class="py-12 border-t border-white/10">
+    <footer class="py-12 border-t bg-neutral-800/50 border-white/10">
         <div class="container-narrow">
             <div class="grid md:grid-cols-4 gap-8 mb-8">
                 <!-- Brand -->
                 <div>
-                    <a href="{{ url('/') }}" class="flex items-center space-x-3 mb-6">
-                        <div class="relative">
-                            <div
-                                class="absolute inset-0 bg-gradient-to-r from-violet-600 to-blue-500 rounded-lg blur-md opacity-50">
-                            </div>
-                            <div
-                                class="relative flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-r from-violet-600 to-blue-500">
-                                <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                </svg>
-                            </div>
+                    <a href="{{ url('/') }}" class="flex items-center mb-3 space-x-3 z-20">
+                        <div
+                            class="w-10 h-10 bg-gradient-to-br from-indigo-600 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round"
+                                class="lucide lucide-calendar-days-icon lucide-calendar-days">
+                                <path d="M8 2v4" />
+                                <path d="M16 2v4" />
+                                <rect width="18" height="18" x="3" y="4" rx="2" />
+                                <path d="M3 10h18" />
+                                <path d="M8 14h.01" />
+                                <path d="M12 14h.01" />
+                                <path d="M16 14h.01" />
+                                <path d="M8 18h.01" />
+                                <path d="M12 18h.01" />
+                                <path d="M16 18h.01" />
+                            </svg>
                         </div>
                         <span class="text-xl font-bold text-white">EventManager</span>
                     </a>
@@ -1374,11 +1714,181 @@
             document.getElementById("scrollProgress").style.width = scrolled + "%";
         });
 
-        // Mobile Menu Toggle (A implémenter)
-        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-            // Exemple simple de toggle de classe pour un menu masqué
-            // const mobileMenu = document.getElementById('mobileMenu');
-            // mobileMenu.classList.toggle('hidden');
+        // Mobile Menu Toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuBtn = document.getElementById('mobileMenuBtn');
+            const menuContent = document.getElementById('mobileMenuContent');
+            const menuIconOpen = document.getElementById('menuIconOpen'); // Hamburger
+            const menuIconClose = document.getElementById('menuIconClose'); // Croix
+
+            // Fonction pour basculer les icônes
+            function toggleIcons(isOpen) {
+                if (isOpen) {
+                    menuIconOpen.classList.add('hidden');
+                    menuIconClose.classList.remove('hidden');
+                } else {
+                    menuIconOpen.classList.remove('hidden');
+                    menuIconClose.classList.add('hidden');
+                }
+            }
+            menuIconOpen.classList.remove('hidden');
+            menuIconClose.classList.add('hidden');
+
+            // Fonction de basculement principale
+            function toggleMobileMenu() {
+                const isOpen = menuContent.classList.contains('opacity-100');
+
+                if (isOpen) {
+                    // Fermeture
+                    menuContent.classList.add('-translate-y-full', 'opacity-0');
+                    menuContent.classList.remove('translate-y-0', 'opacity-100');
+                    document.body.style.overflow = ''; // Réactiver le scroll
+                    toggleIcons(false);
+                } else {
+                    // Ouverture
+                    menuContent.classList.remove('-translate-y-full', 'opacity-0');
+                    menuContent.classList.add('translate-y-0', 'opacity-100');
+                    document.body.style.overflow = 'hidden'; // Désactiver le scroll du corps
+                    toggleIcons(true);
+                }
+            }
+
+            // Événement au clic sur le bouton
+            menuBtn.addEventListener('click', toggleMobileMenu);
+
+            // Fonction pour fermer le menu lors du clic sur un lien ancre
+            window.closeMobileMenu = function() {
+                if (menuContent.classList.contains('opacity-100')) {
+                    toggleMobileMenu();
+                }
+            }
+        });
+
+
+        // Base de données des questions/réponses faqs
+        const faqData = {
+            'q1': {
+                title: "Comment créer un événement rapidement ?",
+                body: `
+                <p>La création se fait en 4 étapes simples via votre Dashboard Organisateur :</p>
+                <ol class="list-decimal list-inside ml-4 space-y-2 mt-2">
+                    <li>**Détails de base :** Nom, date, heure et lieu (physique ou virtuel).</li>
+                    <li>**Configuration Billetterie :** Définissez vos catégories de billets, leur prix et les quotas par catégorie.</li>
+                    <li>**Personnalisation :** Ajoutez des images, une description attrayante, et définissez les options de chat/Q&A.</li>
+                    <li>**Publication :** Après vérification, votre événement est immédiatement visible sur le catalogue de l'application et vous recevez votre lien de promotion unique (plans Premium/Élite).</li>
+                </ol>
+                <p class="mt-4 text-violet-300">Temps estimé pour la publication : 5 minutes.</p>
+            `
+            },
+            'q2': {
+                title: "Puis-je créer différents types de billets ?",
+                body: `
+                <p>Oui, notre système de billetterie est extrêmement flexible. Vous pouvez configurer :</p>
+                <ul class="list-disc list-inside ml-4 space-y-2 mt-2">
+                    <li>**Billets à prix multiples :** Standard, VIP, Accès Presse, etc.</li>
+                    <li>**Tarification dynamique :** Définissez des dates de début et de fin pour les tarifs spéciaux (Ex: Early Bird).</li>
+                    <li>**Billets gratuits :** Utile pour les invités ou les événements gratuits nécessitant une inscription.</li>
+                    <li>**Coupons et Codes de Réduction :** Créez des codes promotionnels pour offrir des pourcentages ou des montants fixes de réduction.</li>
+                </ul>
+            `
+            },
+            'q3': {
+                title: "Comment fonctionne le suivi de promotion ?",
+                body: `
+                <p>Disponible pour les plans Premium et Élite, cette fonctionnalité est cruciale pour optimiser vos dépenses marketing :</p>
+                <p class="text-violet-300 font-semibold">Méthode :</p>
+                <p>Vous générez des liens de promotion uniques (UTM) pour chaque canal (Facebook, Instagram, Email, Partenaire A). Notre système enregistre :</p>
+                <ul class="list-disc list-inside ml-4 space-y-2 mt-2">
+                    <li>Le nombre de clics reçus par ce lien.</li>
+                    <li>Le nombre d'inscriptions ou de ventes générées directement par ce lien.</li>
+                    <li>Le taux de conversion.</li>
+                </ul>
+                <p class="mt-4">Cela vous permet de savoir exactement quel canal vous apporte le meilleur retour sur investissement (ROI).</p>
+            `
+            },
+            'q4': {
+                title: "Comment gérer l'accès le jour J ?",
+                body: `
+                <p>Nous facilitons l'entrée de vos participants grâce à deux méthodes principales :</p>
+                <ol class="list-decimal list-inside ml-4 space-y-2 mt-2">
+                    <li>**QR Code mobile :** Chaque participant reçoit un billet unique avec un QR code scannable via n'importe quel smartphone avec notre application d'organisateur. Le scan vérifie instantanément la validité du billet et marque le participant comme présent.</li>
+                    <li>**Liste d'invités numérique :** Vous pouvez également rechercher manuellement le nom du participant sur votre liste numérique en cas de problème de QR code.</li>
+                </ol>
+                <p class="mt-4 text-violet-300">Le processus est rapide (moins de 2 secondes par participant) et réduit les files d'attente.</p>
+            `
+            },
+            'q5': {
+                title: "Les participants peuvent-ils interagir pendant l'événement ?",
+                body: `
+                <p>Oui, nous offrons des outils pour maximiser l'engagement des participants, transformant les spectateurs en acteurs :</p>
+                <ul class="list-disc list-inside ml-4 space-y-2 mt-2">
+                    <li>**Chat en Direct :** Permet des échanges instantanés et des modérations par l'organisateur (selon le plan).</li>
+                    <li>**Sondages et Votes :** Lancez des sondages en direct pour recueillir des opinions ou influencer le déroulement de l'événement.</li>
+                    <li>**Session Q&A :** Les participants peuvent poser des questions qui peuvent être affichées et votées par les autres pour les prioriser.</li>
+                </ul>
+                <p class="mt-4">Ces outils sont accessibles via le Dashboard Participant.</p>
+            `
+            },
+            'q6': {
+                title: "Y a-t-il des frais supplémentaires cachés ?",
+                body: `
+                <p>Absolument pas. La transparence est notre engagement principal :</p>
+                <ul class="list-disc list-inside ml-4 space-y-2 mt-2">
+                    <li>**Abonnement mensuel :** Le prix fixe (30 000, 60 000 ou 90 000 FCFA) couvre l'accès aux fonctionnalités du plan choisi.</li>
+                    <li>**Frais de service (Commission) :** C'est le seul frais additionnel, appliqué par transaction (vente de billet). Ce pourcentage est clairement affiché dans votre contrat et ne change pas.</li>
+                    <li>**Pas de frais de retrait :** Nous ne facturons pas de frais pour le transfert des fonds de billetterie vers votre compte bancaire/mobile money.</li>
+                </ul>
+            `
+            }
+        };
+
+        const modal = document.getElementById('faqModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+        const modalContentWrapper = document.getElementById('modalContentWrapper');
+
+        function openModal(questionId) {
+            const data = faqData[questionId];
+
+            if (!data) return;
+
+            // Remplir le contenu du modal
+            modalTitle.innerHTML = data.title;
+            modalBody.innerHTML = data.body;
+
+            // Afficher le modal
+            modal.classList.remove('hidden');
+
+            // Appliquer la transformation pour l'animation (légèrement retardée)
+            setTimeout(() => {
+                modalContentWrapper.classList.remove('scale-95');
+                modalContentWrapper.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            // Appliquer la transformation inverse
+            modalContentWrapper.classList.remove('scale-100');
+            modalContentWrapper.classList.add('scale-95');
+
+            // Cacher le modal après la transition
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // Fermeture du modal en cliquant à l'extérieur
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Fermeture du modal avec la touche Échap
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape" && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
         });
     </script>
 </body>
