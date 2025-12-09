@@ -385,10 +385,26 @@ class EventController extends Controller
 
         // Can the current user review?
         $canReview = false;
-        if (auth()->check() && $event->end_date && now()->gte($event->end_date)) {
-            $hasRegistration = $isRegistered || Registration::where('event_id', $event->id)->where('user_id', auth()->id())->exists();
-            $alreadyReviewed = EventReview::where('event_id', $event->id)->where('user_id', auth()->id())->exists();
+        $reviewCannotReason = null;
+        if (!auth()->check()) {
+            $reviewCannotReason = 'Veuillez vous connecter pour laisser un avis.';
+        } elseif (!$event->end_date || now()->lt($event->end_date)) {
+            $reviewCannotReason = "Vous pourrez laisser un avis après la fin de l'événement.";
+        } else {
+            $hasRegistration = $isRegistered || Registration::where('event_id', $event->id)
+                ->where('user_id', auth()->id())
+                ->exists();
+            $alreadyReviewed = EventReview::where('event_id', $event->id)
+                ->where('user_id', auth()->id())
+                ->exists();
             $canReview = $hasRegistration && !$alreadyReviewed;
+            if (!$canReview) {
+                if (!$hasRegistration) {
+                    $reviewCannotReason = 'Seuls les participants peuvent laisser un avis.';
+                } elseif ($alreadyReviewed) {
+                    $reviewCannotReason = 'Vous avez déjà laissé un avis pour cet événement.';
+                }
+            }
         }
 
         return view('events.show', [
@@ -399,6 +415,7 @@ class EventController extends Controller
             'reviews' => $reviews,
             'recommendedEvents' => $recommendedEvents,
             'canReview' => $canReview,
+            'reviewCannotReason' => $reviewCannotReason,
         ]);
     }
 

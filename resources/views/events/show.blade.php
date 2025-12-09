@@ -343,6 +343,17 @@
                                             <div id="review-success" class="text-sm text-green-700 hidden"></div>
                                         </form>
                                     </div>
+                                @elseif(isset($reviewCannotReason) && $reviewCannotReason)
+                                    <div class="mt-6 border border-gray-200 rounded-lg p-4 dark:border-neutral-800">
+                                        <h3 class="text-lg font-semibold text-gray-900 mb-2 dark:text-neutral-100">Laisser
+                                            un avis</h3>
+                                        <p class="text-sm text-gray-600 dark:text-neutral-300">
+                                            {{ $reviewCannotReason }}
+                                            @guest
+                                                <a href="{{ route('login') }}" class="text-blue-600 font-semibold hover:underline ml-1">Se connecter</a>
+                                            @endguest
+                                        </p>
+                                    </div>
                                 @endif
                             </div>
                         </div>
@@ -387,8 +398,8 @@
                                                 $plan = optional(auth()->user())->subscription_plan;
                                                 $eligible = in_array($plan, ['premium', 'pro'], true);
                                             @endphp
-                                            @if ($eligible)
-                                                @if ($event->shareable_link)
+                                                @if ($eligible)
+                                                    @if ($event->shareable_link)
                                                     <div class="space-y-3">
                                                         <div class="flex gap-2">
                                                             <input type="text" readonly

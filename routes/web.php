@@ -30,17 +30,26 @@ use Illuminate\Support\Facades\Route;
 // Page d'accueil publique
 Route::get('/', function () {
     $highlightedEvents = Event::upcoming()
+        ->withCount('registrations')
+        ->withSum('registrations', 'quantity')
         ->orderBy('start_date')
         ->take(8)
         ->get();
 
     $featuredEvent = $highlightedEvents->first();
 
+    $liveEvents = Event::ongoing()
+        ->where(function ($q) {
+            $q->whereNotNull('youtube_url')->orWhereNotNull('tiktok_url');
+        })
+        ->count();
+
     $stats = [
         'events' => Event::count(),
         'upcoming' => Event::upcoming()->count(),
-        'participants' => Registration::query()->sum('quantity'),
-        'tickets_sold' => Event::query()->sum('total_tickets_sold'),
+        'participants' => (int) Registration::query()->sum('quantity'),
+        'tickets_sold' => (int) Event::query()->sum('total_tickets_sold'),
+        'live_events' => (int) $liveEvents,
     ];
 
     $testimonials = EventReview::with(['user:id,name,avatar_url,role', 'event:id,title,location,cover_image'])

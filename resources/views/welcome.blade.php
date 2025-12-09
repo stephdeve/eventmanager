@@ -897,7 +897,7 @@
                                 </span>
                             </div>
                             <!-- Badge live -->
-                            @if($event->is_live)
+                            @if($event->isInteractiveActive() && ($event->youtube_url || $event->tiktok_url))
                             <div class="absolute top-4 right-4">
                                 <span class="px-3 py-1 rounded-full text-xs font-medium bg-red-500/80 backdrop-blur-sm flex items-center">
                                     <span class="w-2 h-2 bg-red-400 rounded-full mr-2 animate-pulse"></span>
@@ -929,21 +929,24 @@
                                 </div>
                             </div>
 
-                            <!-- Participants -->
+                            <!-- Participants (inscrits) -->
                             <div class="mt-4 pt-4 border-t border-white/10">
+                                @php
+                                    $attendeesCount = (int) ($event->registrations_sum_quantity ?? $event->registrations_count ?? 0);
+                                @endphp
                                 <div class="flex items-center justify-between">
                                     <div class="flex -space-x-2">
-                                        @for($i = 0; $i < min(3, $event->participants_count ?? 0); $i++)
-                                        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-violet-600 to-blue-500 border-2 border-gray-900"></div>
+                                        @for($i = 0; $i < min(3, $attendeesCount); $i++)
+                                            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-violet-600 to-blue-500 border-2 border-gray-900"></div>
                                         @endfor
-                                        @if(($event->participants_count ?? 0) > 3)
-                                        <div class="w-8 h-8 rounded-full bg-gray-800 border-2 border-gray-900 flex items-center justify-center text-xs">
-                                            +{{ ($event->participants_count ?? 0) - 3 }}
-                                        </div>
+                                        @if($attendeesCount > 3)
+                                            <div class="w-8 h-8 rounded-full bg-gray-800 border-2 border-gray-900 flex items-center justify-center text-xs">
+                                                +{{ $attendeesCount - 3 }}
+                                            </div>
                                         @endif
                                     </div>
                                     <span class="text-sm text-gray-400">
-                                        {{ $event->participants_count ?? 0 }} participants
+                                        {{ $attendeesCount }} participants
                                     </span>
                                 </div>
                             </div>
@@ -1112,56 +1115,66 @@
             </div>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Témoignage 1 -->
-                <div class="glass-card p-8 reveal">
-                    <div class="flex items-center mb-6">
-                        <div class="w-12 h-12 rounded-full bg-gradient-to-r from-violet-600 to-blue-500 flex items-center justify-center text-white font-bold mr-4">
-                            ML
+                @if(isset($testimonials) && $testimonials->isNotEmpty())
+                    @foreach($testimonials as $t)
+                        @php
+                            $name = (string) optional($t->user)->name ?? 'Membre';
+                            $parts = preg_split('/\s+/', trim($name));
+                            $initials = strtoupper(mb_substr($parts[0] ?? 'M', 0, 1) . mb_substr($parts[1] ?? '', 0, 1));
+                            $role = (string) (optional($t->user)->role ? ucfirst(optional($t->user)->role) : 'Membre');
+                            $rating = (int) ($t->rating ?? 5);
+                            $stars = str_repeat('★', max(0, min(5, $rating))) . str_repeat('☆', 5 - max(0, min(5, $rating)));
+                        @endphp
+                        <div class="glass-card p-8 reveal" @if($loop->index>0) style="animation-delay: {{ number_format($loop->index * 0.1, 1) }}s" @endif>
+                            <div class="flex items-center mb-6">
+                                <div class="w-12 h-12 rounded-full bg-gradient-to-r from-violet-600 to-blue-500 flex items-center justify-center text-white font-bold mr-4">
+                                    {{ $initials }}
+                                </div>
+                                <div>
+                                    <div class="font-bold">{{ $name }}</div>
+                                    <div class="text-sm text-gray-400">{{ $role }}</div>
+                                </div>
+                            </div>
+                            <div class="text-yellow-400 mb-4">{{ $stars }}</div>
+                            <p class="text-gray-300 italic">“{{ $t->comment }}”</p>
                         </div>
-                        <div>
-                            <div class="font-bold">Marie Laurent</div>
-                            <div class="text-sm text-gray-400">Organisatrice de conférences</div>
+                    @endforeach
+                @else
+                    <!-- Fallback statique si aucun témoignage -->
+                    <div class="glass-card p-8 reveal">
+                        <div class="flex items-center mb-6">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-violet-600 to-blue-500 flex items-center justify-center text-white font-bold mr-4">ML</div>
+                            <div>
+                                <div class="font-bold">Marie Laurent</div>
+                                <div class="text-sm text-gray-400">Organisatrice de conférences</div>
+                            </div>
                         </div>
+                        <div class="text-yellow-400 mb-4">★★★★★</div>
+                        <p class="text-gray-300 italic">"EventManager a révolutionné nos conférences. Les participants sont bien plus engagés grâce aux votes en direct et au chat interactif. Une plateforme indispensable !"</p>
                     </div>
-                    <div class="text-yellow-400 mb-4">★★★★★</div>
-                    <p class="text-gray-300 italic">
-                        "EventManager a révolutionné nos conférences. Les participants sont bien plus engagés grâce aux votes en direct et au chat interactif. Une plateforme indispensable !"
-                    </p>
-                </div>
-
-                <!-- Témoignage 2 -->
-                <div class="glass-card p-8 reveal" style="animation-delay: 0.1s">
-                    <div class="flex items-center mb-6">
-                        <div class="w-12 h-12 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 flex items-center justify-center text-white font-bold mr-4">
-                            TP
+                    <div class="glass-card p-8 reveal" style="animation-delay: 0.1s">
+                        <div class="flex items-center mb-6">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 flex items-center justify-center text-white font-bold mr-4">TP</div>
+                            <div>
+                                <div class="font-bold">Thomas Petit</div>
+                                <div class="text-sm text-gray-400">Manager événements sportifs</div>
+                            </div>
                         </div>
-                        <div>
-                            <div class="font-bold">Thomas Petit</div>
-                            <div class="text-sm text-gray-400">Manager événements sportifs</div>
-                        </div>
+                        <div class="text-yellow-400 mb-4">★★★★★</div>
+                        <p class="text-gray-300 italic">"La gestion des événements e-sports est devenue un jeu d'enfant. Le tableau de score en temps réel et les réactions animées créent une ambiance incroyable !"</p>
                     </div>
-                    <div class="text-yellow-400 mb-4">★★★★★</div>
-                    <p class="text-gray-300 italic">
-                        "La gestion des événements e-sports est devenue un jeu d'enfant. Le tableau de score en temps réel et les réactions animées créent une ambiance incroyable !"
-                    </p>
-                </div>
-
-                <!-- Témoignage 3 -->
-                <div class="glass-card p-8 reveal" style="animation-delay: 0.2s">
-                    <div class="flex items-center mb-6">
-                        <div class="w-12 h-12 rounded-full bg-gradient-to-r from-emerald-600 to-green-500 flex items-center justify-center text-white font-bold mr-4">
-                            SC
+                    <div class="glass-card p-8 reveal" style="animation-delay: 0.2s">
+                        <div class="flex items-center mb-6">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-emerald-600 to-green-500 flex items-center justify-center text-white font-bold mr-4">SC</div>
+                            <div>
+                                <div class="font-bold">Sarah Cohen</div>
+                                <div class="text-sm text-gray-400">Professeure d'université</div>
+                            </div>
                         </div>
-                        <div>
-                            <div class="font-bold">Sarah Cohen</div>
-                            <div class="text-sm text-gray-400">Professeure d'université</div>
-                        </div>
+                        <div class="text-yellow-400 mb-4">★★★★★</div>
+                        <p class="text-gray-300 italic">"Mes cours en ligne n'ont jamais été aussi interactifs. Les quiz en direct et le chat modéré permettent de maintenir l'attention des étudiants tout au long de la session."</p>
                     </div>
-                    <div class="text-yellow-400 mb-4">★★★★★</div>
-                    <p class="text-gray-300 italic">
-                        "Mes cours en ligne n'ont jamais été aussi interactifs. Les quiz en direct et le chat modéré permettent de maintenir l'attention des étudiants tout au long de la session."
-                    </p>
-                </div>
+                @endif
             </div>
         </div>
     </section>
