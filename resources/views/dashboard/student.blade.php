@@ -91,8 +91,7 @@
             <div class="mb-8">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                     <div>
-                        <h1
-                            class="text-4xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent mb-2">
+                        <h1 class="text-4xl font-bold mb-2">
                             Tableau de bord
                         </h1>
                         <p class="text-lg text-slate-600">Bienvenue, <span
@@ -320,7 +319,7 @@
                     @if ($recommendedEvents->isNotEmpty())
                         <div class="dashboard-card bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
                             <div
-                                class="flex items-center justify-between px-6 py-5 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-100">
+                                class="flex items-center justify-between px-6 py-5 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-100 dark:border-slate-50/10">
                                 <div class="flex items-center space-x-3">
                                     <div class="p-2 bg-purple-100 rounded-xl">
                                         <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor"
@@ -464,32 +463,91 @@
 
                     <!-- Statistiques de participation -->
                     <div
-                        class="dashboard-card bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 shadow-xl text-white">
-                        <div class="mb-6">
-                            <h3 class="text-xl font-bold text-white mb-1">Votre activité</h3>
-                            <p class="text-slate-300 text-sm">Résumé de votre participation</p>
+                        class="dashboard-card bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-800 rounded-2xl p-6 shadow-2xl text-white relative overflow-hidden">
+                        <!-- Optional decorative element -->
+                        <div
+                            class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-16 translate-x-8">
                         </div>
 
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <span class="text-slate-300 text-sm">Événements à venir</span>
-                                <span class="text-lg font-bold text-white">{{ $upcomingRegistrations->count() }}</span>
+                        <div class="relative z-10">
+                            <!-- Header Section -->
+                            <div class="mb-8">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div>
+                                        <h3 class="text-2xl font-bold text-white mb-1">Votre activité</h3>
+                                        <p class="text-emerald-100/80 text-sm font-medium">Résumé de votre participation
+                                        </p>
+                                    </div>
+                                    <!-- Optional icon -->
+                                    <div class="bg-white/10 p-2 rounded-lg">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-slate-300 text-sm">Événements passés</span>
-                                <span class="text-lg font-bold text-white">{{ $pastRegistrations->count() }}</span>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-slate-300 text-sm">Total de participations</span>
-                                <span
-                                    class="text-lg font-bold text-white">{{ $upcomingRegistrations->count() + $pastRegistrations->count() }}</span>
-                            </div>
-                        </div>
 
-                        <div class="mt-6 pt-6 border-t border-slate-700">
-                            <div class="text-center">
-                                <p class="text-slate-400 text-sm">Membre depuis</p>
-                                <p class="text-slate-300 font-semibold">{{ Auth::user()->created_at->format('M Y') }}</p>
+                            <!-- Stats Grid -->
+                            <div class="grid grid-cols-1 gap-4 mb-8">
+                                <!-- Past Events -->
+                                <div
+                                    class="bg-white/5 backdrop-blur-sm rounded-xl p-4 hover:bg-white/10 transition-all duration-200">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="bg-emerald-500/20 p-2 rounded-lg">
+                                                <svg class="w-4 h-4 text-emerald-300" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                                                    </path>
+                                                </svg>
+                                            </div>
+                                            <span class="text-emerald-100/90 text-sm font-medium">Événements passés</span>
+                                        </div>
+                                        <span
+                                            class="text-2xl font-bold text-white">{{ $pastRegistrations->count() }}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Total Participation -->
+                                <div
+                                    class="bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 backdrop-blur-sm rounded-xl p-4 border border-emerald-500/30">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="bg-white/20 p-2 rounded-lg">
+                                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                                                    </path>
+                                                </svg>
+                                            </div>
+                                            <span class="text-white text-sm font-semibold">Total de participations</span>
+                                        </div>
+                                        <span
+                                            class="text-2xl font-bold text-white">{{ $upcomingRegistrations->count() + $pastRegistrations->count() }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Footer Section -->
+                            <div class="pt-6 border-t border-white/10">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-emerald-100/70 text-xs font-medium uppercase tracking-wider mb-1">
+                                            Membre depuis</p>
+                                        <p class="text-white font-bold text-lg">
+                                            {{ Auth::user()->created_at->format('M Y') }}</p>
+                                    </div>
+                                    <!-- Optional button/view all link -->
+                                    <button
+                                        class="text-sm font-medium text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-colors duration-200">
+                                        Voir détails
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
