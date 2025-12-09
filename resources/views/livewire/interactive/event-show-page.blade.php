@@ -1059,6 +1059,19 @@
                 </div>
             </div>
 
+            <!-- Défis en direct -->
+            <div id="challenges-section" class="content-card">
+                <div class="card-header">
+                    <div class="card-icon-indigo">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h2 class="card-title">Défis en Direct</h2>
+                </div>
+                <livewire:interactive.challenges-board :event="$event" />
+            </div>
+
             <!-- Participants et votes avec icône secondaire -->
             <div class="content-card">
                 <div class="card-header">
@@ -1073,7 +1086,7 @@
                 </div>
 
                 @if ($event->isInteractiveActive() && ($event->interactive_public || auth()->check()))
-                    <div class="voting-panel">
+                    <div id="votes" class="voting-panel">
                         <livewire:interactive.voting-panel :event="$event" />
                     </div>
                 @else
@@ -1294,5 +1307,25 @@
         });
 
         // Chiffres mis à jour par Livewire via wire:poll
+
+        // Temps réel: abonnements Echo pour défis
+        try {
+            const eventId = {{ (int) $event->id }};
+            if (window.Echo && eventId) {
+                window.Echo.join('event.' + eventId)
+                    .listen('.challenge.started', (e) => {
+                        const msg = `Nouveau défi: ${e.title}`;
+                        window.dispatchEvent(new CustomEvent('toast', {detail: {type: 'info', message: msg}}));
+                        // Scroll vers la section défis si présente
+                        const section = document.getElementById('challenges-section') || document.querySelector('.card-title');
+                        if (section && section.textContent.includes('Défis en Direct')) {
+                            section.scrollIntoView({behavior: 'smooth', block: 'start'});
+                        }
+                    })
+                    .listen('.challenge.stopped', (e) => {
+                        window.dispatchEvent(new CustomEvent('toast', {detail: {type: 'info', message: 'Défi terminé'}}));
+                    });
+            }
+        } catch (_) {}
     });
 </script>

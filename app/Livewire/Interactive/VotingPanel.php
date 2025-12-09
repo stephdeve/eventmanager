@@ -10,6 +10,7 @@ use App\Models\Setting;
 use App\Models\Vote;
 use App\Services\WalletService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Attributes\Layout;
@@ -34,10 +35,21 @@ class VotingPanel extends Component
         return view('livewire.interactive.voting-panel');
     }
 
+    protected function activeChallengeId(): ?int
+    {
+        $key = sprintf('interactive:event:%d:active_challenge', (int) $this->event->id);
+        $payload = Cache::get($key);
+        if (is_array($payload)) {
+            return isset($payload['id']) ? (int) $payload['id'] : null;
+        }
+        return $payload ? (int) $payload : null;
+    }
+
     protected function checkThrottle(): bool
     {
         $userId = Auth::id() ?: request()->ip();
-        $key = sprintf('votes:%s:%d', $userId, $this->event->id);
+        $challengeId = $this->activeChallengeId();
+        $key = sprintf('votes:%s:%d:%s', $userId, $this->event->id, $challengeId ?: 'none');
         if (RateLimiter::tooManyAttempts($key, 30)) {
             $this->dispatch('toast', type: 'warning', message: 'Trop de votes en peu de temps. Réessayez plus tard.');
             return false;
@@ -69,13 +81,15 @@ class VotingPanel extends Component
             return;
         }
 
-        DB::transaction(function () use ($participant, $userId) {
+        $challengeId = $this->activeChallengeId();
+        DB::transaction(function () use ($participant, $userId, $challengeId) {
             $vote = Vote::create([
                 'user_id' => $userId,
                 'participant_id' => $participant->id,
                 'event_id' => $this->event->id,
                 'value' => 1,
                 'vote_type' => 'free',
+                'challenge_id' => $challengeId,
             ]);
 
             // Mettre à jour le score cache et diffuser l'événement
@@ -118,13 +132,15 @@ class VotingPanel extends Component
             return;
         }
 
-        DB::transaction(function () use ($participant) {
+        $challengeId = $this->activeChallengeId();
+        DB::transaction(function () use ($participant, $challengeId) {
             Vote::create([
                 'user_id' => Auth::id(),
                 'participant_id' => $participant->id,
                 'event_id' => $this->event->id,
                 'value' => 1,
                 'vote_type' => 'premium',
+                'challenge_id' => $challengeId,
             ]);
             $participant->increment('score_total', 1);
             $participant->refresh();

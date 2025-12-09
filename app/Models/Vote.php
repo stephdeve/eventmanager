@@ -15,6 +15,7 @@ class Vote extends Model
         'event_id',
         'value',
         'vote_type',
+        'challenge_id',
     ];
 
     protected $casts = [
@@ -34,5 +35,10 @@ class Vote extends Model
     public function participant()
     {
         return $this->belongsTo(Participant::class);
+    }
+
+    public function challenge()
+    {
+        return $this->belongsTo(Challenge::class);
     }
 }
