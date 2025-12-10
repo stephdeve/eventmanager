@@ -30,13 +30,22 @@ use Illuminate\Support\Facades\Route;
 // Page d'accueil publique
 Route::get('/', function () {
     $highlightedEvents = Event::upcoming()
-        ->withCount('registrations')
-        ->withSum('registrations', 'quantity')
         ->orderBy('start_date')
         ->take(8)
         ->get();
 
     $featuredEvent = $highlightedEvents->first();
+
+    $now = now();
+    $nextEvent = Event::whereNotNull('start_date')
+        ->where('start_date', '>', $now)
+        ->orderBy('start_date')
+        ->first();
+    $recentEvents = Event::latest()->take(6)->get();
+    $topPopularEvents = Event::withCount('registrations')
+        ->orderByDesc('registrations_count')
+        ->take(6)
+        ->get();
 
     // Compter TOUS les événements en cours (en direct)
     $liveEvents = Event::ongoing()->count();
@@ -44,9 +53,10 @@ Route::get('/', function () {
     $stats = [
         'events' => Event::count(),
         'upcoming' => Event::upcoming()->count(),
-        'participants' => (int) Registration::query()->sum('quantity'),
-        'tickets_sold' => (int) Event::query()->sum('total_tickets_sold'),
-        'live_events' => (int) $liveEvents,
+        'participants' => Registration::query()->sum('quantity'),
+        'tickets_sold' => Event::query()->sum('total_tickets_sold'),
+        'live_events' => $liveEvents,
+        'interactive' => Event::where('is_interactive', true)->count(),
     ];
 
     $testimonials = EventReview::with(['user:id,name,avatar_url,role', 'event:id,title,location,cover_image'])
@@ -65,13 +75,6 @@ Route::get('/', function () {
             'achievement' => '',
         ];
     })->values();
-
-    $nextEvent = Event::upcoming()->orderBy('start_date')->first();
-    $recentEvents = Event::latest()->take(3)->get();
-    $topPopularEvents = Event::withCount('registrations')
-        ->orderBy('registrations_count', 'desc')
-        ->take(3)
-        ->get();
 
     $nextEventStartIso = $nextEvent?->start_date ? $nextEvent->start_date->toIso8601String() : null;
 
