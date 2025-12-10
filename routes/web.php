@@ -38,11 +38,8 @@ Route::get('/', function () {
 
     $featuredEvent = $highlightedEvents->first();
 
-    $liveEvents = Event::ongoing()
-        ->where(function ($q) {
-            $q->whereNotNull('youtube_url')->orWhereNotNull('tiktok_url');
-        })
-        ->count();
+    // Compter TOUS les événements en cours (en direct)
+    $liveEvents = Event::ongoing()->count();
 
     $stats = [
         'events' => Event::count(),

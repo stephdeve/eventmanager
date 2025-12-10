@@ -103,29 +103,20 @@
                 </div>
             </div>
 
-            <!-- Stats Cards - NOUVELLES STATISTIQUES -->
+            <!-- Stats Cards - STATISTIQUES GLOBALES -->
             @php
-                $collection = isset($events)
-                    ? (method_exists($events, 'getCollection')
-                        ? $events->getCollection()
-                        : $events)
-                    : $allEvents ?? collect();
+                // Calculer les stats depuis TOUTE la base de données, pas seulement les événements filtrés
+                $totalEvents = \App\Models\Event::count();
+                $interactiveEventsCount = \App\Models\Event::where('is_interactive', true)->count();
+                $upcomingEventsCount = \App\Models\Event::upcoming()->count();
+                $thisWeekEventsCount = \App\Models\Event::query()
+                    ->where(function ($q) {
+                        $start = now()->startOfWeek();
+                        $end = now()->endOfWeek();
+                        $q->whereBetween('start_date', [$start, $end]);
+                    })
+                    ->count();
             @endphp
-            @if ($collection->isNotEmpty())
-                @php
-                    $totalEvents = $collection->count();
-                    $interactiveEventsCount = $collection->where('is_interactive', true)->count();
-                    $upcomingEventsCount = $collection
-                        ->filter(function ($event) {
-                            return $event->start_date && $event->start_date->isFuture();
-                        })
-                        ->count();
-                    $thisWeekEventsCount = $collection
-                        ->filter(function ($event) {
-                            return $event->start_date && $event->start_date->between(now(), now()->addWeek());
-                        })
-                        ->count();
-                @endphp
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                     <!-- Total des événements -->
@@ -220,8 +211,6 @@
                         </div>
                     </div>
                 </div>
-            @endif
-
 
             <!-- Action Bar -->
             <div
