@@ -89,7 +89,7 @@ class Event extends Model
         'revenue_threshold_minor' => 'integer',
         'revenue_threshold_notified_at' => 'datetime',
     ];
-    
+
     /**
      * Get the URL of the cover image.
      *
@@ -100,10 +100,10 @@ class Event extends Model
         if (!$this->cover_image) {
             return asset('images/event-default.jpg');
         }
-        
+
         return asset('storage/' . $this->cover_image);
     }
-    
+
     /**
      * Get the price in euros.
      *
@@ -113,7 +113,7 @@ class Event extends Model
     {
         return Currency::format($this->price, $this->currency ?? 'EUR');
     }
-    
+
     /**
      * Check if the event is full.
      *
@@ -126,7 +126,7 @@ class Event extends Model
         }
         return $this->available_seats <= 0;
     }
-    
+
     /**
      * Scope a query to only include upcoming events.
      *
@@ -144,11 +144,11 @@ class Event extends Model
     public function scopeOngoing($query)
     {
         $now = now();
-        return $query->where(function($q) use ($now) {
+        return $query->where(function ($q) use ($now) {
             $q->where('start_date', '<=', $now)
-              ->where(function($q2) use ($now) {
-                  $q2->whereNull('end_date')->orWhere('end_date', '>=', $now);
-              });
+                ->where(function ($q2) use ($now) {
+                    $q2->whereNull('end_date')->orWhere('end_date', '>=', $now);
+                });
         });
     }
 
@@ -165,7 +165,8 @@ class Event extends Model
      */
     public function scopeInPeriod($query, string $period)
     {
-        $start = null; $end = null;
+        $start = null;
+        $end = null;
         switch ($period) {
             case 'today':
                 $start = now()->startOfDay();
@@ -255,8 +256,8 @@ class Event extends Model
     public function attendees()
     {
         return $this->belongsToMany(User::class, 'registrations')
-                   ->withPivot('is_validated', 'created_at')
-                   ->withTimestamps();
+            ->withPivot('is_validated', 'created_at')
+            ->withTimestamps();
     }
 
     /**
@@ -291,5 +292,20 @@ class Event extends Model
             return false;
         }
         return true;
+    }
+    public function isOngoing(): bool
+    {
+        return $this->start_date && $this->end_date
+            && now()->between($this->start_date, $this->end_date);
+    }
+
+    public function isFinished(): bool
+    {
+        return $this->end_date && now()->greaterThan($this->end_date);
+    }
+
+    public function isUpcoming(): bool
+    {
+        return $this->start_date && now()->lessThan($this->start_date);
     }
 }

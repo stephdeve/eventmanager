@@ -348,7 +348,7 @@
                     <span class="text-xl font-bold text-white">EventManager</span>
                 </a>
 
-                <div class="hidden md:flex items-center space-x-8">
+                <div class="hidden lg:flex items-center space-x-8">
                     <a href="#features"
                         class="nav-link-animated text-gray-300 hover:text-white transition-colors duration-300">
                         Fonctionnalités
@@ -372,7 +372,7 @@
                         </a>
                     @else
                         <a href="{{ route('login') }}"
-                            class="text-gray-300 hover:text-white transition-colors duration-300 mr-4">
+                            class="text-gray-300 btn-glass -mr-8! hover:text-white transition-colors duration-300">
                             Connexion
                         </a>
                         <a href="{{ route('register') }}" class="btn-gradient-primary">
@@ -381,7 +381,7 @@
                     @endauth
                 </div>
 
-                <button class="md:hidden text-gray-300 hover:text-white z-20" id="mobileMenuBtn"
+                <button class="lg:hidden text-gray-300 hover:text-white z-20" id="mobileMenuBtn"
                     aria-label="Toggle Menu">
                     <svg class="w-7 h-7 hidden" id="menuIconOpen" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
@@ -395,7 +395,7 @@
                 </button>
             </div>
 
-            <div class="md:hidden absolute top-20 py-4 left-0 w-full bg-slate-800 rounded-b-3xl backdrop-blur-sm shadow-xl transition-all duration-300 ease-in-out transform -translate-y-full opacity-0"
+            <div class="lg:hidden absolute top-20 py-4 left-0 w-full bg-slate-800 rounded-b-3xl backdrop-blur-sm shadow-xl transition-all duration-300 ease-in-out transform -translate-y-full opacity-0"
                 id="mobileMenuContent">
                 <div class="flex flex-col space-y-4 p-6 pt-0">
                     <a href="#features"
@@ -451,7 +451,7 @@
         <div class="container-narrow flex items-center justify-center min-h-[90vh] pt-20 relative z-10">
             <div class="text-center max-w-4xl mx-auto">
                 <div
-                    class="inline-flex items-center space-x-2 glass-card px-6 py-2 rounded-full mb-8 animate-slide-in-up">
+                    class="inline-flex items-center space-x-2 glass-card px-6 py-2 rounded-full mb-8 animate-slide-in-up max-md:mt-10">
                     <span
                         class="w-2 h-2 bg-gradient-to-r from-violet-600 to-blue-500 rounded-full animate-pulse-glow"></span>
                     <span class="text-sm font-medium text-gray-300">🚀 Plateforme événementielle nouvelle
@@ -692,79 +692,109 @@
                 </a>
             </div>
 
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @forelse($highlightedEvents as $event)
-                <a href="{{ route('events.show', $event) }}" class="group reveal">
-                    <div class="glass-card overflow-hidden h-full">
-                        <!-- Image de l'événement -->
-                        <div class="aspect-video relative overflow-hidden">
-                            <img src="{{ $event->cover_image_url ?? 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800' }}"
-                                 alt="{{ $event->title }}"
-                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
-                            <!-- Badge catégorie -->
-                            <div class="absolute top-4 left-4">
-                                <span class="px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-violet-600/80 to-blue-500/80 backdrop-blur-sm">
-                                    {{ $event->category ?? 'Événement' }}
-                                </span>
-                            </div>
-                            <!-- Badge live -->
-                            @if($event->isInteractiveActive() && ($event->youtube_url || $event->tiktok_url))
-                            <div class="absolute top-4 right-4">
-                                <span class="px-3 py-1 rounded-full text-xs font-medium bg-red-500/80 backdrop-blur-sm flex items-center">
-                                    <span class="w-2 h-2 bg-red-400 rounded-full mr-2 animate-pulse"></span>
-                                    EN DIRECT
-                                </span>
-                            </div>
-                            @endif
-                        </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                @forelse($topPopularEvents as $index => $event)
+                    <a href="{{ route('events.show', $event) }}" class="group reveal"
+                        style="animation-delay: {{ $index * 0.1 }}s;">
+                        <div
+                            class="glass-card-border bg-neutral-800/50 rounded-xl overflow-hidden h-full transform hover:scale-[1.03] transition-transform duration-500 relative p-0 border border-neutral-600/50 ">
 
-                        <!-- Contenu -->
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2 group-hover:text-violet-300 transition-colors">
-                                {{ $event->title }}
-                            </h3>
-                            <p class="text-gray-300 text-sm mb-4 line-clamp-2">
-                                {{ Str::limit(strip_tags($event->description ?? ''), 100) }}
-                            </p>
+                            <div class="aspect-video relative overflow-hidden">
+                                <img src="{{ $event->cover_image_url ?? asset('images/event-default.jpg') }}"
+                                    alt="{{ $event->title }}"
+                                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
 
-                            <!-- Métadonnées -->
-                            <div class="flex items-center justify-between text-sm">
-                                <div class="flex items-center text-gray-400">
-                                    <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-100 group-hover:opacity-90 transition-opacity duration-300">
+                                </div>
+
+                                <div class="absolute top-4 left-4 z-10">
+                                    <span
+                                        class="px-4 py-1.5 rounded-full text-xs font-bold bg-violet-600/90 text-white shadow-md backdrop-blur-sm tracking-wider">{{ $event->category ?? 'GÉNÉRAL' }}</span>
+                                </div>
+
+                                <div
+                                    class="absolute bottom-4 right-4 z-10 flex items-center bg-emerald-600/90 rounded-full px-3 py-1 shadow-lg">
+                                    <svg class="w-4 h-4 mr-1 text-white" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                     </svg>
-                                    {{ optional($event->start_date)->format('d/m/Y') }}
+                                    <span class="text-sm font-semibold text-white">{{ $event->registrations_count }}
+                                        inscrits</span>
                                 </div>
-                                <div class="text-violet-300 font-medium">
-                                    {{ $event->price_for_display ?? 'Gratuit' }}
+                                {{-- Badge statut événement --}}
+                                <div class="absolute bottom-4 left-4 z-10">
+
+                                    @if ($event->isOngoing())
+                                        <span
+                                            class="px-3 py-1.5 rounded-full text-xs font-bold bg-red-600/90 text-white shadow-lg backdrop-blur-sm animate-pulse flex items-center gap-1">
+
+                                            {{-- Dot live --}}
+                                            <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 8 8">
+                                                <circle cx="4" cy="4" r="4" />
+                                            </svg>
+
+                                            En cours
+                                        </span>
+                                    @elseif ($event->isFinished())
+                                        <span
+                                            class="px-3 py-1.5 rounded-full text-xs font-bold bg-gray-600/90 text-white backdrop-blur-sm flex items-center gap-1">
+
+                                            {{-- Checked icon --}}
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                                                stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round"
+                                                stroke-linejoin="round">
+                                                <path d="M20 6L9 17l-5-5" />
+                                            </svg>
+
+                                            Terminé
+                                        </span>
+                                    @else
+                                        <span
+                                            class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-600/90 text-white backdrop-blur-sm flex items-center gap-1">
+
+                                            {{-- Clock icon --}}
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                                                stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round"
+                                                stroke-linejoin="round">
+                                                <circle cx="12" cy="12" r="10" />
+                                                <path d="M12 6v6l4 2" />
+                                            </svg>
+
+                                            À venir
+                                        </span>
+                                    @endif
+
                                 </div>
+
+
                             </div>
 
-                            <!-- Participants (inscrits) -->
-                            <div class="mt-4 pt-4 border-t border-white/10">
-                                @php
-                                    $attendeesCount = (int) ($event->registrations_sum_quantity ?? $event->registrations_count ?? 0);
-                                @endphp
-                                <div class="flex items-center justify-between">
-                                    <div class="flex -space-x-2">
-                                        @for($i = 0; $i < min(3, $attendeesCount); $i++)
-                                            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-violet-600 to-blue-500 border-2 border-gray-900"></div>
-                                        @endfor
-                                        @if($attendeesCount > 3)
-                                            <div class="w-8 h-8 rounded-full bg-gray-800 border-2 border-gray-900 flex items-center justify-center text-xs">
-                                                +{{ $attendeesCount - 3 }}
-                                            </div>
-                                        @endif
+                            <div class="p-6">
+                                <h3
+                                    class="text-2xl font-extrabold mb-3 text-white group-hover:text-emerald-400 transition-colors leading-snug">
+                                    {{ $event->title }}
+                                </h3>
+
+                                <div class="flex items-center justify-between text-sm pt-2 border-t border-white/10">
+
+                                    <div class="flex items-center text-gray-400 font-medium">
+                                        <svg class="w-5 h-5 mr-2 text-violet-400" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        {{ optional($event->start_date)->format('d F Y') }}
                                     </div>
-                                    <span class="text-sm text-gray-400">
-                                        {{ $attendeesCount }} participants
-                                    </span>
+
+                                    <div class="text-xl font-extrabold text-gradient-accent">
+                                        {{ $event->price_for_display ?? 'Gratuit' }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </a>
+                    </a>
                 @empty
                     <div class="col-span-3 text-center py-16 reveal">
                         <div class="glass-card p-10 inline-block border-2 border-gray-700">
@@ -1266,66 +1296,90 @@
             </div>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                @if(isset($testimonials) && $testimonials->isNotEmpty())
-                    @foreach($testimonials as $t)
-                        @php
-                            $name = (string) optional($t->user)->name ?? 'Membre';
-                            $parts = preg_split('/\s+/', trim($name));
-                            $initials = strtoupper(mb_substr($parts[0] ?? 'M', 0, 1) . mb_substr($parts[1] ?? '', 0, 1));
-                            $role = (string) (optional($t->user)->role ? ucfirst(optional($t->user)->role) : 'Membre');
-                            $rating = (int) ($t->rating ?? 5);
-                            $stars = str_repeat('★', max(0, min(5, $rating))) . str_repeat('☆', 5 - max(0, min(5, $rating)));
-                        @endphp
-                        <div class="glass-card p-8 reveal" @if($loop->index>0) style="animation-delay: {{ number_format($loop->index * 0.1, 1) }}s" @endif>
-                            <div class="flex items-center mb-6">
-                                <div class="w-12 h-12 rounded-full bg-gradient-to-r from-violet-600 to-blue-500 flex items-center justify-center text-white font-bold mr-4">
-                                    {{ $initials }}
-                                </div>
-                                <div>
-                                    <div class="font-bold">{{ $name }}</div>
-                                    <div class="text-sm text-gray-400">{{ $role }}</div>
-                                </div>
-                            </div>
-                            <div class="text-yellow-400 mb-4">{{ $stars }}</div>
-                            <p class="text-gray-300 italic">“{{ $t->comment }}”</p>
-                        </div>
-                    @endforeach
-                @else
-                    <!-- Fallback statique si aucun témoignage -->
+                @forelse($testimonials as $review)
                     <div class="glass-card p-8 reveal">
                         <div class="flex items-center mb-6">
-                            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-violet-600 to-blue-500 flex items-center justify-center text-white font-bold mr-4">ML</div>
+                            @php
+                                $user = $review->user;
+                                $avatarUrl = $user->avatar_url ?? null;
+                                $name = $user->name ?? 'Utilisateur';
+                                $initials = strtoupper(substr($name, 0, 2));
+                            @endphp
+                            @if ($avatarUrl)
+                                <img src="{{ $avatarUrl }}" alt="{{ $name }}"
+                                    class="w-12 h-12 rounded-full object-cover mr-4">
+                            @else
+                                <div
+                                    class="w-12 h-12 rounded-full bg-gradient-to-r from-violet-600 to-blue-500 flex items-center justify-center text-white font-bold mr-4">
+                                    {{ $initials }}
+                                </div>
+                            @endif
+                            <div>
+                                <div class="font-bold">{{ $name }}</div>
+                                <div class="text-sm text-gray-400">{{ optional($review->event)->title ?? '' }}</div>
+                            </div>
+                        </div>
+                        <div class="text-yellow-400 mb-4">★★★★★</div>
+                        <p class="text-gray-300 italic">
+                            "{{ $review->comment ?? 'Excellent événement !' }}"
+                        </p>
+                    </div>
+                @empty
+                    <!-- Témoignages par défaut si vide -->
+                    <div class="glass-card p-8 reveal">
+                        <div class="flex items-center mb-6">
+                            <div
+                                class="w-12 h-12 rounded-full bg-gradient-to-r from-violet-600 to-blue-500 flex items-center justify-center text-white font-bold mr-4">
+                                ML
+                            </div>
                             <div>
                                 <div class="font-bold">Marie Laurent</div>
                                 <div class="text-sm text-gray-400">Organisatrice de conférences</div>
                             </div>
                         </div>
                         <div class="text-yellow-400 mb-4">★★★★★</div>
-                        <p class="text-gray-300 italic">"EventManager a révolutionné nos conférences. Les participants sont bien plus engagés grâce aux votes en direct et au chat interactif. Une plateforme indispensable !"</p>
+                        <p class="text-gray-300 italic">
+                            "EventManager a révolutionné nos conférences. Les participants sont bien plus engagés grâce
+                            aux votes en direct et au chat interactif. Une plateforme indispensable !"
+                        </p>
                     </div>
+
                     <div class="glass-card p-8 reveal" style="animation-delay: 0.1s">
                         <div class="flex items-center mb-6">
-                            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 flex items-center justify-center text-white font-bold mr-4">TP</div>
+                            <div
+                                class="w-12 h-12 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 flex items-center justify-center text-white font-bold mr-4">
+                                TP
+                            </div>
                             <div>
                                 <div class="font-bold">Thomas Petit</div>
                                 <div class="text-sm text-gray-400">Manager événements sportifs</div>
                             </div>
                         </div>
                         <div class="text-yellow-400 mb-4">★★★★★</div>
-                        <p class="text-gray-300 italic">"La gestion des événements e-sports est devenue un jeu d'enfant. Le tableau de score en temps réel et les réactions animées créent une ambiance incroyable !"</p>
+                        <p class="text-gray-300 italic">
+                            "La gestion des événements e-sports est devenue un jeu d'enfant. Le tableau de score en
+                            temps réel et les réactions animées créent une ambiance incroyable !"
+                        </p>
                     </div>
+
                     <div class="glass-card p-8 reveal" style="animation-delay: 0.2s">
                         <div class="flex items-center mb-6">
-                            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-emerald-600 to-green-500 flex items-center justify-center text-white font-bold mr-4">SC</div>
+                            <div
+                                class="w-12 h-12 rounded-full bg-gradient-to-r from-emerald-600 to-green-500 flex items-center justify-center text-white font-bold mr-4">
+                                SC
+                            </div>
                             <div>
                                 <div class="font-bold">Sarah Cohen</div>
                                 <div class="text-sm text-gray-400">Professeure d'université</div>
                             </div>
                         </div>
                         <div class="text-yellow-400 mb-4">★★★★★</div>
-                        <p class="text-gray-300 italic">"Mes cours en ligne n'ont jamais été aussi interactifs. Les quiz en direct et le chat modéré permettent de maintenir l'attention des étudiants tout au long de la session."</p>
+                        <p class="text-gray-300 italic">
+                            "Mes cours en ligne n'ont jamais été aussi interactifs. Les quiz en direct et le chat modéré
+                            permettent de maintenir l'attention des étudiants tout au long de la session."
+                        </p>
                     </div>
-                @endif
+                @endforelse
             </div>
         </div>
     </section>
