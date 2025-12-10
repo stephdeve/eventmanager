@@ -86,7 +86,13 @@ class ChallengesBoard extends Component
         $this->activeChallengeId = (int) $challenge->id;
         $this->activeEndsAt = $payload['ends_at'];
         $this->dispatch('toast', type: 'success', message: 'Défi démarré: ' . (string) $challenge->title);
-        event(new ChallengeStarted($this->event, $challenge, $endsAt));
+        
+        // Broadcasting en temps réel (optionnel)
+        try {
+            event(new ChallengeStarted($this->event, $challenge, $endsAt));
+        } catch (\Throwable $e) {
+            report($e);
+        }
         $this->dispatch('$refresh');
     }
 
@@ -97,7 +103,12 @@ class ChallengesBoard extends Component
         if ($this->activeChallengeId) {
             $challenge = $this->event->challenges->firstWhere('id', $this->activeChallengeId);
             if ($challenge) {
-                event(new ChallengeStopped($this->event, $challenge));
+                // Broadcasting en temps réel (optionnel)
+                try {
+                    event(new ChallengeStopped($this->event, $challenge));
+                } catch (\Throwable $e) {
+                    report($e);
+                }
             }
         }
         $this->activeChallengeId = null;
@@ -114,7 +125,12 @@ class ChallengesBoard extends Component
         if ($this->activeChallengeId) {
             $challenge = $this->event->challenges->firstWhere('id', $this->activeChallengeId);
             if ($challenge) {
-                event(new ChallengeStopped($this->event, $challenge));
+                // Broadcasting en temps réel (optionnel)
+                try {
+                    event(new ChallengeStopped($this->event, $challenge));
+                } catch (\Throwable $e) {
+                    report($e);
+                }
             }
         }
         $this->activeChallengeId = null;
