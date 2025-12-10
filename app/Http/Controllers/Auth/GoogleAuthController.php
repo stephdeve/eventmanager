@@ -16,8 +16,8 @@ class GoogleAuthController extends Controller
     {
         session()->put('url.intended', url()->previous());
         $role = $request->query('role');
-        if (!in_array($role, ['user', 'organizer'], true)) {
-            $role = 'user';
+        if (!in_array($role, ['student', 'organizer'], true)) {
+            $role = 'student';
         }
         session(['oauth.role' => $role]);
         return Socialite::driver('google')->redirect();
@@ -51,7 +51,7 @@ class GoogleAuthController extends Controller
             $user = User::where('email', $email)->first();
         }
 
-        $preferredRole = session('oauth.role', 'user');
+        $preferredRole = session('oauth.role', 'student');
         if ($user) {
             $updates = [];
             if (empty($user->google_id)) { $updates['google_id'] = $googleId; }

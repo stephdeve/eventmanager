@@ -172,6 +172,21 @@
                             </div>
                         @endcan
                     </div>
+
+                    <!-- Affichage détaché du classement pour ce défi -->
+                    <div class="pt-1 pb-4">
+                        <details class="group">
+                            <summary class="list-none cursor-pointer inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-800">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M4 14h16M6 18h12"/></svg>
+                                Voir le classement
+                                <span class="ml-2 text-xs text-slate-400 group-open:hidden">(dérouler)</span>
+                                <span class="ml-2 text-xs text-slate-400 hidden group-open:inline">(replier)</span>
+                            </summary>
+                            <div class="mt-3">
+                                <livewire:interactive.challenge-leaderboard :event="$event" :challengeId="$c->id" />
+                            </div>
+                        </details>
+                    </div>
                 @endforeach
             </div>
         @else

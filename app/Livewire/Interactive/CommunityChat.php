@@ -18,6 +18,7 @@ class CommunityChat extends Component
     public Event $event;
     public string $messageText = '';
     public bool $readOnly = false;
+    public int $onlineCount = 0;
 
     public function mount(Event $event): void
     {
@@ -28,11 +29,47 @@ class CommunityChat extends Component
         $this->readOnly = $event->end_date && now()->gte($event->end_date);
     }
 
-    public function send(): void
+    public function getListeners()
     {
-        if ($this->readOnly) return;
+        return [
+            "echo-presence:event.{$this->event->id},.message.sent" => 'refreshMessages',
+            "echo-presence:event.{$this->event->id},here" => 'updateOnlineUsers',
+            "echo-presence:event.{$this->event->id},joining" => 'userJoined',
+            "echo-presence:event.{$this->event->id},leaving" => 'userLeft',
+        ];
+    }
+
+    public function updateOnlineUsers($users)
+    {
+        $this->onlineCount = count($users);
+        $this->dispatch('update-online-count', count: count($users));
+    }
+
+    public function userJoined($user)
+    {
+        $this->onlineCount++;
+        $this->dispatch('update-online-count', count: 'increment');
+    }
+
+    public function userLeft($user)
+    {
+        $this->onlineCount = max(0, $this->onlineCount - 1);
+        $this->dispatch('update-online-count', count: 'decrement');
+    }
+
+    public function sendMessage(): void
+    {
+        \Illuminate\Support\Facades\Log::info('sendMessage called', ['text' => $this->messageText, 'readOnly' => $this->readOnly]);
+
+        if ($this->readOnly) {
+             \Illuminate\Support\Facades\Log::info('sendMessage aborted: readOnly');
+             return;
+        }
         $text = trim($this->messageText);
-        if ($text === '') return;
+        if ($text === '') {
+             \Illuminate\Support\Facades\Log::info('sendMessage aborted: empty text');
+             return;
+        }
 
         // Anti-spam basic throttle
         $key = 'chat:' . (Auth::id() ?: request()->ip());
@@ -50,8 +87,10 @@ class CommunityChat extends Component
                 'message' => mb_substr($text, 0, 1000),
             ]);
             $chat->load('user');
+            \Illuminate\Support\Facades\Log::info('Message created', ['id' => $chat->id]);
         } catch (\Throwable $e) {
             report($e);
+            \Illuminate\Support\Facades\Log::error('Message creation failed', ['error' => $e->getMessage()]);
             $this->dispatch('toast', type: 'error', message: "Impossible d'envoyer le message. Réessaie.");
             return;
         }
@@ -69,7 +108,7 @@ class CommunityChat extends Component
 
         // 3) Diffuser en temps réel (avec tolérance en cas d'échec)
         try {
-            event(new EventMessageSent($this->event, $chat));
+            broadcast(new EventMessageSent($this->event, $chat))->toOthers();
         } catch (\Throwable $e) {
             report($e);
             $this->dispatch('toast', type: 'warning', message: 'Temps réel indisponible. Message envoyé.');

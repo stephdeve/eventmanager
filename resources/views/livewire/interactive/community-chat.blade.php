@@ -1,4 +1,4 @@
-
+<div>
 @section('title', "Chat Interactif : " . $event->title)
 <style>
     /* Creative Light Background */
@@ -820,10 +820,10 @@
     }
 </style>
 
-<div class="">
-    <div id="floatingBubbles" class="hidden"></div>
 
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-8">
+<div id="floatingBubbles" class="hidden"></div>
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-8">
         <!-- Header -->
         <div class="mb-6">
             <div class="flex items-center justify-between">
@@ -840,7 +840,7 @@
                 <div
                     class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-900/40">
                     <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                    <span>En ligne: <span id="online-count" class="font-semibold">0</span></span>
+                    <span>En ligne: <span id="online-count" class="font-semibold">{{ $onlineCount }}</span></span>
                 </div>
             </div>
             <div class="mt-5">
@@ -943,23 +943,30 @@
 
             <!-- Input -->
             <div class="border-t border-slate-200 p-4 bg-white dark:border-neutral-800 dark:bg-neutral-900">
-                <div
-                    class="creative-input-wrapper flex items-center gap-3 rounded-xl border border-slate-300 bg-white dark:bg-neutral-900 dark:border-neutral-800 focus-within:ring-2 focus-within:ring-indigo-500">
+                <div class="creative-input-wrapper flex items-center gap-3 rounded-xl border border-slate-300 bg-white dark:bg-neutral-900 dark:border-neutral-800 focus-within:ring-2 focus-within:ring-indigo-500">
                     <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4-.8L3 20l.8-4A8.993 8.993 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
-                    <input type="text" wire:model.defer="messageText" placeholder="Tapez votre message..."
+                    <input type="text" wire:model.live="messageText" wire:keydown.enter.prevent="sendMessage" placeholder="Tapez votre message..."
                         class="creative-chat-input w-full bg-transparent text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500"
                         @if ($readOnly) disabled @endif>
-                    <button wire:click="sendMessage"
+                    <button type="button" wire:click="sendMessage" wire:loading.attr="disabled" 
+                        onclick="console.log('Button clicked!', 'Livewire?', typeof Livewire, 'MessageText:', this.closest('[wire\\:id]'))"
                         class="dancing-send inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-indigo-700 hover:to-purple-700 transition-colors"
                         @if ($readOnly) disabled @endif>
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <!-- Loading Spinner -->
+                        <svg wire:loading wire:target="sendMessage" class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <!-- Default Icon -->
+                        <svg wire:loading.remove wire:target="sendMessage" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                         </svg>
-                        Envoyer
+                        <span wire:loading.remove wire:target="sendMessage">Envoyer</span>
+                        <span wire:loading wire:target="sendMessage">Envoi...</span>
                     </button>
                 </div>
                 @if ($readOnly)
@@ -974,7 +981,6 @@
             </div>
         </div>
     </div>
-</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -1145,4 +1151,49 @@
             }, 200 + (index * 150));
         });
     });
+
+    // Livewire Event Listeners
+    document.addEventListener('livewire:initialized', () => {
+        Livewire.on('update-online-count', (event) => {
+             // Debug the event structure
+             console.log('Update Online Count Event:', event);
+             
+             // Handle different event structures (Livewire 3 sometimes wraps in array, sometimes not)
+             let countValue;
+             if (typeof event === 'number' || typeof event === 'string') {
+                 countValue = event;
+             } else if (event.count !== undefined) {
+                 countValue = event.count;
+             } else if (Array.isArray(event) && event[0] && event[0].count !== undefined) {
+                 countValue = event[0].count;
+             } else {
+                 return; 
+             }
+
+             const countSpan = document.getElementById('online-count');
+             if (!countSpan) return;
+             
+             let current = parseInt(countSpan.innerText);
+             if (countValue === 'increment') {
+                 countSpan.innerText = current + 1;
+             } else if (countValue === 'decrement') {
+                 countSpan.innerText = Math.max(0, current - 1);
+             } else {
+                 countSpan.innerText = countValue;
+             }
+        });
+
+        Livewire.on('message-sent', (event) => {
+             // Optimistic UI update could go here, but Livewire is reactive. 
+             // If we rely on 'messages' computed property, the next render handles it.
+             // But let's scroll to bottom just in case.
+             setTimeout(() => {
+                 const messagesContainer = document.getElementById('messages');
+                 if (messagesContainer) {
+                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                 }
+             }, 100);
+        });
+    });
 </script>
+</div>

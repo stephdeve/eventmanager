@@ -41,12 +41,13 @@ class RegisteredUserController extends Controller
         ]);
 
         $wantsOrganizer = $validated['account_type'] === 'organizer';
+        $role = $wantsOrganizer ? 'organizer' : 'student';
 
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role' => 'student',
+            'role' => $role,
             'subscription_plan' => null,
         ]);
 
