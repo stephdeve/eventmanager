@@ -349,7 +349,12 @@ class RegistrationController extends Controller
 
         $registration->refresh()->load(['event', 'user']);
 
-        event(new TicketValidated($registration));
+        // Diffuser la validation en temps réel (optionnel, ne doit pas bloquer la validation)
+        try {
+            event(new TicketValidated($registration));
+        } catch (\Throwable $e) {
+            report($e); // Log l'erreur sans bloquer
+        }
 
         try {
             $registration->user->notify(new \App\Notifications\ParticipantCheckInConfirmed($registration));
@@ -561,8 +566,12 @@ class RegistrationController extends Controller
         // Recharger les relations
         $registration->refresh()->load(['event', 'user']);
 
-        // Diffuser la validation en temps réel
-        event(new TicketValidated($registration));
+        // Diffuser la validation en temps réel (optionnel, ne doit pas bloquer la validation)
+        try {
+            event(new TicketValidated($registration));
+        } catch (\Throwable $e) {
+            report($e); // Log l'erreur sans bloquer
+        }
 
         // Notifier le participant (check-in confirmé)
         try {

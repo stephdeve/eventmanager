@@ -95,17 +95,23 @@ class VotingPanel extends Component
             // Mettre à jour le score cache et diffuser l'événement
             $participant->increment('score_total', 1);
             $participant->refresh();
-            event(new VoteCast($this->event, $participant, $participant->score_total));
-            // Notifier l'organisateur
-            if ($this->event->organizer_id) {
-                event(new VoteNotification(
-                    (int) $this->event->organizer_id,
-                    (int) $this->event->id,
-                    (string) $this->event->title,
-                    (string) $participant->name,
-                    (int) $participant->score_total,
-                    route('interactive.events.show', ['event' => $this->event->slug ?? $this->event->id])
-                ));
+            
+            // Broadcasting en temps réel (optionnel, ne doit pas bloquer le vote)
+            try {
+                event(new VoteCast($this->event, $participant, $participant->score_total));
+                // Notifier l'organisateur
+                if ($this->event->organizer_id) {
+                    event(new VoteNotification(
+                        (int) $this->event->organizer_id,
+                        (int) $this->event->id,
+                        (string) $this->event->title,
+                        (string) $participant->name,
+                        (int) $participant->score_total,
+                        route('interactive.events.show', ['event' => $this->event->slug ?? $this->event->id])
+                    ));
+                }
+            } catch (\Throwable $e) {
+                report($e); // Log l'erreur sans bloquer le vote
             }
         });
 
@@ -144,16 +150,22 @@ class VotingPanel extends Component
             ]);
             $participant->increment('score_total', 1);
             $participant->refresh();
-            event(new VoteCast($this->event, $participant, $participant->score_total));
-            if ($this->event->organizer_id) {
-                event(new VoteNotification(
-                    (int) $this->event->organizer_id,
-                    (int) $this->event->id,
-                    (string) $this->event->title,
-                    (string) $participant->name,
-                    (int) $participant->score_total,
-                    route('interactive.events.show', ['event' => $this->event->slug ?? $this->event->id])
-                ));
+            
+            // Broadcasting en temps réel (optionnel, ne doit pas bloquer le vote)
+            try {
+                event(new VoteCast($this->event, $participant, $participant->score_total));
+                if ($this->event->organizer_id) {
+                    event(new VoteNotification(
+                        (int) $this->event->organizer_id,
+                        (int) $this->event->id,
+                        (string) $this->event->title,
+                        (string) $participant->name,
+                        (int) $participant->score_total,
+                        route('interactive.events.show', ['event' => $this->event->slug ?? $this->event->id])
+                    ));
+                }
+            } catch (\Throwable $e) {
+                report($e); // Log l'erreur sans bloquer le vote
             }
         });
 
