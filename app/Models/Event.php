@@ -224,6 +224,14 @@ class Event extends Model
     }
 
     /**
+     * Get the stories for the event.
+     */
+    public function stories()
+    {
+        return $this->hasMany(EventStory::class)->ordered();
+    }
+
+    /**
      * Interactive relationships
      */
     public function participants()
