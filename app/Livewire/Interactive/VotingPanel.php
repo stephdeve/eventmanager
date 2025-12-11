@@ -35,21 +35,21 @@ class VotingPanel extends Component
         return view('livewire.interactive.voting-panel');
     }
 
-    protected function activeChallengeId(): ?int
+    protected function activeChallengeId(): ?string
     {
-        $key = sprintf('interactive:event:%d:active_challenge', (int) $this->event->id);
+        $key = sprintf('interactive:event:%s:active_challenge', $this->event->id);
         $payload = Cache::get($key);
         if (is_array($payload)) {
-            return isset($payload['id']) ? (int) $payload['id'] : null;
+            return $payload['id'] ?? null;
         }
-        return $payload ? (int) $payload : null;
+        return $payload ?: null;
     }
 
     protected function checkThrottle(): bool
     {
         $userId = Auth::id() ?: request()->ip();
         $challengeId = $this->activeChallengeId();
-        $key = sprintf('votes:%s:%d:%s', $userId, $this->event->id, $challengeId ?: 'none');
+        $key = sprintf('votes:%s:%s:%s', $userId, $this->event->id, $challengeId ?: 'none');
         if (RateLimiter::tooManyAttempts($key, 30)) {
             $this->dispatch('toast', type: 'warning', message: 'Trop de votes en peu de temps. Réessayez plus tard.');
             return false;
@@ -58,7 +58,7 @@ class VotingPanel extends Component
         return true;
     }
 
-    public function freeVote(int $participantId): void
+    public function freeVote(string $participantId): void
     {
         abort_unless(Auth::check(), 403);
         if (!$this->event->isInteractiveActive()) {
@@ -102,8 +102,8 @@ class VotingPanel extends Component
                 // Notifier l'organisateur
                 if ($this->event->organizer_id) {
                     event(new VoteNotification(
-                        (int) $this->event->organizer_id,
-                        (int) $this->event->id,
+                        $this->event->organizer_id,
+                        $this->event->id,
                         (string) $this->event->title,
                         (string) $participant->name,
                         (int) $participant->score_total,
@@ -119,7 +119,7 @@ class VotingPanel extends Component
         $this->dispatch('$refresh');
     }
 
-    public function premiumVote(int $participantId): void
+    public function premiumVote(string $participantId): void
     {
         abort_unless(Auth::check(), 403);
         if (!$this->event->isInteractiveActive()) {
