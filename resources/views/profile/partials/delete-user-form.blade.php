@@ -1,6 +1,6 @@
 
 <section>
-    <div class="bg-white rounded-2xl shadow-sm border border-red-100 p-6">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-800 p-6">
         <header class="mb-6">
             <div class="flex items-center space-x-3 mb-2">
                 <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
