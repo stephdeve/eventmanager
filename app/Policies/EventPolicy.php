@@ -70,8 +70,13 @@ class EventPolicy
         // et que la date de l'événement est dans le futur
         $eventDate = $event->start_date ?? $event->event_date;
 
+        // Use direct query instead of collection to avoid UUID comparison issues
+        $alreadyRegistered = \App\Models\Registration::where('event_id', $event->id)
+            ->where('user_id', $user->id)
+            ->exists();
+
         return $user->isStudent()
-            && !$event->attendees->contains($user->id)
+            && !$alreadyRegistered
             && $event->hasAvailableSeats()
             && $eventDate instanceof \Carbon\Carbon
             && $eventDate->isFuture();

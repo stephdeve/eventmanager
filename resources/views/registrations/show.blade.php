@@ -57,7 +57,11 @@
                                         <dt class="w-32 font-medium text-gray-700 dark:text-neutral-300">Tarif</dt>
                                         <dd class="flex-1">
                                             @if (isset($registration->event->price))
-                                                {{ $registration->event->price > 0 ? number_format($registration->event->price / 100, 2, ',', ' ') . ' €' : 'Gratuit' }}
+                                                @if($registration->event->price > 0)
+                                                    {{ number_format($registration->event->price, 0, ',', ' ') }} {{ strtoupper($registration->event->currency ?? 'FCFA') }}
+                                                @else
+                                                    Gratuit
+                                                @endif
                                             @else
                                                 Non communiqué
                                             @endif

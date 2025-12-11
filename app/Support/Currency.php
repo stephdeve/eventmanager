@@ -8,7 +8,7 @@ class Currency
 {
     public static function all(): array
     {
-        return config('currency.supported', []);
+        return config('currencies.currencies', []);
     }
 
     public static function codes(): array

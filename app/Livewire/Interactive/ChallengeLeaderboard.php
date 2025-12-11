@@ -10,15 +10,15 @@ use Livewire\Component;
 class ChallengeLeaderboard extends Component
 {
     public Event $event;
-    public int $challengeId;
+    public string $challengeId;
 
     public array $leaderboard = [];
     public ?Challenge $challenge = null;
 
-    public function mount(Event $event, int $challengeId): void
+    public function mount(Event $event, string $challengeId): void
     {
         $this->event = $event->loadMissing(['participants']);
-        $this->challengeId = (int) $challengeId;
+        $this->challengeId = $challengeId;
         $this->challenge = Challenge::where('event_id', $this->event->id)->find($this->challengeId);
         $this->refreshData();
     }
@@ -50,7 +50,7 @@ class ChallengeLeaderboard extends Component
             $points = (int) $r->points;
             $percent = $max > 0 ? round(($points / $max) * 100) : 0;
             $this->leaderboard[] = [
-                'participant_id' => (int) $p->id,
+                'participant_id' => $p->id,
                 'name' => (string) $p->name,
                 'photo_path' => $p->photo_path,
                 'points' => $points,
