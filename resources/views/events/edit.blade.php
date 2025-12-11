@@ -540,7 +540,7 @@
                                                 <option value="{{ $code }}"
                                                     data-symbol="{{ $data['symbol'] ?? $code }}"
                                                     @selected(old('currency', $event->currency) === $code)>
-                                                    {{ $code }} — {{ $data['name'] ?? $code }}
+                                                    {{ $data['flag'] ?? '' }} {{ $code }} — {{ $data['name'] ?? $code }} ({{ $data['symbol'] ?? $code }})
                                                 </option>
                                             @endforeach
                                         </select>

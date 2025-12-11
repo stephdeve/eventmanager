@@ -486,8 +486,9 @@
                                             class="form-input currency-select @error('currency') error @enderror">
                                             @foreach ($currencies as $code => $data)
                                                 <option value="{{ $code }}"
-                                                    data-symbol="{{ $data['symbol'] ?? $code }}">
-                                                    {{ $code }} — {{ $data['name'] ?? $code }}
+                                                    data-symbol="{{ $data['symbol'] ?? $code }}"
+                                                    @selected(old('currency', $defaultCurrency ?? 'XOF') === $code)>
+                                                    {{ $data['flag'] ?? '' }} {{ $code }} — {{ $data['name'] ?? $code }} ({{ $data['symbol'] ?? $code }})
                                                 </option>
                                             @endforeach
                                         </select>

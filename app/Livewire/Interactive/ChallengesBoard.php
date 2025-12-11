@@ -15,7 +15,7 @@ use Livewire\Component;
 class ChallengesBoard extends Component
 {
     public Event $event;
-    public ?int $activeChallengeId = null;
+    public ?string $activeChallengeId = null;
     public ?string $activeEndsAt = null;
     public int $durationMinutes = 5;
     public array $leaderboard = [];
@@ -46,10 +46,10 @@ class ChallengesBoard extends Component
         $key = $this->cacheKey();
         $payload = Cache::get($key);
         if (is_array($payload)) {
-            $this->activeChallengeId = isset($payload['id']) ? (int) $payload['id'] : null;
+            $this->activeChallengeId = $payload['id'] ?? null;
             $this->activeEndsAt = $payload['ends_at'] ?? null;
         } elseif ($payload) {
-            $this->activeChallengeId = (int) $payload;
+            $this->activeChallengeId = $payload;
             $this->activeEndsAt = null;
         } else {
             $this->activeChallengeId = null;
@@ -59,10 +59,10 @@ class ChallengesBoard extends Component
 
     protected function cacheKey(): string
     {
-        return sprintf('interactive:event:%d:active_challenge', (int) $this->event->id);
+        return sprintf('interactive:event:%s:active_challenge', $this->event->id);
     }
 
-    public function startChallenge(int $challengeId): void
+    public function startChallenge(string $challengeId): void
     {
         // Only organizer/admin
         abort_unless(Auth::check() && Auth::user()->can('update', $this->event), 403);
@@ -77,13 +77,13 @@ class ChallengesBoard extends Component
         $duration = max(1, (int) $this->durationMinutes) * 60;
         $endsAt = now()->addSeconds($duration);
         $payload = [
-            'id' => (int) $challenge->id,
+            'id' => $challenge->id,
             'started_at' => now()->toIso8601String(),
             'ends_at' => $endsAt->toIso8601String(),
             'duration' => $duration,
         ];
         Cache::put($this->cacheKey(), $payload, $endsAt);
-        $this->activeChallengeId = (int) $challenge->id;
+        $this->activeChallengeId = $challenge->id;
         $this->activeEndsAt = $payload['ends_at'];
         $this->dispatch('toast', type: 'success', message: 'Défi démarré: ' . (string) $challenge->title);
         
