@@ -108,6 +108,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // Event Stories Management
+    Route::post('/events/{event}/stories', [App\Http\Controllers\StoryController::class, 'store'])->name('stories.store');
+    Route::patch('/events/{event}/stories/{story}', [App\Http\Controllers\StoryController::class, 'update'])->name('stories.update');
+    Route::delete('/events/{event}/stories/{story}', [App\Http\Controllers\StoryController::class, 'destroy'])->name('stories.destroy');
+    Route::post('/events/{event}/stories/reorder', [App\Http\Controllers\StoryController::class, 'reorder'])->name('stories.reorder');
+
     // Routes pour les événements (organisateur)
     Route::resource('events', EventController::class)
         ->except(['index', 'show'])
@@ -304,6 +310,11 @@ Route::post('payment/callback', [PaymentController::class, 'callback'])
 // Page promo publique d'un événement (aperçu marketing)
 Route::get('/promo/{slug}', [\App\Http\Controllers\PromoController::class, 'show'])
     ->name('promo.show');
+
+require __DIR__ . '/auth.php';
+
+// Public story tracking route
+Route::post('/stories/{story}/track', [App\Http\Controllers\StoryController::class, 'track'])->name('stories.track');
 
 // Routes publiques pour les événements
 Route::get('/events', [EventController::class, 'index'])->name('events.index');

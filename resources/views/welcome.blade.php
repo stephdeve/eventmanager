@@ -626,14 +626,31 @@
                                 </div>
                             </div>
 
-                            <a href="{{ route('events.show', $nextEvent) }}"
-                                class="btn-gradient-primary inline-flex items-center text-lg p-4 md:p-5">
-                                <svg class="w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                                Réserver votre place maintenant
-                            </a>
+                            @php
+                                $nextEventStories = $nextEvent->stories()->active()->count();
+                            @endphp
+
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                @if($nextEventStories > 0)
+                                   <button onclick="openStoryViewer('{{ $nextEvent->id }}')"
+                                        class="btn-glass inline-flex items-center justify-center text-lg p-4 md:p-5 border-2 border-purple-500/50 hover:border-purple-400 bg-purple-500/10 hover:bg-purple-500/20">
+                                        <svg class="w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                        </svg>
+                                        📹 Voir la présentation vidéo ({{ $nextEventStories }})
+                                    </button>
+                                @endif
+
+                                <a href="{{ route('events.show', $nextEvent) }}"
+                                    class="btn-gradient-primary inline-flex items-center justify-center text-lg p-4 md:p-5 flex-1">
+                                    <svg class="w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                    Réserver votre place maintenant
+                                </a>
+                            </div>
                         </div>
 
                         <div class="lg:w-1/2 lg:pl-10 lg:pt-0 pt-8 flex flex-col justify-center">
@@ -676,6 +693,8 @@
     </section>
 
     <hr class="border-t border-gray-800 my-16 container-narrow" />
+
+    {{-- Stories integrated into event cards with video buttons --}}
 
     <section id="events" class="section-spacing bg-gradient-to-b from-slate-900 to-slate-800/40 pt-0">
         <div class="container-narrow">
@@ -792,6 +811,21 @@
                                         {{ $event->price_for_display ?? 'Gratuit' }}
                                     </div>
                                 </div>
+
+                                @php
+                                    $eventStoriesCount = $event->stories()->active()->count();
+                                @endphp
+
+                                @if($eventStoriesCount > 0)
+                                    <button onclick="event.stopPropagation(); event.preventDefault(); openStoryViewer('{{ $event->id }}');" type="button"
+                                        class="w-full mt-3 btn-glass flex items-center justify-center gap-2 py-2.5 px-4 border border-purple-500/30 hover:border-purple-400 bg-purple-500/5 hover:bg-purple-500/15 transition-all rounded-lg">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                        </svg>
+                                        <span class="text-sm font-semibold">📹 Voir vidéo ({{ $eventStoriesCount }})</span>
+                                    </button>
+                                @endif
                             </div>
                         </div>
                     </a>
@@ -1937,6 +1971,19 @@
             }
         });
     </script>
+
+    {{-- Stories Modal & Scripts --}}
+    @php
+        $allStoriesData = \App\Models\EventStory::with('event')
+            ->active()
+            ->ordered()
+            ->get()
+            ->groupBy('event_id');
+    @endphp
+    
+    @if($allStoriesData->isNotEmpty())
+        <x-stories-viewer :stories="$allStoriesData" />
+    @endif
 </body>
 
 </html>

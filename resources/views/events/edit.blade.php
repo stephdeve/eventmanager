@@ -609,6 +609,272 @@
                         </div>
                     </div>
 
+                    {{-- Stories Vidéo Section --}}
+                    <div class="form-card p-8 rounded-2xl mb-8">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div
+                                class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-900">📱 Stories Vidéo</h3>
+                                <p class="text-sm text-slate-600">Publiez des vidéos courtes pour promouvoir votre événement
+                                    (15-60s)</p>
+                            </div>
+                        </div>
+
+                        {{-- Upload Story --}}
+                        <div class="mb-6">
+                            {{-- Tabs --}}
+                            <div class="flex border-b border-slate-300 mb-6">
+                                <button type="button" class="story-tab-btn px-6 py-3 font-semibold text-indigo-600 border-b-2 border-indigo-600" data-tab="upload">
+                                    📤 Upload Vidéo
+                                </button>
+                                <button type="button" class="story-tab-btn px-6 py-3 font-semibold text-slate-600 hover:text-indigo-600 transition" data-tab="url">
+                                    🔗 URL Externe
+                                </button>
+                            </div>
+
+                            {{-- Upload Tab Content --}}
+                            <div id="upload-tab-content" class="story-tab-content">
+                                <form action="{{ route('stories.store', $event) }}" method="POST"
+                                    enctype="multipart/form-data" id="story-upload-form">
+                                    @csrf
+                                    <div
+                                        class="border-2 border-dashed border-indigo-300 rounded-xl p-6 bg-indigo-50/50 hover:border-indigo-400 transition">
+                                        <input type="file" name="video" id="story-video-input"
+                                            accept="video/mp4,video/mov,video/webm" class="hidden"
+                                            onchange="handleStoryUpload(this)">
+
+                                        <label for="story-video-input" class="cursor-pointer flex flex-col items-center gap-3">
+                                            <svg class="w-12 h-12 text-indigo-500" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                            </svg>
+                                            <div class="text-center">
+                                                <p class="font-semibold text-indigo-700">Cliquez pour uploader une vidéo</p>
+                                                <p class="text-sm text-slate-600 mt-1">MP4, MOV, WebM • Max 50MB • 15-60
+                                                    secondes</p>
+                                                <p class="text-xs text-slate-500 mt-2">📱 Format portrait (9:16) recommandé</p>
+                                            </div>
+                                        </label>
+
+                                        <div id="upload-progress" class="hidden mt-4">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <span class="text-sm font-medium text-slate-700">Upload en cours...</span>
+                                                <span id="progress-percent" class="text-sm font-bold text-indigo-600">0%</span>
+                                            </div>
+                                            <div class="w-full bg-slate-200 rounded-full h-2">
+                                                <div id="progress-bar" class="bg-indigo-600 h-2 rounded-full transition-all"
+                                                    style="width: 0%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 flex items-center gap-4">
+                                        <label class="flex items-center gap-2">
+                                            <input type="checkbox" name="is_active" value="1"
+                                                class="w-4 h-4 text-indigo-600 border-gray-300 rounded">
+                                            <span class="text-sm font-medium text-slate-700">Publier immédiatement</span>
+                                        </label>
+                                    </div>
+                                </form>
+                            </div>
+
+                            {{-- URL Tab Content --}}
+                            <div id="url-tab-content" class="story-tab-content hidden">
+                                <form action="{{ route('stories.store', $event) }}" method="POST" id="story-url-form">
+                                    @csrf
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                                URL de la vidéo
+                                            </label>
+                                            <input type="url" name="external_url" 
+                                                class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-indigo-500 focus:outline-none transition"
+                                                placeholder="https://www.youtube.com/watch?v=..." required>
+                                            <p class="text-xs text-slate-500 mt-2">
+                                                Plateformes supportées: YouTube, TikTok, Instagram
+                                            </p>
+                                        </div>
+
+                                        <div class="grid grid-cols-3 gap-3">
+                                            <div class="p-4 border-2 border-slate-200 rounded-lg text-center hover:border-red-400 transition">
+                                                <svg class="w-8 h-8 mx-auto mb-2 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                                                </svg>
+                                                <p class="text-xs font-semibold text-slate-700">YouTube</p>
+                                            </div>
+                                            <div class="p-4 border-2 border-slate-200 rounded-lg text-center hover:border-black transition">
+                                                <svg class="w-8 h-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+                                                </svg>
+                                                <p class="text-xs font-semibold text-slate-700">TikTok</p>
+                                            </div>
+                                            <div class="p-4 border-2 border-slate-200 rounded-lg text-center hover:border-pink-400 transition">
+                                                <svg class="w-8 h-8 mx-auto mb-2 text-pink-600" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z"/>
+                                                </svg>
+                                                <p class="text-xs font-semibold text-slate-700">Instagram</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-4 flex items-center gap-4">
+                                            <label class="flex items-center gap-2">
+                                                <input type="checkbox" name="is_active" value="1"
+                                                    class="w-4 h-4 text-indigo-600 border-gray-300 rounded">
+                                                <span class="text-sm font-medium text-slate-700">Publier immédiatement</span>
+                                            </label>
+                                        </div>
+
+                                        <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-indigo-700 transition">
+                                            ➕ Ajouter la Story
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        {{-- Existing Stories List --}}
+                        @if ($event->stories->count() > 0)
+                            <div class="border-t border-slate-200 pt-6">
+                                <h4 class="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                    </svg>
+                                    Vos stories ({{ $event->stories->count() }})
+                                </h4>
+
+                                <div id="stories-list" class="space-y-3">
+                                    @foreach ($event->stories()->orderBy('order')->get() as $story)
+                                        <div
+                                            class="story-item bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-4 hover:border-indigo-300 transition"
+                                            data-story-id="{{ $story->id }}">
+                                            {{-- Drag handle --}}
+                                            <div class="drag-handle cursor-move text-slate-400 hover:text-slate-600">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M4 8h16M4 16h16" />
+                                                </svg>
+                                            </div>
+
+                                            {{-- Video thumbnail --}}
+                                            <div class="w-16 h-28 bg-slate-100 rounded-lg overflow-hidden flex-shrink-0">
+                                                @if ($story->thumbnail_path)
+                                                    <img src="{{ asset('storage/' . $story->thumbnail_path) }}"
+                                                        alt="Thumbnail" class="w-full h-full object-cover">
+                                                @else
+                                                    <div
+                                                        class="w-full h-full flex items-center justify-center text-slate-400">
+                                                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path
+                                                                d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                                                            <path
+                                                                d="M14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                                                        </svg>
+                                                    </div>
+                                                @endif
+                                            </div>
+
+                                            {{-- Story info --}}
+                                            <div class="flex-1">
+                                                <div class="flex items-center gap-2 mb-1">
+                                                    <span class="font-semibold text-slate-900">Story #{{ $story->order + 1 }}</span>
+                                                    @if ($story->is_active)
+                                                        <span
+                                                            class="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full">Publié</span>
+                                                    @else
+                                                        <span
+                                                            class="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs font-semibold rounded-full">Brouillon</span>
+                                                    @endif
+                                                </div>
+                                                <div class="flex items-center gap-4 text-sm text-slate-600">
+                                                    <span>⏱️ {{ $story->duration }}s</span>
+                                                    <span>👁️ {{ number_format($story->views_count) }} vues</span>
+                                                    <span>📅 {{ $story->created_at->diffForHumans() }}</span>
+                                                </div>
+                                            </div>
+
+                                            {{-- Actions --}}
+                                            <div class="flex items-center gap-2">
+                                                {{-- Toggle Active --}}
+                                                <form action="{{ route('stories.update', [$event, $story]) }}"
+                                                    method="POST" class="inline">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <input type="hidden" name="is_active"
+                                                        value="{{ $story->is_active ? '0' : '1' }}">
+                                                    <button type="submit"
+                                                        class="p-2 rounded-lg {{ $story->is_active ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200' }} transition">
+                                                        @if ($story->is_active)
+                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                                            </svg>
+                                                        @else
+                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                            </svg>
+                                                        @endif
+                                                    </button>
+                                                </form>
+
+                                                {{-- Delete --}}
+                                                <form action="{{ route('stories.destroy', [$event, $story]) }}"
+                                                    method="POST" class="inline"
+                                                    onsubmit="return confirm('Supprimer cette story ?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                        class="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                                <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <p class="text-sm text-blue-800">
+                                        💡 <strong>Astuce:</strong> Glissez-déposez les stories pour changer leur ordre
+                                        d'affichage.
+                                    </p>
+                                </div>
+                            </div>
+                        @else
+                            <div class="border-t border-slate-200 pt-6">
+                                <div class="text-center py-8 text-slate-500">
+                                    <svg class="w-16 h-16 mx-auto mb-3 text-slate-300" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                    <p class="font-medium">Aucune story publiée</p>
+                                    <p class="text-sm mt-1">Uploadez votre première vidéo pour commencer</p>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+
                     <!-- Boutons de soumission -->
                     <div
                         class="mt-12 pt-8 border-t border-[#E0E7FF] flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-4">
@@ -787,6 +1053,171 @@
             }
             paymentTypeRadios.forEach(r => r.addEventListener('change', syncPaymentType));
             syncPaymentType();
+        });
+    </script>
+
+    {{-- Story Upload & Reorder JavaScript --}}
+    <script>
+        // Handle story video upload
+        function handleStoryUpload(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const maxSize = 50 * 1024 * 1024; // 50MB
+                
+                // Validate file size
+                if (file.size > maxSize) {
+                    alert('La vidéo est trop volumineuse. Maximum 50MB.');
+                    input.value = '';
+                    return;
+                }
+                
+                // Validate video duration (would require loading the video)
+                const form = document.getElementById('story-upload-form');
+                const progressDiv = document.getElementById('upload-progress');
+                const progressBar = document.getElementById('progress-bar');
+                const progressPercent = document.getElementById('progress-percent');
+                
+                // Show progress
+                progressDiv.classList.remove('hidden');
+                
+                // Create FormData and submit
+                const formData = new FormData(form);
+                
+                // Submit with progress tracking
+                const xhr = new XMLHttpRequest();
+                
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        progressBar.style.width = percent + '%';
+                        progressPercent.textContent = percent + '%';
+                    }
+                });
+                
+                xhr.addEventListener('load', () => {
+                    if (xhr.status === 200 || xhr.status === 302) {
+                        window.location.reload();
+                    } else {
+                        alert('Erreur lors de l\'upload');
+                        progressDiv.classList.add('hidden');
+                        input.value = '';
+                    }
+                });
+                
+                xhr.addEventListener('error', () => {
+                    alert('Erreur réseau');
+                    progressDiv.classList.add('hidden');
+                    input.value = '';
+                });
+                
+                xhr.open('POST', form.action);
+                xhr.setRequestHeader('X-CSRF-TOKEN', document.querySelector('meta[name="csrf-token"]').content);
+                xhr.send(formData);
+            }
+        }
+        
+        // Drag and drop reordering
+        document.addEventListener('DOMContentLoaded', () => {
+            const storiesList = document.getElementById('stories-list');
+            if (!storiesList) return;
+            
+            let draggedItem = null;
+            
+            const items = storiesList.querySelectorAll('.story-item');
+            items.forEach(item => {
+                const handle = item.querySelector('.drag-handle');
+                
+                handle.addEventListener('mousedown', () => {
+                    item.setAttribute('draggable', true);
+                });
+                
+                item.addEventListener('dragstart', (e) => {
+                    draggedItem = item;
+                    e.dataTransfer.effectAllowed = 'move';
+                    item.classList.add('opacity-50');
+                });
+                
+                item.addEventListener('dragend', () => {
+                    item.classList.remove('opacity-50');
+                    item.setAttribute('draggable', false);
+                });
+                
+                item.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    
+                    if (draggedItem && draggedItem !== item) {
+                        const rect = item.getBoundingClientRect();
+                        const midpoint = rect.top + rect.height / 2;
+                        
+                        if (e.clientY < midpoint) {
+                            item.parentNode.insertBefore(draggedItem, item);
+                        } else {
+                            item.parentNode.insertBefore(draggedItem, item.nextSibling);
+                        }
+                    }
+                });
+                
+                item.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    saveNewOrder();
+                });
+            });
+            
+            function saveNewOrder() {
+                const items = Array.from(storiesList.querySelectorAll('.story-item'));
+                const stories = items.map((item, index) => ({
+                    id: item.dataset.storyId,
+                    order: index
+                }));
+                
+                // Send to server
+                fetch('{{ route('stories.reorder', $event) }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({ stories })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update order numbers in UI
+                        items.forEach((item, index) => {
+                            const orderSpan = item.querySelector('.font-semibold');
+                            if (orderSpan) {
+                                orderSpan.textContent = `Story #${index + 1}`;
+                            }
+                        });
+                    }
+                })
+                .catch(error => console.error('Error saving order:', error));
+            }
+        });
+    </script>
+
+    {{-- Story Tabs JavaScript --}}
+    <script>
+        // Tab switching for upload vs URL
+        document.querySelectorAll('.story-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tab = btn.dataset.tab;
+                
+                // Update tab buttons
+                document.querySelectorAll('.story-tab-btn').forEach(b => {
+                    b.classList.remove('text-indigo-600', 'border-b-2', 'border-indigo-600');
+                    b.classList.add('text-slate-600');
+                });
+                btn.classList.remove('text-slate-600');
+                btn.classList.add('text-indigo-600', 'border-b-2', 'border-indigo-600');
+                
+                // Update tab content
+                document.querySelectorAll('.story-tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                document.getElementById(`${tab}-tab-content`).classList.remove('hidden');
+            });
         });
     </script>
 @endpush
