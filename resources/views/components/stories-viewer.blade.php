@@ -9,21 +9,21 @@
 <div class="stories-section py-6">
     <div class="container mx-auto px-4">
         <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">📱 Stories Événements</h2>
-        
+
         <div class="stories-grid">
             @foreach($stories as $eventId => $eventStories)
                 @php
                     $event = $eventStories->first()->event;
                     $hasUnviewedStories = true; // TODO: Track user views
                 @endphp
-                
-                <div class="story-avatar" 
+
+                <div class="story-avatar"
                      data-event-id="{{ $event->id }}"
                      onclick="openStoryViewer('{{ $event->id }}')">
                     <div class="story-ring {{ $hasUnviewedStories ? 'unviewed' : 'viewed' }}">
                         <div class="story-image">
                             @if($event->cover_image)
-                                <img src="{{ asset('storage/' . $event->cover_image) }}" 
+                                <img src="{{ asset('storage/' . $event->cover_image) }}"
                                      alt="{{ $event->title }}">
                             @else
                                 <div class="story-placeholder">
@@ -35,7 +35,7 @@
                         </div>
                     </div>
                     <div class="story-title">{{ Str::limit($event->title, 12) }}</div>
-                    
+
                     @if($eventStories->first()->created_at->gt(now()->subDay()))
                         <div class="story-badge">NOUVEAU</div>
                     @endif
@@ -46,27 +46,27 @@
 </div>
 
 {{-- Story Viewer Modal --}}
-<div id="story-viewer-modal" class="story-modal" style="display: none;">
+<div id="story-viewer-modal" class="story-modal !bg-gradient-to-br from-slate-800 to-slate-600" style="display: none;">
     <div class="story-close" onclick="closeStoryViewer()">
         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
         </svg>
     </div>
-    
-    <div class="story-container">
+
+    <div class="story-container ">
         {{-- Progress bars --}}
         <div class="story-progress">
-            <div class="progress-bars" id="progress-bars"></div>
+            <div class="progress-bars !bg-blue-600" id="progress-bars"></div>
         </div>
-        
+
         {{-- Video container --}}
         <div class="story-video-wrapper">
-            <video id="story-video" 
-                   class="story-video" 
-                   playsinline 
+            <video id="story-video"
+                   class="story-video"
+                   playsinline
                    preload="metadata">
             </video>
-            
+
             {{-- Tap zones - invisible --}}
             <div class="story-tap-zones">
                 <div class="tap-zone tap-left" onclick="previousStory()"></div>
@@ -74,7 +74,7 @@
                 <div class="tap-zone tap-right" onclick="nextStory()"></div>
             </div>
         </div>
-        
+
         {{-- Event info overlay --}}
         <div class="story-header">
             <div class="story-event-info">
@@ -82,7 +82,7 @@
                 <span id="story-event-name"></span>
             </div>
         </div>
-        
+
         <div class="story-footer">
             <div class="story-details" id="story-details">
                 <div class="detail-item">
@@ -99,7 +99,7 @@
                     <span id="story-location"></span>
                 </div>
             </div>
-            
+
             <a id="story-cta" href="#" class="story-cta">
                 Voir l'événement
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

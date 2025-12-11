@@ -264,7 +264,7 @@
                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </div>
-                    <h4 class="text-lg font-semibold text-gray-900 mb-2">Aucun défi créé</h4>
+                    <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Aucun défi créé</h4>
                     <p class="text-gray-500 text-sm">Commencez par ajouter votre premier défi interactif !</p>
                 </div>
             @endif
