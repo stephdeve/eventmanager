@@ -1,5 +1,5 @@
 <section>
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 dark:bg-neutral-900 dark:border-neutral-800">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 ">
         <header class="mb-6">
             <div class="flex items-center space-x-3 mb-2">
                 <div class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
