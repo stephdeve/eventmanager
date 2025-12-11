@@ -1014,12 +1014,19 @@
                                 </h3>
                                 <div class="video-container aspect-video">
                                     <div class="video-label">YouTube</div>
-                                    <iframe class="w-full h-full"
-                                        src="https://www.youtube.com/embed/{{ \Illuminate\Support\Str::afterLast($event->youtube_url, 'v=') }}"
-                                        title="YouTube video" frameborder="0"
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                        allowfullscreen>
-                                    </iframe>
+                                    @php($youtubeId = extractYouTubeId($event->youtube_url))
+                                    @if($youtubeId)
+                                        <iframe class="w-full h-full"
+                                            src="https://www.youtube.com/embed/{{ $youtubeId }}"
+                                            title="YouTube video" frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowfullscreen>
+                                        </iframe>
+                                    @else
+                                        <div class="flex items-center justify-center h-full bg-slate-100 text-slate-600">
+                                            URL YouTube invalide
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         @endif
