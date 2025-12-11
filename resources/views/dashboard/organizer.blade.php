@@ -952,7 +952,7 @@
                                             class="bg-white rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 border border-slate-200 hover:border-indigo-300 relative overflow-hidden">
                                             <!-- Effet de fond animé au survol -->
                                             <div
-                                                class="absolute inset-0 bg-indigo-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                class="absolute inset-0 bg-indigo-50/30 dark:group-hover:opacity-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                             </div>
 
                                             <div
