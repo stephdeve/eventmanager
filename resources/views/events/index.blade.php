@@ -215,11 +215,11 @@
             <!-- Action Bar -->
             <div
                 class="dashboard-card bg-white rounded-2xl p-6 shadow-xl border border-slate-100 mb-8 dark:bg-neutral-900 dark:border-neutral-800">
-                <div class="flex flex-col lg:flex-row justify-between items-center gap-6">
-                    <div class="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+                <div class="flex flex-col lg:flex-row justify-between items-center flex-wrap gap-6">
+                    <div class="flex flex-col lg:flex-row items-center gap-4 w-full lg:w-auto ">
                         <form id="eventsFilters" method="GET" action="{{ route('events.index') }}" class="flex flex-col sm:flex-row items-center gap-3 w-full">
                             <!-- Recherche -->
-                            <div class="relative flex-1 lg:flex-none min-w-[280px]">
+                            <div class="relative flex-1 lg:flex-none min-w-[280px] max-md:w-full">
                                 <input type="text" name="q" value="{{ $filters['q'] ?? request('q') }}" placeholder="Rechercher un événement..."
                                     class="pl-12 pr-4 py-3.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white/90 backdrop-blur-sm w-full transition-all duration-200 text-slate-700 placeholder-slate-500 text-sm font-medium dark:border-neutral-800 dark:bg-neutral-900/80 dark:text-neutral-100 dark:placeholder-neutral-500">
                                 <svg class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 transform -translate-y-1/2 dark:text-neutral-500"
@@ -231,7 +231,7 @@
 
                             <!-- État -->
                             <select name="state"
-                                class="px-4 py-3.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white/90 backdrop-blur-sm text-slate-700 text-sm font-medium transition-all duration-200 min-w-40 dark:border-neutral-800 dark:bg-neutral-900/80 dark:text-neutral-100">
+                                class="px-4 py-3.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white/90 backdrop-blur-sm text-slate-700 text-sm font-medium transition-all duration-200 min-w-40 dark:border-neutral-800 dark:bg-neutral-900/80 dark:text-neutral-100 max-md:w-full">
                                 @php $s = $filters['state'] ?? request('state','upcoming'); @endphp
                                 <option value="upcoming" @selected($s==='upcoming')>À venir</option>
                                 <option value="ongoing" @selected($s==='ongoing')>En cours</option>
@@ -241,7 +241,7 @@
 
                             <!-- Période -->
                             <select name="period"
-                                class="px-4 py-3.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white/90 backdrop-blur-sm text-slate-700 text-sm font-medium transition-all duration-200 min-w-40 dark:border-neutral-800 dark:bg-neutral-900/80 dark:text-neutral-100">
+                                class="px-4 py-3.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white/90 backdrop-blur-sm text-slate-700 text-sm font-medium transition-all duration-200 min-w-40 dark:border-neutral-800 dark:bg-neutral-900/80 dark:text-neutral-100 max-md:w-full">
                                 @php $p = $filters['period'] ?? request('period',''); @endphp
                                 <option value="" @selected($p==='')>Toute période</option>
                                 <option value="today" @selected($p==='today')>Aujourd'hui</option>
@@ -252,7 +252,7 @@
 
                             <!-- Interactif -->
                             <select name="interactive"
-                                class="px-4 py-3.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white/90 backdrop-blur-sm text-slate-700 text-sm font-medium transition-all duration-200 min-w-40 dark:border-neutral-800 dark:bg-neutral-900/80 dark:text-neutral-100">
+                                class="px-4 py-3.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white/90 backdrop-blur-sm text-slate-700 text-sm font-medium transition-all duration-200 min-w-40 dark:border-neutral-800 dark:bg-neutral-900/80 dark:text-neutral-100 max-md:w-full">
                                 @php $i = is_null(($filters['interactive'] ?? null)) ? '' : (string)$filters['interactive']; if($i===''){$i=(string)request('interactive','');} @endphp
                                 <option value="" @selected($i==='')>Tous types</option>
                                 <option value="1" @selected($i==='1')>Interactifs</option>
