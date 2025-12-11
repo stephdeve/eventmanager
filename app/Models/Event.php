@@ -4,12 +4,16 @@ namespace App\Models;
 
 use App\Support\Currency;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Event extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
+    
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     /**
      * The attributes that are mass assignable.

@@ -3,9 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Database\Seeders\InteractiveDemoSeeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,14 +13,41 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Admin
+        User::create([
+            'name' => 'Admin User',
+            'email' => 'admin@eventmanager.com',
+            'password' => Hash::make('password'),
+            'role' => 'admin',
+            'email_verified_at' => now(),
         ]);
 
-        // Seed interactive demo
-        $this->call(InteractiveDemoSeeder::class);
+        // Organisateur
+        User::create([
+            'name' => 'Organisateur Demo',
+            'email' => 'organisateur@eventmanager.com',
+            'password' => Hash::make('password'),
+            'role' => 'organizer',
+            'subscription_plan' => 'premium',
+            'subscription_status' => 'active',
+            'subscription_started_at' => now(),
+            'subscription_expires_at' => now()->addYear(),
+            'email_verified_at' => now(),
+        ]);
+
+        // Participant/Student
+        User::create([
+            'name' => 'Participant Demo',
+            'email' => 'participant@eventmanager.com',
+            'password' => Hash::make('password'),
+            'role' => 'student',
+            'email_verified_at' => now(),
+        ]);
+
+        $this->command->info('✅ 3 utilisateurs créés avec succès !');
+        $this->command->info('📧 Admin: admin@eventmanager.com');
+        $this->command->info('📧 Organisateur: organisateur@eventmanager.com');
+        $this->command->info('📧 Participant: participant@eventmanager.com');
+        $this->command->info('🔑 Mot de passe pour tous: password');
     }
 }
