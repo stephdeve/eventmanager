@@ -550,10 +550,11 @@
                                             {{ Auth::user()->created_at->format('M Y') }}</p>
                                     </div>
                                     <!-- Optional button/view all link -->
-                                    <button
+                                    <a
+                                     href="{{ route('participant.history') }}"
                                         class="text-sm font-medium text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-colors duration-200">
                                         Voir détails
-                                    </button>
+                                    </a>
                                 </div>
                             </div>
                         </div>
