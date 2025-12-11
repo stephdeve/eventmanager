@@ -423,7 +423,7 @@
                                 @if ($event->cover_image)
                                     <div class="mb-4">
                                         <p class="text-sm text-[#6B7280] mb-2">Image actuelle :</p>
-                                        <img src="{{ asset('storage/' . $event->cover_image) }}"
+                                        <img src="{{ asset('storage/' . $event->cover_image) }}" class="object-cover rounded-2xl"
                                             alt="Image actuelle de l'événement" class="current-image">
                                     </div>
                                 @endif
@@ -620,7 +620,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="text-xl font-bold text-slate-900">📱 Stories Vidéo</h3>
+                                <h3 class="text-xl font-bold text-slate-900">Stories Vidéo</h3>
                                 <p class="text-sm text-slate-600">Publiez des vidéos courtes pour promouvoir votre événement
                                     (15-60s)</p>
                             </div>
@@ -631,10 +631,10 @@
                             {{-- Tabs --}}
                             <div class="flex border-b border-slate-300 mb-6">
                                 <button type="button" class="story-tab-btn px-6 py-3 font-semibold text-indigo-600 border-b-2 border-indigo-600" data-tab="upload">
-                                    📤 Upload Vidéo
+                                    Upload Vidéo
                                 </button>
                                 <button type="button" class="story-tab-btn px-6 py-3 font-semibold text-slate-600 hover:text-indigo-600 transition" data-tab="url">
-                                    🔗 URL Externe
+                                    URL Externe
                                 </button>
                             </div>
 
@@ -694,7 +694,7 @@
                                             <label class="block text-sm font-semibold text-slate-700 mb-2">
                                                 URL de la vidéo
                                             </label>
-                                            <input type="url" name="external_url" 
+                                            <input type="url" name="external_url"
                                                 class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-indigo-500 focus:outline-none transition"
                                                 placeholder="https://www.youtube.com/watch?v=..." required>
                                             <p class="text-xs text-slate-500 mt-2">
@@ -732,7 +732,7 @@
                                         </div>
 
                                         <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-indigo-700 transition">
-                                            ➕ Ajouter la Story
+                                            Ajouter la Story
                                         </button>
                                     </div>
                                 </form>
@@ -1063,29 +1063,29 @@
             if (input.files && input.files[0]) {
                 const file = input.files[0];
                 const maxSize = 50 * 1024 * 1024; // 50MB
-                
+
                 // Validate file size
                 if (file.size > maxSize) {
                     alert('La vidéo est trop volumineuse. Maximum 50MB.');
                     input.value = '';
                     return;
                 }
-                
+
                 // Validate video duration (would require loading the video)
                 const form = document.getElementById('story-upload-form');
                 const progressDiv = document.getElementById('upload-progress');
                 const progressBar = document.getElementById('progress-bar');
                 const progressPercent = document.getElementById('progress-percent');
-                
+
                 // Show progress
                 progressDiv.classList.remove('hidden');
-                
+
                 // Create FormData and submit
                 const formData = new FormData(form);
-                
+
                 // Submit with progress tracking
                 const xhr = new XMLHttpRequest();
-                
+
                 xhr.upload.addEventListener('progress', (e) => {
                     if (e.lengthComputable) {
                         const percent = Math.round((e.loaded / e.total) * 100);
@@ -1093,7 +1093,7 @@
                         progressPercent.textContent = percent + '%';
                     }
                 });
-                
+
                 xhr.addEventListener('load', () => {
                     if (xhr.status === 200 || xhr.status === 302) {
                         window.location.reload();
@@ -1103,53 +1103,53 @@
                         input.value = '';
                     }
                 });
-                
+
                 xhr.addEventListener('error', () => {
                     alert('Erreur réseau');
                     progressDiv.classList.add('hidden');
                     input.value = '';
                 });
-                
+
                 xhr.open('POST', form.action);
                 xhr.setRequestHeader('X-CSRF-TOKEN', document.querySelector('meta[name="csrf-token"]').content);
                 xhr.send(formData);
             }
         }
-        
+
         // Drag and drop reordering
         document.addEventListener('DOMContentLoaded', () => {
             const storiesList = document.getElementById('stories-list');
             if (!storiesList) return;
-            
+
             let draggedItem = null;
-            
+
             const items = storiesList.querySelectorAll('.story-item');
             items.forEach(item => {
                 const handle = item.querySelector('.drag-handle');
-                
+
                 handle.addEventListener('mousedown', () => {
                     item.setAttribute('draggable', true);
                 });
-                
+
                 item.addEventListener('dragstart', (e) => {
                     draggedItem = item;
                     e.dataTransfer.effectAllowed = 'move';
                     item.classList.add('opacity-50');
                 });
-                
+
                 item.addEventListener('dragend', () => {
                     item.classList.remove('opacity-50');
                     item.setAttribute('draggable', false);
                 });
-                
+
                 item.addEventListener('dragover', (e) => {
                     e.preventDefault();
                     e.dataTransfer.dropEffect = 'move';
-                    
+
                     if (draggedItem && draggedItem !== item) {
                         const rect = item.getBoundingClientRect();
                         const midpoint = rect.top + rect.height / 2;
-                        
+
                         if (e.clientY < midpoint) {
                             item.parentNode.insertBefore(draggedItem, item);
                         } else {
@@ -1157,20 +1157,20 @@
                         }
                     }
                 });
-                
+
                 item.addEventListener('drop', (e) => {
                     e.preventDefault();
                     saveNewOrder();
                 });
             });
-            
+
             function saveNewOrder() {
                 const items = Array.from(storiesList.querySelectorAll('.story-item'));
                 const stories = items.map((item, index) => ({
                     id: item.dataset.storyId,
                     order: index
                 }));
-                
+
                 // Send to server
                 fetch('{{ route('stories.reorder', $event) }}', {
                     method: 'POST',
@@ -1203,7 +1203,7 @@
         document.querySelectorAll('.story-tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const tab = btn.dataset.tab;
-                
+
                 // Update tab buttons
                 document.querySelectorAll('.story-tab-btn').forEach(b => {
                     b.classList.remove('text-indigo-600', 'border-b-2', 'border-indigo-600');
@@ -1211,7 +1211,7 @@
                 });
                 btn.classList.remove('text-slate-600');
                 btn.classList.add('text-indigo-600', 'border-b-2', 'border-indigo-600');
-                
+
                 // Update tab content
                 document.querySelectorAll('.story-tab-content').forEach(content => {
                     content.classList.add('hidden');
