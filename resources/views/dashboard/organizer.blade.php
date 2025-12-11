@@ -676,8 +676,8 @@
                                         <div class="relative mx-auto w-24 h-24 mb-4">
                                             <!-- Icône principale -->
                                             <div
-                                                class="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center">
-                                                <svg class="w-10 h-10 text-slate-400" fill="none"
+                                                class="w-full h-full bg-neutral-200 dark:bg-neutral-800 rounded-2xl flex items-center justify-center">
+                                                <svg class="w-10 h-10 text-neutral-400 dark:text-neutral-400" fill="none"
                                                     stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                         stroke-width="1.5"
@@ -686,8 +686,8 @@
                                             </div>
                                             <!-- Élément décoratif -->
                                             <div
-                                                class="absolute -top-2 -right-2 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
-                                                <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor"
+                                                class="absolute -top-2 -right-2 w-8 h-8 bg-indigo-100 dark:bg-indigo-800 rounded-full flex items-center justify-center">
+                                                <svg class="w-4 h-4 text-indigo-500 dark:text-indigo-400" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -1126,8 +1126,6 @@
                 </div>
             </div>
 
-
-
             <!-- Sections restantes (Finances et Événements à venir détaillés) -->
             <!-- ... (garder les sections existantes inchangées) ... -->
 
@@ -1244,7 +1242,7 @@
                             toolbar: {
                                 show: false
                             },
-                            fontFamily: 'Inter, sans-serif',
+                            fontFamily: 'Sora, sans-serif',
                             background: 'transparent'
                         },
                         series: occupancySeries,
