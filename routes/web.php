@@ -120,6 +120,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/events/{event}/reviews', [\App\Http\Controllers\EventReviewController::class, 'store'])
         ->name('events.reviews.store');
 
+    // Historique organisateur
+    Route::prefix('organizer')->name('organizer.')->middleware(EnsureActiveSubscription::class)->group(function () {
+        Route::get('/events/history', [\App\Http\Controllers\OrganizerHistoryController::class, 'eventsHistory'])
+            ->name('events.history');
+        Route::get('/payments/history', [\App\Http\Controllers\OrganizerHistoryController::class, 'paymentsHistory'])
+            ->name('payments.history');
+        Route::post('/events/{event}/export', [\App\Http\Controllers\OrganizerHistoryController::class, 'exportEventData'])
+            ->name('events.export');
+        Route::get('/history/export-all', [\App\Http\Controllers\OrganizerHistoryController::class, 'exportAllEvents'])
+            ->name('history.export-all');
+    });
+
+    // Historique participant
+    Route::prefix('participant')->name('participant.')->group(function () {
+        Route::get('/history', [\App\Http\Controllers\ParticipantHistoryController::class, 'index'])
+            ->name('history');
+        Route::get('/payments', [\App\Http\Controllers\ParticipantHistoryController::class, 'payments'])
+            ->name('payments');
+        Route::get('/history/{registration}/receipt', [\App\Http\Controllers\ParticipantHistoryController::class, 'downloadReceipt'])
+            ->name('receipt');
+    });
+
     // Communauté / Chat temps réel par événement (basé Livewire)
     Route::get('/events/{event}/chat', \App\Livewire\Interactive\CommunityChat::class)->name('events.chat');
     Route::post('/events/{event}/chat/messages', [EventChatController::class, 'store'])->middleware('throttle:60,1')->name('events.chat.messages');
