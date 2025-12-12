@@ -31,6 +31,14 @@ class StoryController extends Controller
     {
         $this->authorize('update', $event);
 
+        // Check if user has active Pro subscription
+        $user = Auth::user();
+        if (!$user || $user->subscription_plan !== 'pro' || !$user->hasActiveSubscription()) {
+            return redirect()->back()->withErrors([
+                'subscription' => 'La création de stories nécessite un abonnement Élite (Pro) actif.'
+            ]);
+        }
+
         // Check if it's URL mode or upload mode
         if ($request->filled('external_url')) {
             // URL Mode - YouTube, TikTok, Instagram
@@ -98,6 +106,14 @@ class StoryController extends Controller
     {
         $this->authorize('update', $event);
 
+        // Check if user has active Pro subscription
+        $user = Auth::user();
+        if (!$user || $user->subscription_plan !== 'pro' || !$user->hasActiveSubscription()) {
+            return redirect()->back()->withErrors([
+                'subscription' => 'La modification de stories nécessite un abonnement Élite (Pro) actif.'
+            ]);
+        }
+
         abort_unless($story->event_id === $event->id, 404);
 
         $validated = $request->validate([
@@ -116,6 +132,14 @@ class StoryController extends Controller
     public function destroy(Event $event, EventStory $story)
     {
         $this->authorize('update', $event);
+
+        // Check if user has active Pro subscription
+        $user = Auth::user();
+        if (!$user || $user->subscription_plan !== 'pro' || !$user->hasActiveSubscription()) {
+            return redirect()->back()->withErrors([
+                'subscription' => 'La suppression de stories nécessite un abonnement Élite (Pro) actif.'
+            ]);
+        }
 
         abort_unless($story->event_id === $event->id, 404);
 
