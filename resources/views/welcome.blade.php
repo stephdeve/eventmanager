@@ -580,7 +580,7 @@
                                 </div>
 
                                 <div
-                                    class="flex items-start space-x-3 glass-card p-4 border-l-4 border-blue-500/80 hover:bg-white/10 transition-colors">
+                                    class="flex items-start space-x-3 glass-card p-4 border-l-4 border-violet-500/80 hover:bg-white/10 transition-colors">
                                     <svg class="w-6 h-6 text-blue-400 flex-shrink-0 mt-1" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -590,7 +590,7 @@
                                     </svg>
                                     <div>
                                         <p class="text-sm text-gray-400 ">Lieu de l'événement</p>
-                                        <p class="font-bold truncate uppercase max-w-[200px] text-white">
+                                        <p class="font-bold uppercase text-white">
                                             {{ $nextEvent->location }}</p>
                                     </div>
                                 </div>
@@ -633,17 +633,17 @@
                             <div class="flex flex-col sm:flex-row gap-4">
                                 @if($nextEventStories > 0)
                                    <button onclick="openStoryViewer('{{ $nextEvent->id }}')"
-                                        class="btn-glass inline-flex items-center justify-center text-lg p-4 md:p-5 border-2 border-purple-500/50 hover:border-purple-400 bg-purple-500/10 hover:bg-purple-500/20">
+                                        class="btn-glass inline-flex items-center justify-center h-fit text-lg w-full  border-2 border-purple-500/50 hover:border-purple-400 bg-purple-500/10 hover:bg-purple-500/20">
                                         <svg class="w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                         </svg>
-                                        📹 Voir la présentation vidéo ({{ $nextEventStories }})
+                                        Voir la présentation vidéo ({{ $nextEventStories }})
                                     </button>
                                 @endif
 
                                 <a href="{{ route('events.show', $nextEvent) }}"
-                                    class="btn-gradient-primary inline-flex items-center justify-center text-lg p-4 md:p-5 flex-1">
+                                    class="btn-gradient-primary inline-flex items-center justify-center text-lg h-fit w-full">
                                     <svg class="w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -823,7 +823,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                         </svg>
-                                        <span class="text-sm font-semibold">📹 Voir vidéo ({{ $eventStoriesCount }})</span>
+                                        <span class="text-sm font-semibold">Voir vidéo ({{ $eventStoriesCount }})</span>
                                     </button>
                                 @endif
                             </div>
@@ -1980,7 +1980,7 @@
             ->get()
             ->groupBy('event_id');
     @endphp
-    
+
     @if($allStoriesData->isNotEmpty())
         <x-stories-viewer :stories="$allStoriesData" />
     @endif
