@@ -644,7 +644,7 @@
                                     enctype="multipart/form-data" id="story-upload-form">
                                     @csrf
                                     <div
-                                        class="border-2 border-dashed border-indigo-300 rounded-xl p-6 bg-indigo-50/50 hover:border-indigo-400 transition">
+                                        class="border-2 border-dashed border-indigo-300 rounded-xl p-6 bg-indigo-50/50 hover:border-indigo-400 transition dark:bg-neutral-800">
                                         <input type="file" name="video" id="story-video-input"
                                             accept="video/mp4,video/mov,video/webm" class="hidden"
                                             onchange="handleStoryUpload(this)">
