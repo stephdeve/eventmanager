@@ -1279,10 +1279,6 @@
                             <i class="fas fa-chart-line w-5 h-5 text-green-400 flex-shrink-0 mr-3"></i>
                             <span class="font-semibold">Lien de promotion + Suivi des clics</span>
                         </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-video w-5 h-5 text-red-400 flex-shrink-0 mr-3"></i>
-                            <span class="font-semibold">Post de stories pour l'événement</span>
-                        </li>
                     </ul>
 
                     <a href="{{ route('register', ['plan' => 'premium']) }}"
