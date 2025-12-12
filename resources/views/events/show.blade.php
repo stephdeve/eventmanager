@@ -43,14 +43,14 @@
             <div
                 class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden dark:bg-neutral-900 dark:border-neutral-800">
                 <!-- Section Hero -->
-                <div class="relative h-80 bg-gray-900">
+                <div class="relative h-96 bg-gray-900">
                     <img src="{{ $event->cover_image_url }}" alt="{{ $event->title }}" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/10"></div>
 
                     <div class="absolute bottom-0 left-0 right-0 p-8">
                         <h1 class="text-4xl font-bold text-white mb-4">{{ $event->title }}</h1>
 
-                        <div class="flex flex-wrap  items-center  gap-6 text-white/90">
+                        <div class="flex flex-wrap  items-center gap-2 lg:gap-6 text-white/90">
                             <div class="flex items-center gap-2">
                                 <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -75,8 +75,8 @@
                                     {{ $event->location }}
                                     @if ($event->google_maps_url)
                                         <a href="{{ $event->google_maps_url }}" target="_blank" rel="noopener"
-                                            class="ml-3 underline decoration-white/40 hover:decoration-white">Voir sur
-                                            Google Maps</a>
+                                            class="ml-3 transition-all duration-200 text-yellow-400 hover:underline"> <i
+                                                class="fa-solid fa-arrow-up-right-from-square mr-1"></i>Google Maps</a>
                                     @endif
                                 </span>
                             </div>
