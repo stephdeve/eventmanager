@@ -161,7 +161,7 @@
             <h3 class="text-xl font-semibold text-[#1E3A8A] mb-6">Liste des défis créés</h3>
 
             @if ($event->challenges->count() > 0)
-                <div class="overflow-hidden rounded-xl border border-gray-200">
+                <div class="overflow-x-auto overflow-hidden rounded-xl border border-gray-200">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gradient-to-r from-gray-50 to-blue-50">
                             <tr>
@@ -228,7 +228,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div class="flex justify-end space-x-2">
-                                            <button wire:click="edit({{ $challenge->id }})"
+                                            <button wire:click="edit('{{ $challenge->id }}')"
                                                 class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-lg text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
                                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
@@ -238,7 +238,7 @@
                                                 </svg>
                                                 Modifier
                                             </button>
-                                            <button wire:click="delete({{ $challenge->id }})"
+                                            <button wire:click="delete('{{ $challenge->id }}')"
                                                 onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce défi ?')"
                                                 class="inline-flex items-center px-3 py-1.5 border border-transparent rounded-lg text-xs font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
                                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"

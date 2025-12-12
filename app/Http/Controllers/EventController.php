@@ -505,7 +505,26 @@ class EventController extends Controller
 
         $isUnlimited = $request->boolean('is_capacity_unlimited');
         $capacity = $isUnlimited ? (int) ($validated['capacity'] ?? 0) : (int) $validated['capacity'];
-        $available = $validated['available_seats'] ?? ($isUnlimited ? 0 : ($event->available_seats));
+        
+        // Calculate available_seats: if not provided, adjust proportionally to capacity change
+        if (isset($validated['available_seats'])) {
+            $available = (int) $validated['available_seats'];
+        } else {
+            if ($isUnlimited) {
+                $available = 0;
+            } else {
+                // Adjust proportionally: new_capacity - (old_capacity - old_available)
+                // This maintains the same number of sold tickets
+                $oldCapacity = (int) $event->capacity;
+                $oldAvailable = (int) $event->available_seats;
+                $soldTickets = $oldCapacity - $oldAvailable;
+                $available = $capacity - $soldTickets;
+                
+                // Ensure available_seats is not negative
+                $available = max(0, $available);
+            }
+        }
+        
         $priceMinor = $validated['payment_type'] === 'free'
             ? 0
             : Currency::toMinorUnits((float) ($validated['price'] ?? 0), $validated['currency']);

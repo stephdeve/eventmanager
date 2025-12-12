@@ -21,7 +21,7 @@ class ParticipantsManager extends Component
     public ?string $bio = null;
     public ?string $video_url = null;
 
-    public ?int $editingId = null;
+    public ?string $editingId = null;
 
     public function mount(Event $event): void
     {
@@ -57,7 +57,7 @@ class ParticipantsManager extends Component
         }
     }
 
-    public function edit(int $id): void
+    public function edit(string $id): void
     {
         $p = Participant::where('event_id', $this->event->id)->findOrFail($id);
         $this->editingId = $p->id;
@@ -68,7 +68,7 @@ class ParticipantsManager extends Component
         $this->video_url = $p->video_url;
     }
 
-    public function delete(int $id): void
+    public function delete(string $id): void
     {
         Participant::where('event_id', $this->event->id)->findOrFail($id)->delete();
         $this->event->refresh();

@@ -21,7 +21,7 @@ class ChallengesManager extends Component
     public ?string $type = null;
     public int $max_points = 0;
 
-    public ?int $editingId = null;
+    public ?string $editingId = null;
 
     public function mount(Event $event): void
     {
@@ -64,7 +64,7 @@ class ChallengesManager extends Component
         }
     }
 
-    public function edit(int $id): void
+    public function edit(string $id): void
     {
         $c = Challenge::where('event_id', $this->event->id)->findOrFail($id);
         $this->editingId = $c->id;
@@ -75,7 +75,7 @@ class ChallengesManager extends Component
         $this->max_points = (int) $c->max_points;
     }
 
-    public function delete(int $id): void
+    public function delete(string $id): void
     {
         Challenge::where('event_id', $this->event->id)->findOrFail($id)->delete();
         $this->event->refresh();
