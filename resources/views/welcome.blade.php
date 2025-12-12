@@ -703,7 +703,7 @@
                     <p class="text-gradient-accent font-bold uppercase tracking-widest text-sm mb-2">Classement</p>
                     <h2 class="text-4xl md:text-5xl font-bold mb-4">Les plus <span
                             class="text-gradient">populaires</span></h2>
-                    <p class="text-xl text-gray-300">Découvrez les événements qui font le buzz (Top 6)</p>
+                    <p class="text-xl text-gray-300">Découvrez les événements qui font le buzz </p>
                 </div>
                 <a href="{{ route('events.index') }}"
                     class="btn-glass mt-4 md:mt-0 text-violet-400 border-violet-600/50 hover:bg-violet-600/20 transition-colors">
@@ -885,11 +885,9 @@
                         </ul>
                     </div>
                     <div
-                        class="lg:w-1/2 relative p-8 glass-card transform hover:scale-[1.01] transition-transform duration-500 shadow-2xl">
+                        class="lg:w-1/2 relative glass-card overflow-hidden rounded-lg transform hover:scale-[1.01] transition-transform duration-500 shadow-2xl">
 
-
-                        [Image of Event Creation UI]
-
+                        <img src="{{ asset('storage/screenshots/Gestion WeLovEya Festival.png') }}" alt="Dashboard" class="w-full h-full object-contain object-center">
                         <div
                             class="absolute -top-6 -right-6 w-20 h-20 bg-violet-600/50 rounded-full filter blur-xl animate-pulse-slow">
                         </div>
@@ -917,7 +915,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9" />
                                 </svg><span class="font-medium">Paiement de tickets en ligne sécurisé
-                                    (Stripe/PayPal).</span>
+                                    .</span>
                             </li>
                             <li class="flex items-center text-white"><svg class="w-5 h-5 mr-2 text-yellow-400"
                                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -944,9 +942,8 @@
                         </ul>
                     </div>
                     <div
-                        class="lg:w-1/2 relative p-8 glass-card transform hover:scale-[1.01] transition-transform duration-500 shadow-2xl">
-
-                        [Image of Payment/QR Scanning Interface]
+                        class="lg:w-1/2 relative overflow-hidden glass-card transform hover:scale-[1.01] transition-transform duration-500 shadow-2xl">
+                        <img src="{{ asset('storage/screenshots/Ticket.png') }}" alt="Dashboard" class="w-full h-full object-contain object-center">
                         <div class="absolute -bottom-6 -left-6 w-20 h-20 bg-yellow-600/50 rounded-full filter blur-xl animate-pulse-slow"
                             style="animation-delay: 1s;"></div>
                     </div>
@@ -983,8 +980,8 @@
                         </div>
                     </div>
                     <div
-                        class="lg:w-1/2 relative p-8 glass-card transform hover:scale-[1.01] transition-transform duration-500 shadow-2xl">
-
+                        class="lg:w-1/2 relative glass-card transform hover:scale-[1.01] transition-transform duration-500 shadow-2xl rounded-lg overflow-hidden">
+                        <img src="{{ asset('storage/screenshots/fonctionnalite interactive.png') }}" alt="Dashboard" class="w-full h-full object-contain object-center">
                         <div
                             class="absolute -top-6 -right-6 w-20 h-20 bg-blue-600/50 rounded-full filter blur-xl animate-pulse-slow">
                         </div>
@@ -997,34 +994,57 @@
                         <span class="text-gradient-accent font-bold uppercase tracking-widest text-sm">Analysez &
                             Contrôlez</span>
                         <h3 class="text-3xl md:text-4xl font-extrabold mb-4">
-                            Sécurité, gestion des participants et tableaux de bord
+                            Gestion des participants et leurs paiement
                         </h3>
                         <p class="text-gray-300 text-lg">
                             Optimisez la logistique post-inscription et assurez la tranquillité d'esprit. De la gestion
-                            des listes à l'analyse de performance, vous avez le contrôle total, sécurisé par des
-                            systèmes de permissions robustes.
+                            des listes des participants, vous avez le contrôle total, validé par des
+                            systèmes de scan et validation personnalise des paiement de tcikets fait pas les particiapants.
                         </p>
                         <ul class="mt-6 space-y-2 text-gray-400">
                             <li class="flex items-center"><svg class="w-5 h-5 mr-2 text-emerald-400" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M5 13l4 4L19 7" />
-                                </svg>Tableaux de bord des organisateurs avec KPI clés.</li>
+                                </svg>Espace de gestion de validation des tickets.</li>
                             <li class="flex items-center"><svg class="w-5 h-5 mr-2 text-emerald-400" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M5 13l4 4L19 7" />
-                                </svg>Système de permissions et sécurité multicouche (HTTPS, chiffrement).</li>
+                                </svg>Vue globale sur l'etats des billets commandes par les participants.</li>
                         </ul>
                     </div>
                     <div
-                        class="lg:w-1/2 relative p-8 glass-card transform hover:scale-[1.01] transition-transform duration-500 shadow-2xl">
-
-
-                        [Image of Analytics Dashboard]
-
+                        class="lg:w-1/2 relative overflow-hidden rounded-lg glass-card transform hover:scale-[1.01] transition-transform duration-500 shadow-2xl">
+                    <img src="{{ asset('storage/screenshots/Liste des participants - Retro Rave.png') }}" alt="Dashboard" class="w-full h-fit object-contain object-center">
                         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-emerald-600/30 rounded-full filter blur-3xl animate-pulse-slow"
                             style="animation-duration: 4s;"></div>
+                    </div>
+                </div>
+
+               <div class="flex flex-col lg:flex-row items-center gap-12 reveal">
+                    <div class="lg:w-1/2 space-y-4 lg:pr-12">
+                        <span class="text-gradient font-bold uppercase tracking-widest text-sm">Historique & Contrôle</span>
+                        <h3 class="text-3xl md:text-4xl font-extrabold mb-4">
+                            Historique Complet de vos activites
+                        </h3>
+                        <p class="text-gray-300 text-lg">
+                            Récupérez un historique complet de vos activités,events, billets, tickets, revenus et vos dépenses.
+                        </p>
+                        <div class="mt-6 w-fit ">
+                            <span class="flex items-center glass-card p-3 rounded-md text-sm text-blue-300"><svg
+                                    class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>Historique Complet de vos activites </span>
+                        </div>
+                    </div>
+                    <div
+                        class="lg:w-1/2 relative glass-card transform hover:scale-[1.01] transition-transform duration-500 shadow-2xl rounded-lg overflow-hidden">
+                        <img src="{{ asset('storage/screenshots/Historique des événements.png') }}" alt="Dashboard" class="w-full h-full object-contain object-center">
+                        <div
+                            class="absolute -top-6 -right-6 w-20 h-20 bg-blue-600/50 rounded-full filter blur-xl animate-pulse-slow">
+                        </div>
                     </div>
                 </div>
 
@@ -1099,8 +1119,8 @@
                             <span class="font-medium">Gestion des Participants et Billetterie</span>
                         </li>
                     </ul>
-                    <div class="mt-4 border p-4 border-violet-500/30 rounded-lg overflow-hidden shadow-lg">
-                        [Image of an Event Organizer Dashboard with charts for ticket sales and attendance statistics]
+                    <div class="mt-1 border border-violet-500/30 rounded-lg overflow-hidden shadow-lg h-fit">
+                       <img src="{{ asset('storage/screenshots/Tableau de bord - Organisateur.png') }}" alt="Dashboard" class="w-full h-fit object-contain object-center">
                     </div>
 
                     <a href="{{ route('login') }}" class="btn-gradient-primary mt-6 text-center">Accéder au Dashboard
@@ -1158,8 +1178,8 @@
                         </li>
                     </ul>
                     <div
-                        class="mt-4 border border-blue-500/30 rounded-lg overflow-hidden shadow-blue-900/50 shadow-lg">
-
+                        class="mt-4 border border-blue-500/30 rounded-lg overflow-hidden h-fit shadow-blue-900/50 shadow-lg">
+                    <img src="{{ asset('storage/screenshots/Tableau de bord - Étudiant.png') }}" alt="Dashboard" class="w-full h-fit  object-contain object-center">
                     </div>
 
                     <a href="{{ route('events.index') }}"
@@ -1208,15 +1228,15 @@
                     <ul role="list" class="space-y-4 text-gray-300 mb-8 flex-grow">
                         <li class="flex items-center">
                             <i class="fas fa-user-friends w-5 h-5 text-violet-400 flex-shrink-0 mr-3"></i>
-                            <span class="font-medium">Jusqu'à **50 places** par événement</span>
+                            <span class="font-medium">Jusqu'à 50 places par événement</span>
                         </li>
                         <li class="flex items-center">
                             <i class="fas fa-calendar-week w-5 h-5 text-yellow-400 flex-shrink-0 mr-3"></i>
-                            <span class="font-medium">Jusqu'à **10 événements** par mois</span>
+                            <span class="font-medium">Jusqu'à 10 événements par mois</span>
                         </li>
                         <li class="flex items-center">
                             <i class="fas fa-chart-line w-5 h-5 text-green-400 flex-shrink-0 mr-3"></i>
-                            <span class="font-semibold">**Lien de promotion + Suivi détaillé** des clics</span>
+                            <span class="font-semibold">Lien de promotion</span>
                         </li>
                     </ul>
 
@@ -1249,15 +1269,19 @@
                     <ul role="list" class="space-y-4 text-gray-300 mb-8 flex-grow">
                         <li class="flex items-center">
                             <i class="fas fa-user-check w-5 h-5 text-violet-400 flex-shrink-0 mr-3"></i>
-                            <span class="font-semibold">Jusqu'à **150 places** par événement</span>
+                            <span class="font-semibold">Jusqu'à 150 places par événement</span>
                         </li>
                         <li class="flex items-center">
                             <i class="fas fa-calendar-check w-5 h-5 text-yellow-400 flex-shrink-0 mr-3"></i>
-                            <span class="font-semibold">Jusqu'à **30 événements** par mois</span>
+                            <span class="font-semibold">Jusqu'à 30 événements par mois</span>
                         </li>
                         <li class="flex items-center">
                             <i class="fas fa-chart-line w-5 h-5 text-green-400 flex-shrink-0 mr-3"></i>
-                            <span class="font-semibold">**Lien de promotion + Suivi détaillé** des clics</span>
+                            <span class="font-semibold">Lien de promotion + Suivi des clics</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-video w-5 h-5 text-red-400 flex-shrink-0 mr-3"></i>
+                            <span class="font-semibold">Post de stories pour l'événement</span>
                         </li>
                     </ul>
 
@@ -1286,15 +1310,19 @@
                     <ul role="list" class="space-y-4 text-gray-300 mb-8 flex-grow">
                         <li class="flex items-center">
                             <i class="fas fa-infinity w-5 h-5 text-violet-400 flex-shrink-0 mr-3"></i>
-                            <span class="font-semibold">**Places ILLIMITÉES** par événement</span>
+                            <span class="font-semibold">Places ILLIMITÉES par événement</span>
                         </li>
                         <li class="flex items-center">
                             <i class="fas fa-grip-lines-vertical w-5 h-5 text-yellow-400 flex-shrink-0 mr-3"></i>
-                            <span class="font-semibold">Jusqu'à **100 événements** par mois</span>
+                            <span class="font-semibold">Jusqu'à 100 événements par mois</span>
                         </li>
                         <li class="flex items-center">
                             <i class="fas fa-chart-line w-5 h-5 text-green-400 flex-shrink-0 mr-3"></i>
-                            <span class="font-semibold">Lien de promotion + Suivi détaillé des clics</span>
+                            <span class="font-semibold">Lien de promotion + Suivi des clics</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-video w-5 h-5 text-red-400 flex-shrink-0 mr-3"></i>
+                            <span class="font-semibold">Post de stories pour l'événement</span>
                         </li>
                     </ul>
 
