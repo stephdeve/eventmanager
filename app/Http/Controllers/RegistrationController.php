@@ -131,73 +131,95 @@ class RegistrationController extends Controller
                 ]);
             }
 
-            // Reject if already used
-            if ($ticket->status === 'used') {
+            // Reject if already validated today
+            if ($ticket->isValidatedToday()) {
+                $lastValidation = $ticket->validations()
+                    ->whereDate('validation_date', today())
+                    ->first();
+                
                 if ($asJson) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Ce billet a déjà été utilisé.',
-                    ], 409);
-                }
-                return view('registrations.validation-result', [
-                    'status' => 'error',
-                    'title' => 'Billet déjà utilisé',
-                    'message' => 'Ce billet a déjà été utilisé.',
-                    'type' => 'ticket',
-                    'ticket' => $ticket,
-                    'notice' => null,
-                ]);
-            }
-
-            // Payment rules: if numeric and not paid, reject; if physical unpaid, allow with notice
-            if (($ticket->payment_method === 'numeric' || $ticket->payment_method === null) && !$ticket->paid) {
-                if ($asJson) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Ticket invalide ou paiement en attente. Finalisez le paiement en ligne.',
+                        'message' => 'Ce ticket a déjà été validé aujourd\'hui à ' . 
+                                   $lastValidation->validated_at->format('H:i'),
+                        'validated_today' => true,
+                        'validation_time' => $lastValidation->validated_at->format('H:i'),
+                        'validation_date' => $lastValidation->validation_date->format('d/m/Y'),
                     ], 422);
                 }
                 return view('registrations.validation-result', [
                     'status' => 'error',
-                    'title' => 'Paiement non confirmé',
-                    'message' => 'Ticket invalide ou paiement en attente. Finalisez le paiement en ligne.',
+                    'title' => 'Ticket déjà validé  aujourd\'hui',
+                    'message' => 'Ce ticket a déjà été validé aujourd\'hui à ' . 
+                               $lastValidation->validated_at->format('H:i'),
                     'type' => 'ticket',
                     'ticket' => $ticket,
                     'notice' => null,
                 ]);
             }
 
-            // Atomic update to mark used
-            $updated = DB::transaction(function () use ($ticket) {
-                return Ticket::whereKey($ticket->id)
-                    ->where('status', '!=', 'used')
-                    ->update([
-                        'status' => 'used',
-                        'validated_at' => now(),
-                        'validated_by' => auth()->id(),
-                        'scanned_at' => now(),
-                    ]);
-            });
-
-            if ($updated !== 1) {
+            // Check if ticket can be validated today
+            if (!$ticket->canBeValidatedToday()) {
+                $event = $ticket->event;
+                $today = today();
+                
+                // Determine reason for rejection
+                if ($ticket->status !== 'valid') {
+                    $reason = 'Ce ticket n\'est plus valide.';
+                } elseif (!$event) {
+                    $reason = 'Événement introuvable.';
+                } elseif ($today->lessThan($event->start_date->startOfDay())) {
+                    $reason = 'L\'événement n\'a pas encore commencé.';
+                } elseif ($today->greaterThan($event->end_date->endOfDay())) {
+                    $reason = 'L\'événement est terminé.';
+                } else {
+                    $reason = 'Ce ticket ne peut pas être validé pour le moment.';
+                }
+                
                 if ($asJson) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Ce billet a déjà été utilisé.',
-                    ], 409);
+                        'message' => $reason,
+                    ], 422);
                 }
-                $ticket->refresh()->load(['event', 'owner']);
                 return view('registrations.validation-result', [
                     'status' => 'error',
-                    'title' => 'Billet déjà utilisé',
-                    'message' => 'Ce billet a déjà été utilisé.',
+                    'title' => 'Validation impossible',
+                    'message' => $reason,
                     'type' => 'ticket',
                     'ticket' => $ticket,
                     'notice' => null,
                 ]);
             }
 
-            $ticket->refresh()->load(['event', 'owner']);
+            // Perform daily validation
+            $validation = $ticket->validateForToday(Auth::user());
+            
+            if (!$validation) {
+                if ($asJson) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'La validation a échoué. Veuillez réessayer.',
+                    ], 500);
+                }
+                return view('registrations.validation-result', [
+                    'status' => 'error',
+                    'title' => 'Validation échouée',
+                    'message' => 'La validation a échoué. Veuillez réessayer.',
+                    'type' => 'ticket',
+                    'ticket' => $ticket,
+                    'notice' => null,
+                ]);
+            }
+
+            // Update ticket fields for backward compatibility
+            $ticket->update([
+                'scanned_at' => now(),
+                'validated_at' => now(),
+                'validated_by' => Auth::id(),
+            ]);
+
+            $ticket->refresh()->load(['event', 'owner', 'validations']);
 
             // Notify organizer if physical unpaid scanned
             if (!$ticket->paid && $ticket->payment_method === 'physical') {
@@ -213,19 +235,26 @@ class RegistrationController extends Controller
             }
 
             if ($asJson) {
+                $totalValidations = $ticket->validations()->count();
+                $eventDuration = $ticket->event->start_date->diffInDays($ticket->event->end_date) + 1;
+                
                 return response()->json([
                     'success' => true,
-                    'message' => 'Billet validé avec succès!',
+                    'message' => 'Ticket validé pour aujourd\'hui',
                     'ticket' => [
                         'id' => $ticket->id,
                         'event' => [
                             'title' => $ticket->event->title,
+                            'duration_days' => $eventDuration,
+                            'is_multi_day' => $eventDuration > 1,
                         ],
                         'owner' => [
                             'name' => optional($ticket->owner)->name,
                         ],
                         'status' => $ticket->status,
                         'validated_at' => optional($ticket->validated_at)->format('d/m/Y H:i'),
+                        'validation_date' => today()->format('d/m/Y'),
+                        'total_validations' => $totalValidations,
                         'paid' => (bool) $ticket->paid,
                         'payment_method' => $ticket->payment_method,
                         'notice' => $notice,
