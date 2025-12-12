@@ -27,6 +27,12 @@ class ChallengesBoard extends Component
         $this->computeLeaderboard();
     }
 
+    public function refreshData(): void
+    {
+        $this->refreshActiveFromCache();
+        $this->computeLeaderboard();
+    }
+
     public function render()
     {
         $this->refreshActiveFromCache();
