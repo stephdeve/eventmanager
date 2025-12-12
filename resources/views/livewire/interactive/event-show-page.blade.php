@@ -89,13 +89,13 @@
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.2);
         border-radius: 12px;
-        padding: 0.5rem;
+        padding: 0.2rem;
         gap: 0.25rem;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     .toggle-option {
-        padding: 0.75rem 1.25rem;
+        padding: 0.6rem 1rem;
         border-radius: 8px;
         font-weight: 600;
         font-size: 0.9rem;
@@ -170,7 +170,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(135deg, rgba(61, 61, 67, 0.8) 40%, rgba(4, 4, 6, 0.6) 100%);
+        background: linear-gradient(135deg, rgba(61, 61, 67, 0.8) 90%, rgba(4, 4, 6, 0.6) 100%);
     }
 
     .hero-content {
