@@ -620,14 +620,21 @@
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="text-xl font-bold text-slate-900">Stories Vidéo</h3>
+                                <h3 class="text-xl font-bold text-slate-900">Stories Vidéo
+                                    @if(auth()->user()->subscription_plan !== 'pro' || !auth()->user()->hasActiveSubscription())
+                                        <span class="ml-2 px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-semibold rounded-full">
+                                            PRO
+                                        </span>
+                                    @endif
+                                </h3>
                                 <p class="text-sm text-slate-600">Publiez des vidéos courtes pour promouvoir votre événement
                                     (15-60s)</p>
                             </div>
                         </div>
 
-                        {{-- Upload Story --}}
-                        <div class="mb-6">
+                        @if(auth()->user()->subscription_plan === 'pro' && auth()->user()->hasActiveSubscription())
+                            {{-- Upload Story --}}
+                            <div class="mb-6">
                             {{-- Tabs --}}
                             <div class="flex border-b border-slate-300 mb-6">
                                 <button type="button" class="story-tab-btn px-6 py-3 font-semibold text-indigo-600 border-b-2 border-indigo-600" data-tab="upload">
@@ -870,6 +877,78 @@
                                     </svg>
                                     <p class="font-medium">Aucune story publiée</p>
                                     <p class="text-sm mt-1">Uploadez votre première vidéo pour commencer</p>
+                                </div>
+                            </div>
+                        @endif
+                        @else
+                            {{-- Upgrade Message for Non-Pro Users --}}
+                            <div class="relative overflow-hidden bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-8 border-2 border-purple-200 dark:border-purple-800">
+                                {{-- Background decoration --}}
+                                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-purple-200 dark:bg-purple-800 rounded-full opacity-20 blur-3xl"></div>
+                                <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-pink-200 dark:bg-pink-800 rounded-full opacity-20 blur-3xl"></div>
+                                
+                                {{-- Content --}}
+                                <div class="relative text-center">
+                                    {{-- Icon --}}
+                                    <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl shadow-xl mb-6">
+                                        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                        </svg>
+                                    </div>
+                                    
+                                    {{-- Title --}}
+                                    <h4 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">
+                                        Fonctionnalité Élite (Pro)
+                                    </h4>
+                                    
+                                    {{-- Description --}}
+                                    <p class="text-slate-600 dark:text-slate-300 mb-6 max-w-md mx-auto">
+                                        Les <strong>Stories Vidéo</strong> sont une fonctionnalité exclusive réservée aux membres avec un abonnement <strong>Élite (Pro)</strong>.
+                                    </p>
+                                    
+                                    {{-- Features list --}}
+                                    <div class="mb-8 text-left max-w-md mx-auto">
+                                        <p class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Avec l'abonnement Pro, vous pouvez:</p>
+                                        <ul class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                                            <li class="flex items-start gap-2">
+                                                <svg class="w-5 h-5 text-purple-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                </svg>
+                                                <span>📹 Publier des vidéos courtes (15-60s) pour promouvoir vos événements</span>
+                                            </li>
+                                            <li class="flex items-start gap-2">
+                                                <svg class="w-5 h-5 text-purple-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                </svg>
+                                                <span>🎬 Intégrer des vidéos depuis YouTube, TikTok, Instagram</span>
+                                            </li>
+                                            <li class="flex items-start gap-2">
+                                                <svg class="w-5 h-5 text-purple-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                </svg>
+                                                <span>📊 Augmenter la visibilité et l'engagement de vos événements</span>
+                                            </li>
+                                            <li class="flex items-start gap-2">
+                                                <svg class="w-5 h-5 text-purple-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                </svg>
+                                                <span>✨ Accéder à toutes les autres fonctionnalités premium</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    
+                                    {{-- CTA Button --}}
+                                    <a href="{{ route('billing.index') }}" 
+                                       class="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all duration-200">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                        </svg>
+                                        Passer à l'abonnement Élite (Pro)
+                                    </a>
+                                    
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-4">
+                                        Débloquez toutes les fonctionnalités premium dès maintenant
+                                    </p>
                                 </div>
                             </div>
                         @endif
