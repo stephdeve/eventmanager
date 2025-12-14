@@ -887,7 +887,7 @@
                     <div
                         class="lg:w-1/2 relative glass-card overflow-hidden rounded-lg transform hover:scale-[1.01] transition-transform duration-500 shadow-2xl">
 
-                        <img src="{{ asset('storage/screenshots/Gestion WeLovEya Festival.png') }}" alt="Dashboard" class="w-full h-full object-contain object-center">
+                        <img src="{{ asset('images/screenshots/Gestion WeLovEya Festival.png') }}" alt="Dashboard" class="w-full h-full object-contain object-center">
                         <div
                             class="absolute -top-6 -right-6 w-20 h-20 bg-violet-600/50 rounded-full filter blur-xl animate-pulse-slow">
                         </div>
@@ -943,7 +943,7 @@
                     </div>
                     <div
                         class="lg:w-1/2 relative overflow-hidden glass-card transform hover:scale-[1.01] transition-transform duration-500 shadow-2xl">
-                        <img src="{{ asset('storage/screenshots/Ticket.png') }}" alt="Dashboard" class="w-full h-full object-contain object-center">
+                        <img src="{{ asset('images/screenshots/Ticket.png') }}" alt="Dashboard" class="w-full h-full object-contain object-center">
                         <div class="absolute -bottom-6 -left-6 w-20 h-20 bg-yellow-600/50 rounded-full filter blur-xl animate-pulse-slow"
                             style="animation-delay: 1s;"></div>
                     </div>
@@ -981,7 +981,7 @@
                     </div>
                     <div
                         class="lg:w-1/2 relative glass-card transform hover:scale-[1.01] transition-transform duration-500 shadow-2xl rounded-lg overflow-hidden">
-                        <img src="{{ asset('storage/screenshots/fonctionnalite interactive.png') }}" alt="Dashboard" class="w-full h-full object-contain object-center">
+                        <img src="{{ asset('images/screenshots/fonctionnalite interactive.png') }}" alt="Dashboard" class="w-full h-full object-contain object-center">
                         <div
                             class="absolute -top-6 -right-6 w-20 h-20 bg-blue-600/50 rounded-full filter blur-xl animate-pulse-slow">
                         </div>
@@ -1016,7 +1016,7 @@
                     </div>
                     <div
                         class="lg:w-1/2 relative overflow-hidden rounded-lg glass-card transform hover:scale-[1.01] transition-transform duration-500 shadow-2xl">
-                    <img src="{{ asset('storage/screenshots/Liste des participants - Retro Rave.png') }}" alt="Dashboard" class="w-full h-fit object-contain object-center">
+                    <img src="{{ asset('images/screenshots/Liste des participants - Retro Rave.png') }}" alt="Dashboard" class="w-full h-fit object-contain object-center">
                         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-emerald-600/30 rounded-full filter blur-3xl animate-pulse-slow"
                             style="animation-duration: 4s;"></div>
                     </div>
@@ -1041,7 +1041,7 @@
                     </div>
                     <div
                         class="lg:w-1/2 relative glass-card transform hover:scale-[1.01] transition-transform duration-500 shadow-2xl rounded-lg overflow-hidden">
-                        <img src="{{ asset('storage/screenshots/Historique des événements.png') }}" alt="Dashboard" class="w-full h-full object-contain object-center">
+                        <img src="{{ asset('images/screenshots/Historique des événements.png') }}" alt="Dashboard" class="w-full h-full object-contain object-center">
                         <div
                             class="absolute -top-6 -right-6 w-20 h-20 bg-blue-600/50 rounded-full filter blur-xl animate-pulse-slow">
                         </div>
@@ -1120,7 +1120,7 @@
                         </li>
                     </ul>
                     <div class="mt-1 border border-violet-500/30 rounded-lg overflow-hidden shadow-lg h-fit">
-                       <img src="{{ asset('storage/screenshots/Tableau de bord - Organisateur.png') }}" alt="Dashboard" class="w-full h-fit object-contain object-center">
+                       <img src="{{ asset('images/screenshots/Tableau de bord - Organisateur.png') }}" alt="Dashboard" class="w-full h-fit object-contain object-center">
                     </div>
 
                     <a href="{{ route('login') }}" class="btn-gradient-primary mt-6 text-center">Accéder au Dashboard
@@ -1179,7 +1179,7 @@
                     </ul>
                     <div
                         class="mt-4 border border-blue-500/30 rounded-lg overflow-hidden h-fit shadow-blue-900/50 shadow-lg">
-                    <img src="{{ asset('storage/screenshots/Tableau de bord - Étudiant.png') }}" alt="Dashboard" class="w-full h-fit  object-contain object-center">
+                    <img src="{{ asset('images/screenshots/Tableau de bord - Étudiant.png') }}" alt="Dashboard" class="w-full h-fit  object-contain object-center">
                     </div>
 
                     <a href="{{ route('events.index') }}"
